@@ -107,6 +107,19 @@ spctl -a -vvv -t open --context context:primary-signature OpenLens-*.dmg
 shasum -a 256 -c OpenLens-*.dmg.sha256
 ```
 
+### Updates
+
+OpenLens checks GitHub Releases for a newer version once a day and downloads it
+in the background; a banner over the preview then offers **Install and
+Restart**. **OpenLens › Check for Updates…** checks right away, and
+**Check for Updates Automatically** in the same menu turns the daily check off.
+
+An update is only installed if it is signed with the same Developer ID, signing
+identifier and bundle identifier as the installed app. It is handled by
+[AppUpdater](https://github.com/mxcl/AppUpdater). Installing restarts OpenLens
+and replaces the camera extension, so a call that is using the camera loses
+its picture for a few seconds.
+
 ## How it works
 
 ```
@@ -338,14 +351,19 @@ release runs locally.
 ```bash
 git tag -a vX.Y.Z -m "OpenLens vX.Y.Z" && git push origin vX.Y.Z
 # then, from a checkout of the broker:
-scripts/request.sh openlens vX.Y.Z
+scripts/request.sh openlens vX.Y.Z --publish
 ```
 
 The broker resolves the tag to a commit, builds it in a job that holds no
 secrets, validates the bundle in a second secretless job, and only then signs
-what that validation described. The signing job waits for a human approval. The
-run publishes `provenance.json` and `preflight-manifest.json` alongside the DMG,
-and both are attached to the GitHub release.
+what that validation described. The signing job waits for a human approval.
+`--publish` then uploads the verified files to the GitHub release for the tag,
+creating the release from the tag message if it does not exist yet:
+
+- the ZIP and the DMG, each with a `.sha256` file;
+- `OpenLens-X.Y.Z.dmg`, a byte-identical copy of the DMG. This is the only
+  asset name in-app updates look for;
+- `provenance.json` and `preflight-manifest.json`.
 
 Two consequences for this repository:
 

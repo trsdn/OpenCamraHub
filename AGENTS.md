@@ -13,11 +13,13 @@ isolated jobs so that source-repository code never touches the signing secrets.
 To cut a release:
 
 1. Tag the commit in this repository as `vX.Y.Z` and push the tag.
-2. From a checkout of the broker: `scripts/request.sh openlens vX.Y.Z`
-   (or **Actions → Notarize macOS release → Run workflow** from `main`).
+2. From a checkout of the broker: `scripts/request.sh openlens vX.Y.Z --publish`.
 
 `request.sh` correlates the exact run, downloads only that artifact, and
-verifies `provenance.json` plus the release digests.
+verifies `provenance.json` plus the release digests. `--publish` then uploads
+the verified files to this repository's release for the tag. Dispatching the
+workflow from the Actions tab skips that step, so the release would miss its
+files, including the one in-app updates need.
 
 ### OpenLens is allowlisted as the `openlens` profile
 
@@ -118,6 +120,37 @@ ls OpenLens.app/Contents/embedded.provisionprofile   # must exist
 spctl -a -vvv -t exec OpenLens.app                   # must say "accepted"
 open OpenLens.app                                    # must actually open
 ```
+
+## In-app updates depend on the release layout and the broker
+
+`UpdateManager` uses [AppUpdater](https://github.com/mxcl/AppUpdater) 4.x. It
+fails without an error the user can act on if any of these are wrong:
+
+- **Asset name.** AppUpdater only looks at an asset named exactly
+  `OpenLens-<semver>.dmg`: no `v` and no architecture suffix. The broker
+  profile produces that name as a `copy_of` its
+  `OpenLens-vX.Y.Z-macOS-arm64.dmg`, and `request.sh --publish` uploads it. If a
+  release lacks the file, installed copies never see that release.
+- **No attestation policy.** The broker builds the release in its own
+  repository, so there is no GitHub artifact attestation from `trsdn/OpenLens`
+  to check. Do not add a `GitHubAttestationPolicy` unless releases are built
+  here. AppUpdater still requires the downloaded app to have the same Team ID,
+  signing identifier and bundle identifier as the installed one.
+- **Resource bundle.** Linking AppUpdater makes Xcode embed
+  `Contents/Resources/AppUpdater_AppUpdater.bundle`, a bundle with no code that
+  holds the Sigstore trust roots. The broker preflight rejects every nested
+  bundle a profile does not declare, so the `openlens` profile has to list it
+  under `nested_resource_bundles`.
+- **Pinned dependencies.** The package is pinned with `exactVersion` in
+  `project.yml`, and its resolution is committed in
+  `OpenLens.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`.
+  Update both together, and update the broker's copy of the lock if it keeps one.
+
+Installing an update calls `AppModel.shutdown()` first, then AppUpdater
+replaces the bundle and relaunches the app. The new process re-activates the
+extension, and `SystemExtensionInstaller` answers `.replace`. If the install
+fails after shutdown, the banner offers **Restart OpenLens**, because the
+pipeline is already down.
 
 ## Build and test
 

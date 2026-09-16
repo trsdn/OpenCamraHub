@@ -93,6 +93,7 @@ struct ContentView: View {
                 }
                 SceneRecoveryBanner(scenes: model.scenes)
                 ExtensionStatusBanner(model: model)
+                UpdateBanner(model: model)
                 ZoomBadge(model: model)
             }
             .padding(16)

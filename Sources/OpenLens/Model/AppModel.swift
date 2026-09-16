@@ -41,6 +41,7 @@ final class AppModel: ObservableObject {
     let extensionClient = ExtensionClient()
     let lights = LightController()
     let control = ControlServer()
+    let updates = UpdateManager()
 
     private let capture = CaptureEngine()
     private var pipeline: FramePipeline?
@@ -148,6 +149,9 @@ final class AppModel: ObservableObject {
             return ControlCommandHandler(model: self).summary()
         }
         observeStateForSubscribers()
+
+        updates.onWillInstall = { [weak self] in self?.shutdown() }
+        updates.startAutomaticChecks()
     }
 
     /// Feeds the control socket's event stream.
@@ -180,6 +184,7 @@ final class AppModel: ObservableObject {
         lights.stop()
         freezeTimer?.invalidate()
         control.stop()
+        updates.stopAutomaticChecks()
         // A scheduled persist is a `DispatchWorkItem` that will never run once
         // the app is on its way out, so the last zoom of the session would be
         // dropped. Firing it here costs one write and closes that window.
