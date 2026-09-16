@@ -52,6 +52,8 @@ struct OpenLensApp: App {
             }
 
             CommandGroup(after: .appInfo) {
+                UpdateCommands(updates: model.updates)
+                Divider()
                 Button("Reinstall Camera Extension") { model.installer.activate() }
                 Button("Remove Camera Extension") { model.installer.deactivate() }
             }

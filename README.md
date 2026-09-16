@@ -107,6 +107,19 @@ spctl -a -vvv -t open --context context:primary-signature OpenLens-*.dmg
 shasum -a 256 -c OpenLens-*.dmg.sha256
 ```
 
+### Updates
+
+OpenLens checks GitHub Releases for a newer version once a day and downloads it
+in the background; a banner over the preview then offers **Install and
+Restart**. **OpenLens › Check for Updates…** checks right away, and
+**Check for Updates Automatically** in the same menu turns the daily check off.
+
+An update is only installed if it is signed with the same Developer ID, signing
+identifier and bundle identifier as the installed app. It is handled by
+[AppUpdater](https://github.com/mxcl/AppUpdater). Installing restarts OpenLens
+and replaces the camera extension, so a call that is using the camera loses
+its picture for a few seconds.
+
 ## How it works
 
 ```
@@ -355,6 +368,14 @@ Two consequences for this repository:
 - Changing the bundle identifier, the layout, the architecture, the entitlements
   or the minimum macOS version needs a reviewed change to the broker profile
   first, or the preflight rejects the build.
+- In-app updates only find a release that has an asset named exactly
+  `OpenLens-X.Y.Z.dmg`, without the `v` and the architecture suffix. Upload the
+  notarized DMG a second time under that name:
+
+  ```bash
+  cp OpenLens-vX.Y.Z-macOS-arm64.dmg OpenLens-X.Y.Z.dmg
+  gh release upload vX.Y.Z OpenLens-X.Y.Z.dmg
+  ```
 
 `scripts/release.sh` predates the broker and is kept only for reference. See
 [AGENTS.md](AGENTS.md).

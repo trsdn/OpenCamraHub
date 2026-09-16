@@ -119,6 +119,37 @@ spctl -a -vvv -t exec OpenLens.app                   # must say "accepted"
 open OpenLens.app                                    # must actually open
 ```
 
+## In-app updates depend on the release layout and the broker
+
+`UpdateManager` uses [AppUpdater](https://github.com/mxcl/AppUpdater) 4.x. It
+fails without an error the user can act on if any of these are wrong:
+
+- **Asset name.** AppUpdater only looks at an asset named exactly
+  `OpenLens-<semver>.dmg`: no `v` and no architecture suffix. The broker
+  artifacts are named `OpenLens-vX.Y.Z-macOS-arm64.*`, so every release also
+  needs the same notarized DMG uploaded as `OpenLens-X.Y.Z.dmg`. Without it,
+  installed copies never see the release.
+- **No attestation policy.** The broker builds the release in its own
+  repository, so there is no GitHub artifact attestation from `trsdn/OpenLens`
+  to check. Do not add a `GitHubAttestationPolicy` unless releases are built
+  here. AppUpdater still requires the downloaded app to have the same Team ID,
+  signing identifier and bundle identifier as the installed one.
+- **Resource bundle.** Linking AppUpdater makes Xcode embed
+  `Contents/Resources/AppUpdater_AppUpdater.bundle`, a bundle with no code that
+  holds the Sigstore trust roots. The broker preflight rejects every nested
+  bundle a profile does not declare, so the `openlens` profile has to list it
+  under `nested_resource_bundles`.
+- **Pinned dependencies.** The package is pinned with `exactVersion` in
+  `project.yml`, and its resolution is committed in
+  `OpenLens.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`.
+  Update both together, and update the broker's copy of the lock if it keeps one.
+
+Installing an update calls `AppModel.shutdown()` first, then AppUpdater
+replaces the bundle and relaunches the app. The new process re-activates the
+extension, and `SystemExtensionInstaller` answers `.replace`. If the install
+fails after shutdown, the banner offers **Restart OpenLens**, because the
+pipeline is already down.
+
 ## Build and test
 
 ```bash
