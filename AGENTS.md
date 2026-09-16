@@ -13,11 +13,13 @@ isolated jobs so that source-repository code never touches the signing secrets.
 To cut a release:
 
 1. Tag the commit in this repository as `vX.Y.Z` and push the tag.
-2. From a checkout of the broker: `scripts/request.sh openlens vX.Y.Z`
-   (or **Actions → Notarize macOS release → Run workflow** from `main`).
+2. From a checkout of the broker: `scripts/request.sh openlens vX.Y.Z --publish`.
 
 `request.sh` correlates the exact run, downloads only that artifact, and
-verifies `provenance.json` plus the release digests.
+verifies `provenance.json` plus the release digests. `--publish` then uploads
+the verified files to this repository's release for the tag. Dispatching the
+workflow from the Actions tab skips that step, so the release would miss its
+files, including the one in-app updates need.
 
 ### OpenLens is allowlisted as the `openlens` profile
 
@@ -126,9 +128,9 @@ fails without an error the user can act on if any of these are wrong:
 
 - **Asset name.** AppUpdater only looks at an asset named exactly
   `OpenLens-<semver>.dmg`: no `v` and no architecture suffix. The broker
-  artifacts are named `OpenLens-vX.Y.Z-macOS-arm64.*`, so every release also
-  needs the same notarized DMG uploaded as `OpenLens-X.Y.Z.dmg`. Without it,
-  installed copies never see the release.
+  profile produces that name as a `copy_of` its
+  `OpenLens-vX.Y.Z-macOS-arm64.dmg`, and `request.sh --publish` uploads it. If a
+  release lacks the file, installed copies never see that release.
 - **No attestation policy.** The broker builds the release in its own
   repository, so there is no GitHub artifact attestation from `trsdn/OpenLens`
   to check. Do not add a `GitHubAttestationPolicy` unless releases are built

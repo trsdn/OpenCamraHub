@@ -351,14 +351,19 @@ release runs locally.
 ```bash
 git tag -a vX.Y.Z -m "OpenLens vX.Y.Z" && git push origin vX.Y.Z
 # then, from a checkout of the broker:
-scripts/request.sh openlens vX.Y.Z
+scripts/request.sh openlens vX.Y.Z --publish
 ```
 
 The broker resolves the tag to a commit, builds it in a job that holds no
 secrets, validates the bundle in a second secretless job, and only then signs
-what that validation described. The signing job waits for a human approval. The
-run publishes `provenance.json` and `preflight-manifest.json` alongside the DMG,
-and both are attached to the GitHub release.
+what that validation described. The signing job waits for a human approval.
+`--publish` then uploads the verified files to the GitHub release for the tag,
+creating the release from the tag message if it does not exist yet:
+
+- the ZIP and the DMG, each with a `.sha256` file;
+- `OpenLens-X.Y.Z.dmg`, a byte-identical copy of the DMG. This is the only
+  asset name in-app updates look for;
+- `provenance.json` and `preflight-manifest.json`.
 
 Two consequences for this repository:
 
@@ -368,14 +373,6 @@ Two consequences for this repository:
 - Changing the bundle identifier, the layout, the architecture, the entitlements
   or the minimum macOS version needs a reviewed change to the broker profile
   first, or the preflight rejects the build.
-- In-app updates only find a release that has an asset named exactly
-  `OpenLens-X.Y.Z.dmg`, without the `v` and the architecture suffix. Upload the
-  notarized DMG a second time under that name:
-
-  ```bash
-  cp OpenLens-vX.Y.Z-macOS-arm64.dmg OpenLens-X.Y.Z.dmg
-  gh release upload vX.Y.Z OpenLens-X.Y.Z.dmg
-  ```
 
 `scripts/release.sh` predates the broker and is kept only for reference. See
 [AGENTS.md](AGENTS.md).
