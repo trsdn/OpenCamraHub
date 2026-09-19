@@ -6,6 +6,24 @@ All notable changes to OpenLens are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- Stream Deck and OpenDeck keys: every key's label can be switched off or set
+  to a template with placeholders such as `{scene}`, `{light}`, `{brightness}`
+  and `{zoom}`.
+- Pressing the live scene's key again pauses, and a further press resumes.
+- Zoom keys show a magnifier with plus or minus, and brightness keys a large
+  or small sun; light keys are labelled by the part of the light's name that
+  tells it apart, such as "Links" and "Rechts".
+
+### Fixed
+
+- A label changed in a key's settings applies at once instead of after the
+  next profile switch.
+- The deck plugin writes its version to the deck app's log when it starts, so
+  an outdated installed copy is noticed. An outdated copy from before the
+  reconnect fix used up its file descriptors and crashed after login (#34).
+
 ## [0.3.1] - 2026-09-19
 
 ### Changed

@@ -12,7 +12,8 @@ const OpenLensPI = (() => {
     let context;
     let settings = {};
     let options = { scenes: [], lights: [], running: false };
-    let onReady = () => {};
+    const listeners = [];
+    const onReady = (state) => listeners.forEach((listener) => listener(state));
 
     // Called by OpenDeck (and by Elgato's software) once the page is loaded.
     window.connectElgatoStreamDeckSocket = (port, uuid, registerEvent, _info, actionInfo) => {
@@ -46,13 +47,54 @@ const OpenLensPI = (() => {
     function save(patch) {
         settings = { ...settings, ...patch };
         socket.send(JSON.stringify({ event: "setSettings", context, payload: settings }));
+        // OpenDeck stores the settings but does not pass them on to the plugin
+        // until the key next appears, so a changed label would wait for a
+        // profile switch. Telling the plugin directly repaints the key now.
+        socket.send(JSON.stringify({ event: "sendToPlugin", context, payload: { settings } }));
+    }
+
+    /**
+     * The "what does the key say" controls every action shares: a switch, and
+     * a template whose `{placeholders}` the plugin fills in. An empty template
+     * means the action's own default, so a key never has to be configured to
+     * be useful.
+     */
+    function labelControls({ defaultText, placeholders }) {
+        const section = document.createElement("div");
+        section.innerHTML = `
+            <label class="check"><input id="show-label" type="checkbox"> Show label</label>
+            <div id="label-fields">
+                <label for="label">Label</label>
+                <input id="label" type="text" spellcheck="false">
+                <p class="note">Placeholders: ${placeholders.map((p) => `<code>{${p}}</code>`).join(" ")}.
+                    <code>\\n</code> starts a new line. Leave empty for the default.</p>
+            </div>`;
+        document.body.insertBefore(section, document.querySelector("script"));
+
+        const show = section.querySelector("#show-label");
+        const label = section.querySelector("#label");
+        const fields = section.querySelector("#label-fields");
+        label.placeholder = defaultText || "(the title set in the deck app)";
+
+        const write = () => {
+            fields.hidden = !show.checked;
+            save({ showTitle: show.checked, title: label.value });
+        };
+        listeners.push(({ settings }) => {
+            show.checked = settings.showTitle !== false;
+            label.value = settings.title ?? "";
+            fields.hidden = !show.checked;
+            show.onchange = write;
+            label.onchange = write;
+        });
     }
 
     return {
         ready(callback) {
-            onReady = callback;
+            listeners.push(callback);
         },
         save,
+        labelControls,
     };
 })();
 

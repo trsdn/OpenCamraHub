@@ -11,10 +11,11 @@
         <option value="out">Zoom out</option>
         <option value="reset">Back to the full frame</option>
     </select>
-    <p class="note">The key always shows the current zoom, whichever it does.</p>
 
     <script src="inspector.js"></script>
     <script>
+        OpenLensPI.labelControls({ defaultText: "{zoom}", placeholders: ["zoom", "scene", "index"] });
+
         const direction = document.getElementById("direction");
 
         OpenLensPI.ready(({ settings }) => {

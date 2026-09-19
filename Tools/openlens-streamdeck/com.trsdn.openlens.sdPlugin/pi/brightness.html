@@ -27,6 +27,8 @@
 
     <script src="inspector.js"></script>
     <script>
+        OpenLensPI.labelControls({ defaultText: "{light}", placeholders: ["light", "name", "brightness", "target", "kelvin", "zoom"] });
+
         const light = document.getElementById("light");
         const mode = document.getElementById("mode");
         const brightness = document.getElementById("brightness");

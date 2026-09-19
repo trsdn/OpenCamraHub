@@ -49,14 +49,17 @@ streamdeck pack com.trsdn.openlens.sdPlugin
 
 | Action | What a press does | What the key shows |
 | --- | --- | --- |
-| **Select scene** | Switches to the chosen scene, or steps to the next one if none is chosen | The scene's name, lit while it is live |
+| **Select scene** | Switches to the chosen scene, or steps to the next one if none is chosen. Pressing the live scene again toggles pause | The scene's name, lit while it is live |
 | **Pause** | Freezes the picture the conferencing app sees | Lit while paused |
-| **Toggle key light** | Turns a light on or off | The light's brightness, lit while on |
-| **Set brightness** | Sets a fixed brightness, or steps up or down | The brightness |
-| **Zoom** | Zooms in, out, or back to the full frame | The current zoom |
+| **Toggle key light** | Turns a light on or off | Which light and its brightness, lit while on |
+| **Set brightness** | Sets a fixed brightness, or steps up or down | Which light; a large sun steps up, a small one down |
+| **Zoom** | Zooms in, out, or back to the full frame | A magnifier with + or −, or a frame for full; and the current zoom |
 
 Scene and light keys pick from a list the plugin fills in live, so you choose a
-scene by its name rather than by an id. A key bound to nothing still does
+scene by its name rather than by an id. Light keys are labelled with the part of the name that differs between
+lights, so "Studio links" and "Studio rechts" read "Links" and "Rechts".
+
+A key bound to nothing still does
 something sensible: the scene key cycles, and a light key drives the only light
 if there is only one.
 
