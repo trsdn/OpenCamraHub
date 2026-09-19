@@ -556,6 +556,7 @@ struct AdjustmentSlider: View {
     /// back under the cursor — and the remaining digits then landed on the
     /// clamped number. Typing 56 into a field showing 42 produced 100.
     @State private var editingText: String?
+    @State private var fieldRevision = 0
     @FocusState private var isEditing: Bool
 
     /// Three percent of the travel — wide enough to catch a mouse, narrow
@@ -577,7 +578,10 @@ struct AdjustmentSlider: View {
     private var fieldBinding: Binding<String> {
         Binding(
             get: { editingText ?? displayText },
-            set: { editingText = $0 }
+            // AppKit writes the field's text back once more as editing ends,
+            // after the commit cleared the draft. Taking that write would leave
+            // a stale draft that later commits into whichever scene is showing.
+            set: { if isEditing { editingText = $0 } }
         )
     }
 
@@ -620,8 +624,9 @@ struct AdjustmentSlider: View {
                         .lineLimit(1)
                 }
                 TextField("", text: fieldBinding)
+                .id(fieldRevision)
                 .focused($isEditing)
-                .onSubmit { commitText() }
+                .onSubmit { commitText(); isEditing = false }
                 .onChange(of: isEditing) { _, editing in
                     if !editing { commitText() }
                 }
@@ -639,7 +644,16 @@ struct AdjustmentSlider: View {
             }
             .accessibilityLabel(title)
         }
-        .onChange(of: value) { _, _ in scheduleCommit() }
+        .onChange(of: value) { _, _ in
+            // A focused field shows its field editor's text, not the binding, and
+            // keeps it even after focus moves on, so a value changed from outside
+            // (another scene, a hotkey) stayed stale. Rebuilding it is the only
+            // reliable refresh. Any draft belonged to the old value — possibly
+            // another scene — so it is dropped rather than committed here.
+            editingText = nil
+            fieldRevision &+= 1
+            scheduleCommit()
+        }
     }
 
     private func scheduleCommit() {
