@@ -38,6 +38,7 @@
 		5DFC8268068087A7F998F9C7 /* CameraExtensionInfoPlistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CFCB38E0749C92F7B26DB51 /* CameraExtensionInfoPlistTests.swift */; };
 		5F17F4805EAAB9FDA66288ED /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED523290195CF5A090FD290 /* ContentView.swift */; };
 		63660F8242CF780ACA9234D6 /* OpenLensID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 985119351CBC81A7D1E111FC /* OpenLensID.swift */; };
+		672641135A9A73557A6049DE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5E7E875105575F53CFCCCB21 /* InfoPlist.strings */; };
 		6B726FFF5CAF09E198E9301F /* ControlProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2867A497B00835AEF6AC70E8 /* ControlProtocolTests.swift */; };
 		6DA5112D818889BB88D7AA90 /* ControlServer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63D9760F758F6766A10E0702 /* ControlServer.swift */; };
 		72DC35DEE0E61A48EBE90267 /* CameraScene.swift in Sources */ = {isa = PBXBuildFile; fileRef = A3F1AE9A90B627010B49792D /* CameraScene.swift */; };
@@ -56,6 +57,7 @@
 		864D0726F9AA177345B22B73 /* OpenLensID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 985119351CBC81A7D1E111FC /* OpenLensID.swift */; };
 		896834F52E5E0DE36579AD8A /* KeyLightClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E7FE28AB2F7B1B01A51D48 /* KeyLightClient.swift */; };
 		8D4A36761C212C893E92A4CC /* SystemExtensionInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A60DCC4FAEA82D918B27F8 /* SystemExtensionInstaller.swift */; };
+		8F56034686F4B5141AC304DB /* AppDisplayNameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71D8B1A1327C651755E4A421 /* AppDisplayNameTests.swift */; };
 		8F79F982FD0FB87CBD27D87B /* PreviewRenderTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB1A0194CAD05C753F36A6 /* PreviewRenderTarget.swift */; };
 		93113A381E50FA88879304A9 /* PreviewRenderTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB1A0194CAD05C753F36A6 /* PreviewRenderTarget.swift */; };
 		98AA3B7E198704E85C254204 /* OpenLensApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BB466D017E1386001D34D44A /* OpenLensApp.swift */; };
@@ -146,6 +148,7 @@
 		667AA8FD6A72DCB1208DDC49 /* LightController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LightController.swift; sourceTree = "<group>"; };
 		6CFCB38E0749C92F7B26DB51 /* CameraExtensionInfoPlistTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraExtensionInfoPlistTests.swift; sourceTree = "<group>"; };
 		6DA01A2C5E045B54C038C329 /* OverlayGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverlayGeometry.swift; sourceTree = "<group>"; };
+		71D8B1A1327C651755E4A421 /* AppDisplayNameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDisplayNameTests.swift; sourceTree = "<group>"; };
 		77F7BA1080DECE92DF49EDEF /* ControlProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlProtocol.swift; sourceTree = "<group>"; };
 		7818105ABC0D7CC2C1C900CA /* ImageAdjustments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAdjustments.swift; sourceTree = "<group>"; };
 		7B3739C2CD613CD7673966AD /* SceneStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneStrip.swift; sourceTree = "<group>"; };
@@ -168,6 +171,7 @@
 		CD9BD26EEBF2199F156C0627 /* IdleFrameRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdleFrameRenderer.swift; sourceTree = "<group>"; };
 		CED523290195CF5A090FD290 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		CF5491EAAA9D44AC6692CE84 /* UpdateViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UpdateViews.swift; sourceTree = "<group>"; };
+		D3B53A97C953781BC1069DFB /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D3F2453D3FD8E0A1FC83D5C3 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		D7C082B57EEE36131CEEABE7 /* VideoRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoRenderer.swift; sourceTree = "<group>"; };
 		E6A65500763225FA2538E7BB /* NumberFieldValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NumberFieldValue.swift; sourceTree = "<group>"; };
@@ -303,6 +307,7 @@
 				24D49130BD897EFE376AA477 /* Capture */,
 				49520BADE9AF8A520BB75BD2 /* Control */,
 				1B69F0ACC058F68E91A607A6 /* Extension */,
+				5E7E875105575F53CFCCCB21 /* InfoPlist.strings */,
 				1DF5C7CD2937E9AC298069A6 /* Lighting */,
 				9E6EE323B027CC4C545BF728 /* Model */,
 				03AD2C2DA8D0DF423EE2591D /* Rendering */,
@@ -360,6 +365,7 @@
 		F9AAE2913B3788B960366BBD /* OpenLensTests */ = {
 			isa = PBXGroup;
 			children = (
+				71D8B1A1327C651755E4A421 /* AppDisplayNameTests.swift */,
 				6CFCB38E0749C92F7B26DB51 /* CameraExtensionInfoPlistTests.swift */,
 				4CF861483D84BB25FB6B57CD /* CameraSceneCodingTests.swift */,
 				2867A497B00835AEF6AC70E8 /* ControlProtocolTests.swift */,
@@ -489,6 +495,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				804BB0DD6A809A5C4FF240D0 /* AppIcon.icns in Resources */,
+				672641135A9A73557A6049DE /* InfoPlist.strings in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -499,6 +506,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8F56034686F4B5141AC304DB /* AppDisplayNameTests.swift in Sources */,
 				5DFC8268068087A7F998F9C7 /* CameraExtensionInfoPlistTests.swift in Sources */,
 				B6C68F7E9900EC5B960B9E5F /* CameraScene.swift in Sources */,
 				DD272CAE7C62453959F1DE4C /* CameraSceneCodingTests.swift in Sources */,
@@ -605,6 +613,17 @@
 			targetProxy = 4406EB1189ECDAEE148EACE6 /* PBXContainerItemProxy */;
 		};
 /* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		5E7E875105575F53CFCCCB21 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				D3B53A97C953781BC1069DFB /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
 
 /* Begin XCBuildConfiguration section */
 		3CC3EDEB49CB62B5B499CDC2 /* Release */ = {

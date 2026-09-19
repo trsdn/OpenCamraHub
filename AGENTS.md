@@ -2,10 +2,17 @@
 
 ## The name changed; the identity did not
 
-The app is called **OpenCamraHub** wherever a person reads it: the display and
-menu-bar name (`CFBundleDisplayName`, `CFBundleName`), the virtual camera that
+The app is called **OpenCamraHub** wherever a person reads it: Finder,
+Launchpad, Spotlight, the Dock and the menu bar, the virtual camera that
 conferencing apps list (`OpenLensID.deviceName`), the window, banners and
 prompts, the deck plugin's name, and the docs.
+
+The Finder name is the subtle one. `Info.plist` keeps
+`CFBundleDisplayName = OpenLens` with `LSHasLocalizedDisplayName`, and the new
+name comes from `Sources/OpenLens/en.lproj/InfoPlist.strings`. macOS only shows
+a localized name when the unlocalized one equals the bundle folder's name;
+putting OpenCamraHub straight into `Info.plist` makes Finder, Launchpad and
+Spotlight fall back to "OpenLens". `AppDisplayNameTests` pins this.
 
 Everything that something else matches on keeps the old name, deliberately:
 
@@ -24,8 +31,9 @@ Two rules follow:
   repository was renamed, and installed copies still ask the API for
   `trsdn/OpenLens`; that works only through GitHub's rename redirect, which a
   new repository of that name would take over.
-- The broker checks `CFBundleDisplayName` against the profile's
-  `bundle_display_name`. Change one only together with the other.
+- The broker checks `Info.plist`'s `CFBundleDisplayName` against the
+  profile's `bundle_display_name`, which is therefore `OpenLens` as well.
+  Change one only together with the other.
 
 ## Releases are notarized by the broker, never locally
 

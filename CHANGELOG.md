@@ -13,6 +13,8 @@ All notable changes to OpenLens are documented here. The format follows
   Nothing else changes: the app still installs as `OpenLens.app`, keeps its
   scenes and settings, stays selected as the camera in conferencing apps, and
   keeps updating itself.
+- Finder, Launchpad and Spotlight show the app as OpenCamraHub as well, although
+  its folder is still `OpenLens.app`.
 
 ### Added
 
