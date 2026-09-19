@@ -98,7 +98,8 @@ public enum ControlValue: Codable, Equatable, Sendable {
 
     public var intValue: Int? {
         guard let value = doubleValue, value.isFinite else { return nil }
-        return Int(value.rounded())
+        // `Int(_:)` traps outside Int's range; a hostile `1e100` must be "not an integer".
+        return Int(exactly: value.rounded())
     }
 
     public var stringValue: String? {
