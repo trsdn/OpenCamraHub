@@ -33,8 +33,11 @@ struct LightingSection: View {
                 sceneControls
             }
 
-            if isAddingManually || controller.lights.isEmpty {
+            if Self.showsManualEntry(hasLights: !controller.lights.isEmpty, isAdding: isAddingManually) {
                 manualEntry
+            } else {
+                Button("Add light manually…") { isAddingManually = true }
+                    .buttonStyle(.link)
             }
         } header: {
             SectionHeader(
@@ -135,6 +138,14 @@ struct LightingSection: View {
         }
     }
 
+    /// The form is always there while there are no lights, and otherwise only
+    /// once asked for. Without the second half it became unreachable the
+    /// moment the first light appeared, which is exactly when a second,
+    /// undiscoverable one is most likely to be wanted.
+    static func showsManualEntry(hasLights: Bool, isAdding: Bool) -> Bool {
+        isAdding || !hasLights
+    }
+
     private var manualEntry: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
@@ -142,6 +153,9 @@ struct LightingSection: View {
                     .textFieldStyle(.roundedBorder)
                 Button("Add") { addManual() }
                     .disabled(manualHost.trimmingCharacters(in: .whitespaces).isEmpty)
+                if !controller.lights.isEmpty {
+                    Button("Cancel") { cancelManual() }
+                }
             }
             if let manualError {
                 Text(manualError)
@@ -149,6 +163,12 @@ struct LightingSection: View {
                     .foregroundStyle(.red)
             }
         }
+    }
+
+    private func cancelManual() {
+        manualHost = ""
+        manualError = nil
+        isAddingManually = false
     }
 
     private func addManual() {

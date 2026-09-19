@@ -177,6 +177,16 @@ final class KeyLightTests: XCTestCase {
         }
     }
 
+    // MARK: - Manual entry visibility
+
+    func testTheManualFormIsReachableOnceALightExists() {
+        // No lights: always shown, nothing to click.
+        XCTAssertTrue(LightingSection.showsManualEntry(hasLights: false, isAdding: false))
+        // Lights present: hidden until asked for, then shown.
+        XCTAssertFalse(LightingSection.showsManualEntry(hasLights: true, isAdding: false))
+        XCTAssertTrue(LightingSection.showsManualEntry(hasLights: true, isAdding: true))
+    }
+
     // MARK: - Devices
 
     func testDeviceIsIdentifiedBySerialNumberRatherThanAddress() {
