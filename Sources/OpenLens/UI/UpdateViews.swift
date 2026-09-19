@@ -14,19 +14,15 @@ struct UpdateCommands: View {
     }
 }
 
-/// Offers a downloaded update, and answers a check the user asked for.
+/// Offers a newer release, and answers a check the user asked for.
 ///
-/// Installing restarts OpenLens and swaps the camera extension, so a call that
-/// is using the camera loses its picture for a few seconds. The button says so
-/// rather than letting that be a surprise, but does not refuse: the user may
-/// well want to update between two meetings without leaving a call first.
+/// The app cannot install it itself (it is sandboxed), so the offer carries the
+/// three steps that do: download, open, drag over the old copy.
 struct UpdateBanner: View {
     @ObservedObject var updates: UpdateManager
-    @ObservedObject private var client: ExtensionClient
 
     init(model: AppModel) {
         self.updates = model.updates
-        self.client = model.extensionClient
     }
 
     var body: some View {
@@ -40,40 +36,36 @@ struct UpdateBanner: View {
                 pill("OpenCamraHub is up to date", icon: "checkmark.circle", tint: .secondary)
                 dismissButton
             }
-        case .downloading(let version):
-            pill("Downloading OpenCamraHub \(version)…", icon: "arrow.down.circle", tint: .secondary)
-        case .readyToInstall(let version):
-            HStack(spacing: 8) {
-                pill("OpenCamraHub \(version) is ready to install", icon: "arrow.down.circle.fill", tint: .accentColor)
-                Button("Install and Restart") {
-                    Task { await updates.installAndRelaunch() }
+        case .available(let update):
+            VStack(alignment: .leading, spacing: 6) {
+                HStack(spacing: 8) {
+                    pill("OpenCamraHub \(update.version) is available", icon: "arrow.down.circle.fill", tint: .accentColor)
+                    Button("Download") { updates.download() }
+                        .buttonStyle(.borderedProminent)
+                        .help("Saves the disk image to your Downloads folder.")
+                    Button("What's New") { updates.showReleaseNotes() }
+                    Button("Later") { updates.dismiss() }
                 }
-                .buttonStyle(.borderedProminent)
-                .help(
-                    client.isStreaming
-                        ? "Your call will lose its picture for a few seconds while OpenCamraHub restarts."
-                        :"OpenCamraHub quits, updates itself and opens again."
+                Text(
+                    "Open the downloaded disk image, drag OpenCamraHub into Applications and replace "
+                        + "the old copy, then open it again. Your scenes and settings stay."
                 )
-                Button("Later") { Task { await updates.dismiss() } }
+                .font(.caption)
+                .foregroundStyle(.secondary)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 6)
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
             }
-        case .installing:
-            pill("Installing the update…", icon: "hourglass", tint: .secondary)
         case .failed(let message):
             HStack(spacing: 8) {
-                pill("Update failed: \(message)", icon: "exclamationmark.triangle.fill", tint: .orange)
+                pill("Update check failed: \(message)", icon: "exclamationmark.triangle.fill", tint: .orange)
                 dismissButton
-            }
-        case .installFailed(let message):
-            HStack(spacing: 8) {
-                pill("Update failed: \(message)", icon: "exclamationmark.triangle.fill", tint: .red)
-                Button("Restart OpenCamraHub") { ExtensionStatusBanner.relaunch() }
-                    .buttonStyle(.borderedProminent)
             }
         }
     }
 
     private var dismissButton: some View {
-        Button("OK") { Task { await updates.dismiss() } }
+        Button("OK") { updates.dismiss() }
     }
 
     private func pill(_ text: String, icon: String, tint: Color) -> some View {

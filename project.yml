@@ -6,14 +6,6 @@ options:
   createIntermediateGroups: true
   minimumXcodeGenVersion: "2.40.0"
 
-# In-app updates. The notarization broker builds with
-# -onlyUsePackageVersionsFromResolvedFile against its own reviewed copy of
-# Package.resolved, so bumping this needs a matching broker change.
-packages:
-  AppUpdater:
-    url: https://github.com/mxcl/AppUpdater
-    exactVersion: 4.1.2
-
 settings:
   base:
     DEVELOPMENT_TEAM: G69Z5BNY97
@@ -37,7 +29,6 @@ targets:
       - path: Sources/OpenLens
       - path: Sources/OpenLensShared
     dependencies:
-      - package: AppUpdater
       - target: OpenLensCamera
         embed: true
         codeSign: true
@@ -96,6 +87,7 @@ targets:
       # The shortcut table, so no default can drift back to a modifier that
       # types characters on some keyboard layouts.
       - path: Sources/OpenLens/UI/GlobalHotKeys.swift
+      - path: Sources/OpenLens/Update/ReleaseCheck.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.trsdn.openlens.tests

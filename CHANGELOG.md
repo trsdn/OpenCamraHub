@@ -6,6 +6,14 @@ All notable changes to OpenLens are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- Updates are offered, not installed: when a newer version is out, a banner
+  offers **Download** and explains how to install it. The previous in-app
+  installer could not work in a sandboxed app and failed with an `hdiutil`
+  error (#41). Copies older than this one show that error once; install this
+  version by hand, and later updates use the new flow.
+
 ## [0.4.0] - 2026-09-19
 
 ### Changed

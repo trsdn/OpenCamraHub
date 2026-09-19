@@ -6,7 +6,7 @@ import XCTest
 /// Finder, Launchpad and Spotlight show a localized display name only when the
 /// unlocalized `CFBundleDisplayName` equals the bundle's folder name; otherwise
 /// macOS assumes the user renamed the app and shows the folder name. The folder
-/// has to stay `OpenLens.app` (the broker profile and AppUpdater match on it),
+/// has to stay `OpenLens.app` (the broker profile declares it),
 /// so the new name lives in `en.lproj/InfoPlist.strings`. Writing OpenCamraHub
 /// into Info.plist looks like the obvious fix and silently brings "OpenLens"
 /// back everywhere a person looks for the app.
