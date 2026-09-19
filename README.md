@@ -45,9 +45,9 @@ not touch audio, and has no timeline, no projects and no accounts.
   it.
 - **Scenes are the presets.** Camera, zoom, mirror and overlay are saved into
   the selected scene as you change them — there is no save button. Duplicate
-  snapshots the current look, and **⌥1…⌥9** switch between scenes system-wide,
+  snapshots the current look, and **⌃⌥1…⌃⌥9** switch between scenes system-wide,
   so it works while you are in a call.
-- **Pause without leaving the call.** **⌥P** anywhere, or the button next to the
+- **Pause without leaving the call.** **⌃⌥P** anywhere, or the button next to the
   scenes, blacks out the picture your call sees and hands the physical camera
   back, so its light goes out. The key lights the scene owns go out with it, so
   stepping away does not leave a lit, empty chair. The preview holds the last
@@ -159,7 +159,7 @@ The protocol is one JSON object per line. Send a command, get an answer:
 ```
 
 Subscribe with `events.subscribe` and the app pushes the state whenever it
-changes, including changes made with the ⌥1…⌥9 hotkeys or in the app window, so
+changes, including changes made with the ⌃⌥1…⌃⌥9 hotkeys or in the app window, so
 a hardware key can show what is actually happening rather than what it last
 set.
 
@@ -182,7 +182,7 @@ MCP client configuration and the full command list.
 OpenDeck and the Elgato Stream Deck, so hardware keys can switch scenes, pause
 the camera and drive key lights. Its keys follow the app rather than only
 driving it: a scene key lights up while its scene is live, even when the scene
-was changed with ⌥3.
+was changed with ⌃⌥3.
 
 ## Performance
 

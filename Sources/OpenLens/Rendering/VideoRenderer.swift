@@ -12,6 +12,8 @@ struct RenderUniforms {
     var mirror: Float
     var lumaOffset: Float
     var lumaScale: Float
+    var chromaOffset: Float
+    var chromaScale: Float
     var exposureGain: Float
     var blackLevel: Float
     var levelsGain: Float
@@ -323,6 +325,8 @@ final class VideoRenderer {
             mirror: frame.mirror ? 1 : 0,
             lumaOffset: isFullRange ? 0.0 : 16.0 / 255.0,
             lumaScale: isFullRange ? 1.0 : 255.0 / 219.0,
+            chromaOffset: 128.0 / 255.0,
+            chromaScale: isFullRange ? 1.0 : 255.0 / 224.0,
             exposureGain: Float(frame.adjustments.exposureGain),
             blackLevel: Float(frame.adjustments.blackLevel),
             levelsGain: Float(frame.adjustments.levelsGain),

@@ -98,7 +98,8 @@ public enum ControlValue: Codable, Equatable, Sendable {
 
     public var intValue: Int? {
         guard let value = doubleValue, value.isFinite else { return nil }
-        return Int(value.rounded())
+        // `Int(_:)` traps outside Int's range; a hostile `1e100` must be "not an integer".
+        return Int(exactly: value.rounded())
     }
 
     public var stringValue: String? {
@@ -189,7 +190,7 @@ public struct ControlResponse: Codable, Equatable, Sendable {
 /// `events.subscribe`.
 ///
 /// Without this a Stream Deck key can only show what it last did, not what is
-/// true: switching scenes with ⌥3 or in the app itself would leave every key on
+/// true: switching scenes with ⌃⌥3 or in the app itself would leave every key on
 /// the deck lit for the wrong one. Polling would close that gap, but at the
 /// price of waking the app several times a second forever.
 ///

@@ -33,8 +33,11 @@ struct LightingSection: View {
                 sceneControls
             }
 
-            if isAddingManually || controller.lights.isEmpty {
+            if LightController.showsManualEntry(hasLights: !controller.lights.isEmpty, isAdding: isAddingManually) {
                 manualEntry
+            } else {
+                Button("Add light manually…") { isAddingManually = true }
+                    .buttonStyle(.link)
             }
         } header: {
             SectionHeader(
@@ -142,6 +145,9 @@ struct LightingSection: View {
                     .textFieldStyle(.roundedBorder)
                 Button("Add") { addManual() }
                     .disabled(manualHost.trimmingCharacters(in: .whitespaces).isEmpty)
+                if !controller.lights.isEmpty {
+                    Button("Cancel") { cancelManual() }
+                }
             }
             if let manualError {
                 Text(manualError)
@@ -149,6 +155,12 @@ struct LightingSection: View {
                     .foregroundStyle(.red)
             }
         }
+    }
+
+    private func cancelManual() {
+        manualHost = ""
+        manualError = nil
+        isAddingManually = false
     }
 
     private func addManual() {

@@ -84,7 +84,7 @@ struct InspectorView: View {
                     info: "Scenes are your presets. Camera, zoom, mirror and overlay are "
                         + "saved into the selected scene as you change them — there is no "
                         + "save button. Duplicate takes a snapshot of the current look as a "
-                        + "new scene, and ⌥1…⌥9 switch between them even while you are in a call.",
+                        + "new scene, and ⌃⌥1…⌃⌥9 switch between them even while you are in a call.",
                     summary: sceneSummary
                 )
             }

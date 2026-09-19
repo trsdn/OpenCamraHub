@@ -267,6 +267,13 @@ struct ControlCommandHandler {
         let kelvin = request.param("kelvin")?.intValue
         let isOn = request.param("on")?.boolValue
 
+        if brightness == nil, request.param("brightness") != nil {
+            throw ControlError("`brightness` must be a whole number")
+        }
+        if kelvin == nil, request.param("kelvin") != nil {
+            throw ControlError("`kelvin` must be a whole number")
+        }
+
         guard brightness != nil || kelvin != nil || isOn != nil else {
             throw ControlError("Give at least one of `on`, `brightness` or `kelvin`")
         }
@@ -326,8 +333,11 @@ struct ControlCommandHandler {
         let scenes = model.scenes.scenes
         guard !scenes.isEmpty else { throw ControlError("There are no scenes") }
 
+        if request.param("index") != nil, request.param("index")?.intValue == nil {
+            throw ControlError("`index` must be a whole number")
+        }
         if let index = request.param("index")?.intValue {
-            // One-based, to line up with the ⌥1…⌥9 shortcuts and with what the
+            // One-based, to line up with the ⌃⌥1…⌃⌥9 shortcuts and with what the
             // scene strip shows. Off-by-one here would silently pick a
             // neighbour, so it is worth being loud about the range.
             guard (1...scenes.count).contains(index) else {

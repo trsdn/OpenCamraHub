@@ -54,11 +54,11 @@ struct KeyLightClient {
     // MARK: - Requests
 
     func accessoryInfo(host: String, port: Int) async throws -> AccessoryInfo {
-        try await get(AccessoryInfo.self, url: Self.url(host: host, port: port, path: "/elgato/accessory-info"))
+        try await get(AccessoryInfo.self, url: try Self.url(host: host, port: port, path: "/elgato/accessory-info"))
     }
 
     func state(host: String, port: Int) async throws -> KeyLightState {
-        let payload = try await get(LightsPayload.self, url: Self.lightsURL(host: host, port: port))
+        let payload = try await get(LightsPayload.self, url: try Self.lightsURL(host: host, port: port))
         guard let light = payload.lights.first else { throw KeyLightError.emptyResponse }
         return Self.state(from: light)
     }
@@ -80,7 +80,7 @@ struct KeyLightClient {
         )
         let body = LightsPayload(numberOfLights: 1, lights: [light])
 
-        var request = URLRequest(url: Self.lightsURL(host: host, port: port))
+        var request = URLRequest(url: try Self.lightsURL(host: host, port: port))
         request.httpMethod = "PUT"
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.httpBody = try JSONEncoder().encode(body)
@@ -111,11 +111,11 @@ struct KeyLightClient {
         )
     }
 
-    static func lightsURL(host: String, port: Int) -> URL {
-        url(host: host, port: port, path: "/elgato/lights")
+    static func lightsURL(host: String, port: Int) throws -> URL {
+        try url(host: host, port: port, path: "/elgato/lights")
     }
 
-    static func url(host: String, port: Int, path: String) -> URL {
+    static func url(host: String, port: Int, path: String) throws -> URL {
         var components = URLComponents()
         components.scheme = "http"
         components.host = host
@@ -126,8 +126,10 @@ struct KeyLightClient {
         // link-local address has to survive as %25 or the interface is lost
         // and the address becomes unroutable.
         let escaped = host.replacingOccurrences(of: "%", with: "%25")
+        // Reachable with a typed-in address, so it has to be an error the caller
+        // can show, not a trap.
         guard let url = URL(string: "http://[\(escaped)]:\(port)\(path)") else {
-            preconditionFailure("Could not build a URL for \(host):\(port)\(path)")
+            throw KeyLightError.invalidAddress
         }
         return url
     }
@@ -156,12 +158,47 @@ enum KeyLightError: LocalizedError, Equatable {
     case emptyResponse
     case malformedResponse
     case httpStatus(Int)
+    case invalidAddress
 
     var errorDescription: String? {
         switch self {
+        case .invalidAddress: "That is not a valid address."
         case .emptyResponse: "The light reported no lamps."
         case .malformedResponse: "The light sent something this app could not read."
         case .httpStatus(let code): "The light answered with HTTP \(code)."
         }
+    }
+}
+
+/// Turns whatever was typed into the address field into a bare host, or nil
+/// when it cannot be one.
+///
+/// People paste `http://192.168.1.20:9123/` as readily as `192.168.1.20`, and
+/// anything that is not a plausible host must be refused before it reaches
+/// URL construction.
+enum KeyLightAddress {
+    static func normalized(_ input: String) -> String? {
+        var text = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        for scheme in ["http://", "https://"] where text.lowercased().hasPrefix(scheme) {
+            text.removeFirst(scheme.count)
+        }
+        if let slash = text.firstIndex(where: { $0 == "/" || $0 == "?" || $0 == "#" }) {
+            text = String(text[..<slash])
+        }
+
+        if text.hasPrefix("[") {
+            guard let close = text.firstIndex(of: "]") else { return nil }
+            text = String(text[text.index(after: text.startIndex)..<close])
+        } else if text.filter({ $0 == ":" }).count == 1, let colon = text.firstIndex(of: ":") {
+            // Exactly one colon is `host:port`; more than one is an IPv6 literal.
+            text = String(text[..<colon])
+        }
+
+        let allowed = CharacterSet.alphanumerics.union(CharacterSet(charactersIn: ".-_:%"))
+        guard
+            !text.isEmpty,
+            text.unicodeScalars.allSatisfy({ $0.isASCII && allowed.contains($0) })
+        else { return nil }
+        return text
     }
 }
