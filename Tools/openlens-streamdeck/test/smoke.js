@@ -163,6 +163,18 @@ check("the plugin registers itself with the uuid it was given", async () => {
     assert.equal(message.uuid, PLUGIN_UUID);
 });
 
+check("the plugin names its own version in the log when it starts", async () => {
+    // A stale copy in the deck app's plugins folder is otherwise invisible.
+    const manifest = JSON.parse(
+        fs.readFileSync(new URL("../com.trsdn.openlens.sdPlugin/manifest.json", import.meta.url), "utf8")
+    );
+    const message = await nextMessage(
+        (m) => m.event === "logMessage" && m.payload.message.includes("started"),
+        "the start-up log line"
+    );
+    assert.equal(message.payload.message, `OpenLens: plugin ${manifest.Version} started`);
+});
+
 check("a key that appears is painted from the state, not left blank", async () => {
     toPlugin({
         event: "willAppear",
@@ -309,6 +321,132 @@ check("a light key bound to nothing resolves the one light there is", async () =
     await settle();
     // An empty setting must not reach the app, which refuses to guess.
     assert.deepEqual(commands.at(-1).params, { serialNumber: "KL1", on: true });
+});
+
+check("pressing the live scene again pauses instead of reselecting it", async () => {
+    toPlugin({
+        event: "willAppear",
+        action: "com.trsdn.openlens.scene",
+        context: keyContext("live"),
+        payload: { settings: { sceneId: "a" }, state: 1 },
+    });
+    toPlugin({
+        event: "keyDown",
+        action: "com.trsdn.openlens.scene",
+        context: keyContext("live"),
+        payload: { settings: { sceneId: "a" }, state: 1 },
+    });
+    await settle();
+    assert.equal(commands.at(-1).command, "pause.toggle");
+
+    // A scene that is not live still just switches to it.
+    toPlugin({
+        event: "keyDown",
+        action: "com.trsdn.openlens.scene",
+        context: keyContext("scene"),
+        payload: { settings: { sceneId: "b" }, state: 0 },
+    });
+    await settle();
+    assert.equal(commands.at(-1).command, "scene.select");
+    assert.deepEqual(commands.at(-1).params, { id: "b" });
+});
+
+/** The image a key was last given, decoded back to the SVG it came from. */
+async function imageOf(name, description) {
+    const message = await nextMessage(
+        (m) => m.event === "setImage" && m.context === keyContext(name),
+        description
+    );
+    const [, base64] = message.payload.image.split("base64,");
+    return Buffer.from(base64, "base64").toString("utf8");
+}
+
+const iconFile = (name) =>
+    fs.readFileSync(new URL(`../com.trsdn.openlens.sdPlugin/icons/${name}.svg`, import.meta.url), "utf8");
+
+check("zoom and brightness keys show which way they go", async () => {
+    toPlugin({
+        event: "willAppear",
+        action: "com.trsdn.openlens.zoom",
+        context: keyContext("zoomout"),
+        payload: { settings: { direction: "out" }, state: 0 },
+    });
+    assert.equal(await imageOf("zoomout", "the zoom-out picture"), iconFile("zoom-out"));
+
+    toPlugin({
+        event: "willAppear",
+        action: "com.trsdn.openlens.brightness",
+        context: keyContext("dimmer"),
+        payload: { settings: { serialNumber: "KL1", step: -10 }, state: 0 },
+    });
+    assert.equal(await imageOf("dimmer", "the dimmer picture"), iconFile("brightness-down"));
+    // The brightness key from earlier steps up.
+    assert.equal(await imageOf("brightness", "the brighter picture"), iconFile("brightness-up"));
+});
+
+check("light keys name their light by the part that tells it apart", async () => {
+    pushState({
+        lights: [
+            { serialNumber: "KL1", name: "Studio links", on: false, brightness: 20, kelvin: 4000 },
+            { serialNumber: "KL2", name: "Studio rechts", on: true, brightness: 75, kelvin: 4000 },
+        ],
+    });
+    const toggle = await nextMessage(
+        (m) => m.event === "setTitle" && m.context === keyContext("light") && m.payload.title.startsWith("Links"),
+        "the light key to name its light"
+    );
+    assert.equal(toggle.payload.title, "Links");
+    const dimmer = await nextMessage(
+        (m) => m.event === "setTitle" && m.context === keyContext("dimmer") && m.payload.title === "Links",
+        "the brightness key to name its light"
+    );
+    assert.equal(dimmer.payload.title, "Links");
+});
+
+check("a key's label follows its template, placeholders filled in", async () => {
+    const settings = { serialNumber: "KL2", title: "{light} {brightness}%\\n{kelvin} K · {zoom} {nope}" };
+    toPlugin({
+        event: "willAppear",
+        action: "com.trsdn.openlens.light",
+        context: keyContext("templated"),
+        payload: { settings, state: 0 },
+    });
+    const message = await nextMessage(
+        (m) => m.event === "setTitle" && m.context === keyContext("templated"),
+        "the templated title"
+    );
+    // An unknown placeholder is left as typed, so a typo shows rather than vanishes.
+    assert.equal(message.payload.title, "Rechts 75%\n4000 K · 1.0× {nope}");
+});
+
+check("a label that is switched off clears the title", async () => {
+    toPlugin({
+        event: "willAppear",
+        action: "com.trsdn.openlens.zoom",
+        context: keyContext("quietzoom"),
+        payload: { settings: { direction: "in", showTitle: false, title: "{zoom}" }, state: 0 },
+    });
+    const message = await nextMessage(
+        (m) => m.event === "setTitle" && m.context === keyContext("quietzoom"),
+        "the switched-off title"
+    );
+    assert.equal(message.payload.title, "");
+});
+
+check("a label changed in the inspector repaints the key at once", async () => {
+    // OpenDeck stores inspector settings without telling the plugin, so the
+    // inspector forwards them itself; the key must not wait for a profile switch.
+    toPlugin({
+        event: "sendToPlugin",
+        action: "com.trsdn.openlens.zoom",
+        context: keyContext("quietzoom"),
+        payload: { settings: { direction: "in", showTitle: true, title: "Zoom {zoom}" } },
+    });
+    const message = await nextMessage(
+        (m) => m.event === "setTitle" && m.context === keyContext("quietzoom") && m.payload.title !== "",
+        "the key to take the new label"
+    );
+    assert.equal(message.payload.title, "Zoom 1.0×");
 });
 
 check("keys say so when OpenLens goes away, rather than lying", async () => {

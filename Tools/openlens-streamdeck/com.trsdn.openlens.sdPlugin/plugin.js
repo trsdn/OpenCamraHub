@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import fs from "node:fs";
 import process from "node:process";
 
 import { DeckSocket } from "./deck-socket.js";
@@ -12,7 +13,7 @@ import { send, watch, NotRunningError } from "./vendor/client.js";
  * plugin is the join between them: a press becomes a command, and a change
  * becomes a repaint of every key that shows it.
  *
- * That second half is the point. Scenes also change from the ⌥1…⌥9 hotkeys and
+ * That second half is the point. Scenes also change from the ⌃⌥1…⌃⌥9 hotkeys and
  * from the app window, and a key that only knew what it last sent would sit
  * there lying about it.
  *
@@ -30,6 +31,14 @@ const port = argument("-port");
 const pluginUUID = argument("-pluginUUID");
 const registerEvent = argument("-registerEvent");
 
+const pluginVersion = (() => {
+    try {
+        return JSON.parse(fs.readFileSync(new URL("./manifest.json", import.meta.url), "utf8")).Version;
+    } catch {
+        return "unknown";
+    }
+})();
+
 /** Every key of ours currently on a device, by context. */
 const keys = new Map();
 
@@ -45,6 +54,10 @@ function connectToDeck() {
 
     deck.addEventListener("open", () => {
         deck.send(JSON.stringify({ event: registerEvent, uuid: pluginUUID }));
+        // The deck app runs a copy made by install.sh, which goes stale
+        // silently; a copy from before a fix once crashed on every login.
+        // Naming the version up front makes an old copy visible in the log.
+        log(`plugin ${pluginVersion} started`);
     });
 
     deck.addEventListener("message", ({ data }) => {
@@ -86,6 +99,9 @@ function handle(message) {
             break;
 
         case "keyDown":
+            // A press carries the key's stored settings; trusting them over a
+            // copy from when the key appeared means a change always applies.
+            if (payload?.settings && keys.has(context)) keys.get(context).settings = payload.settings;
             press(context).catch((error) => {
                 // A refusal is worth showing on the key itself: the person
                 // pressing it is looking at the device, not at a log file.
@@ -94,8 +110,16 @@ function handle(message) {
             });
             break;
 
-        case "propertyInspectorDidAppear":
         case "sendToPlugin":
+            // The inspector passes changed settings straight through, because
+            // not every deck app forwards them on its own.
+            if (payload?.settings) {
+                if (keys.has(context)) keys.get(context).settings = payload.settings;
+                render(context);
+                break;
+            }
+        // falls through
+        case "propertyInspectorDidAppear":
             // Both mean the same thing to us: an inspector is open and wants
             // the list it cannot know by itself.
             toDeck("sendToPropertyInspector", context, {
@@ -127,12 +151,22 @@ async function press(context) {
     const settings = key.settings;
 
     switch (key.action) {
-        case "com.trsdn.openlens.scene":
+        case "com.trsdn.openlens.scene": {
             // Falling back to stepping means a freshly dropped key does
             // something sensible before anyone opens its settings.
-            if (settings.sceneId) await send("scene.select", { id: settings.sceneId });
-            else await send("scene.next");
+            if (!settings.sceneId) {
+                await send("scene.next");
+                break;
+            }
+            // Pressing the live scene again has nothing to switch to, so it
+            // pauses instead — and a further press resumes.
+            const live = (camera?.scenes ?? []).some(
+                (scene) => scene.id === settings.sceneId && scene.isSelected
+            );
+            if (live) await send("pause.toggle");
+            else await send("scene.select", { id: settings.sceneId });
             break;
+        }
 
         case "com.trsdn.openlens.pause":
             await send("pause.toggle");
@@ -186,28 +220,89 @@ function serialFor(settings) {
 
 const clamp = (value, low, high) => Math.min(high, Math.max(low, value));
 
+/**
+ * The part of a light's name that tells it apart from the others.
+ *
+ * Two lights called "Studio links" and "Studio rechts" would both read
+ * "Studio" on a narrow key, which is exactly the half that does not help, so
+ * the words every light shares at the front are dropped.
+ */
+function shortName(light) {
+    const names = (camera?.lights ?? []).map((other) => other.name.split(/\s+/));
+    const words = light.name.split(/\s+/);
+    let shared = 0;
+    if (names.length > 1) {
+        while (shared < words.length - 1 && names.every((other) => other[shared] === words[shared])) {
+            shared += 1;
+        }
+    }
+    const rest = words.slice(shared).join(" ");
+    return rest.charAt(0).toUpperCase() + rest.slice(1);
+}
+
 // MARK: - Painting
+
+/** Icons a key swaps to by its settings, as data URLs both deck apps accept. */
+const icons = Object.fromEntries(
+    ["zoom-in", "zoom-out", "zoom-reset", "brightness-up", "brightness-down", "brightness"].map((name) => [
+        name,
+        "data:image/svg+xml;base64," +
+            fs.readFileSync(new URL(`./icons/${name}.svg`, import.meta.url)).toString("base64"),
+    ])
+);
+
+/** Sends an image only when it differs from the key's last one; state pushes are frequent. */
+function setImage(context, name) {
+    const key = keys.get(context);
+    if (!key || key.image === name) return;
+    key.image = name;
+    toDeck("setImage", context, { image: icons[name] });
+}
+
+function zoomIcon(settings) {
+    return { in: "zoom-in", out: "zoom-out" }[settings.direction] ?? "zoom-reset";
+}
+
+function brightnessIcon(settings) {
+    const step = Number(settings.step ?? 0);
+    return step > 0 ? "brightness-up" : step < 0 ? "brightness-down" : "brightness";
+}
 
 function render(context) {
     const key = keys.get(context);
     if (!key) return;
 
+    // The picture depends only on the key's own settings, so it is right even
+    // while the app is away.
+    if (key.action === "com.trsdn.openlens.zoom") setImage(context, zoomIcon(key.settings));
+    if (key.action === "com.trsdn.openlens.brightness") setImage(context, brightnessIcon(key.settings));
+
+    const template = titleTemplate(key);
+
     // Rather than blank keys: the labels stay, so the layout still reads as
     // something that will work once the app is back.
     if (!camera) {
         toDeck("setState", context, { state: 0 });
-        toDeck("setTitle", context, { title: "—" });
+        if (template !== null) toDeck("setTitle", context, { title: template === "" ? "" : "—" });
         return;
     }
 
     const settings = key.settings;
+    const current = camera.scene;
+    const values = {
+        zoom: `${(camera.zoom ?? 1).toFixed(1)}×`,
+        scene: current?.name ?? "?",
+        index: current?.index ?? "?",
+    };
+
     switch (key.action) {
         case "com.trsdn.openlens.scene": {
             const scene =
                 (camera.scenes ?? []).find((candidate) => candidate.id === settings.sceneId) ??
                 (settings.sceneId ? undefined : camera.scene);
             toDeck("setState", context, { state: scene?.isSelected ? 1 : 0 });
-            toDeck("setTitle", context, { title: scene?.name ?? "?" });
+            values.scene = scene?.name ?? "?";
+            values.index = scene?.index ?? "?";
             break;
         }
 
@@ -218,26 +313,58 @@ function render(context) {
         case "com.trsdn.openlens.light": {
             const light = lightFor(settings);
             toDeck("setState", context, { state: light?.on ? 1 : 0 });
-            toDeck("setTitle", context, { title: light ? `${light.brightness}%` : "?" });
+            Object.assign(values, lightValues(light));
             break;
         }
 
-        case "com.trsdn.openlens.brightness": {
-            const light = lightFor(settings);
-            const step = Number(settings.step ?? 0);
-            // A stepping key shows where it would take you is meaningless, so
-            // it shows where things are; a fixed key shows what it will set.
-            const title = step
-                ? `${light?.brightness ?? "?"}%`
-                : `${clamp(Number(settings.brightness ?? 50), 0, 100)}%`;
-            toDeck("setTitle", context, { title });
-            break;
-        }
-
-        case "com.trsdn.openlens.zoom":
-            toDeck("setTitle", context, { title: `${(camera.zoom ?? 1).toFixed(1)}×` });
+        case "com.trsdn.openlens.brightness":
+            Object.assign(values, lightValues(lightFor(settings)), {
+                target: clamp(Number(settings.brightness ?? 50), 0, 100),
+            });
             break;
     }
+
+    if (template !== null) toDeck("setTitle", context, { title: fillTemplate(template, values) });
+}
+
+/**
+ * What a key's label should say before its placeholders are filled in, or
+ * null to leave the title the deck app itself shows alone.
+ *
+ * A switched-off label is an empty string rather than null: the plugin set a
+ * title before, and only an explicit empty one clears it.
+ */
+function titleTemplate(key) {
+    const settings = key.settings;
+    if (settings.showTitle === false) return "";
+    if (typeof settings.title === "string" && settings.title.trim()) return settings.title;
+    switch (key.action) {
+        case "com.trsdn.openlens.scene":
+            return "{scene}";
+        case "com.trsdn.openlens.light":
+            return "{light}";
+        case "com.trsdn.openlens.brightness":
+            // A stepping key's direction is in its picture; a fixed one says
+            // what it will set.
+            return Number(settings.step ?? 0) ? "{light}" : "{light}\\n{target}%";
+        case "com.trsdn.openlens.zoom":
+            return "{zoom}";
+        default:
+            return null;
+    }
+}
+
+function lightValues(light) {
+    return light
+        ? { light: shortName(light), name: light.name, brightness: light.brightness, kelvin: light.kelvin }
+        : { light: "?", name: "?", brightness: "?", kelvin: "?" };
+}
+
+/** `\n` typed in a one-line field becomes a line break; unknown placeholders stay as typed. */
+function fillTemplate(template, values) {
+    return template
+        .replace(/\\n/g, "\n")
+        .replace(/\{(\w+)\}/g, (match, name) => (name in values ? String(values[name]) : match));
 }
 
 const renderAll = () => {

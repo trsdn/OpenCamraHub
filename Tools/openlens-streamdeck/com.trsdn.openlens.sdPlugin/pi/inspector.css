@@ -28,6 +28,23 @@ input {
     border-radius: 4px;
 }
 
+label.check {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: #d8d8d8;
+    margin-bottom: 8px;
+}
+
+label.check input {
+    width: auto;
+    margin: 0;
+}
+
+code {
+    color: #d8d8d8;
+}
+
 .note {
     color: #969696;
     font-size: 12px;
