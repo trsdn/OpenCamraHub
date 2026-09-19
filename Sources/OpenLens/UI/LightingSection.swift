@@ -141,12 +141,21 @@ struct LightingSection: View {
     private var manualEntry: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                TextField("192.168.1.20", text: $manualHost)
+                // Inside a Form the title renders as a leading label, which
+                // squeezed the field to a few characters.
+                TextField("Address", text: $manualHost, prompt: Text("192.168.1.20"))
+                    .labelsHidden()
                     .textFieldStyle(.roundedBorder)
+                    .frame(minWidth: 100)
+                    .onSubmit {
+                        if !manualHost.trimmingCharacters(in: .whitespaces).isEmpty { addManual() }
+                    }
                 Button("Add") { addManual() }
                     .disabled(manualHost.trimmingCharacters(in: .whitespaces).isEmpty)
+                    .fixedSize()
                 if !controller.lights.isEmpty {
                     Button("Cancel") { cancelManual() }
+                        .fixedSize()
                 }
             }
             if let manualError {
