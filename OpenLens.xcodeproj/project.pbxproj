@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		05473F0007687339BD26C455 /* GlobalHotKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15E7999D02609A191B8DD0DE /* GlobalHotKeys.swift */; };
+		0B1E81951B69DF54CA54514C /* GlobalHotKeysTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F0B397B21267AA552A530DB /* GlobalHotKeysTests.swift */; };
 		105D68634B9B9C84EEE6FB43 /* NumberFieldValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A65500763225FA2538E7BB /* NumberFieldValue.swift */; };
 		1932E665B0D00D53008B6800 /* VideoRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06EC23245E92E50968C3EFB /* VideoRendererTests.swift */; };
 		1B019E3355C1361A346445E0 /* CropGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26E52E7E9C0BB8BC98139A /* CropGeometry.swift */; };
@@ -143,6 +145,7 @@
 		7FE19205BEB26A6E17615832 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		80339F3F63C92BAA7E918C05 /* CropGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CropGeometryTests.swift; sourceTree = "<group>"; };
 		87512EDDAEFF87052D9E8006 /* ExtensionClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtensionClient.swift; sourceTree = "<group>"; };
+		8F0B397B21267AA552A530DB /* GlobalHotKeysTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlobalHotKeysTests.swift; sourceTree = "<group>"; };
 		97AB1A0194CAD05C753F36A6 /* PreviewRenderTarget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PreviewRenderTarget.swift; sourceTree = "<group>"; };
 		985119351CBC81A7D1E111FC /* OpenLensID.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OpenLensID.swift; sourceTree = "<group>"; };
 		9914A91AF9116A295A5793F5 /* Shaders.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = Shaders.metal; sourceTree = "<group>"; };
@@ -351,6 +354,7 @@
 				4CF861483D84BB25FB6B57CD /* CameraSceneCodingTests.swift */,
 				2867A497B00835AEF6AC70E8 /* ControlProtocolTests.swift */,
 				80339F3F63C92BAA7E918C05 /* CropGeometryTests.swift */,
+				8F0B397B21267AA552A530DB /* GlobalHotKeysTests.swift */,
 				5C0DD70DDD2FA0C470301D99 /* ImageAdjustmentsTests.swift */,
 				4E0806B525BADCD6CEC6C615 /* KeyLightTests.swift */,
 				3A5C6E7B6414340E75098C55 /* NumberFieldValueTests.swift */,
@@ -492,6 +496,8 @@
 				B85254E4793307C06DC8DC8E /* CropAnimator.swift in Sources */,
 				1B019E3355C1361A346445E0 /* CropGeometry.swift in Sources */,
 				42081375764B77215B2BE670 /* CropGeometryTests.swift in Sources */,
+				05473F0007687339BD26C455 /* GlobalHotKeys.swift in Sources */,
+				0B1E81951B69DF54CA54514C /* GlobalHotKeysTests.swift in Sources */,
 				BECB481E3D665D194711EAEB /* ImageAdjustments.swift in Sources */,
 				73571B6ECD55E087752BE4AC /* ImageAdjustmentsTests.swift in Sources */,
 				C596EF94B6F985D20B6A3098 /* KeyLight.swift in Sources */,

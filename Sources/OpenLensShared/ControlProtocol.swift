@@ -189,7 +189,7 @@ public struct ControlResponse: Codable, Equatable, Sendable {
 /// `events.subscribe`.
 ///
 /// Without this a Stream Deck key can only show what it last did, not what is
-/// true: switching scenes with ⌥3 or in the app itself would leave every key on
+/// true: switching scenes with ⌃⌥3 or in the app itself would leave every key on
 /// the deck lit for the wrong one. Polling would close that gap, but at the
 /// price of waking the app several times a second forever.
 ///
