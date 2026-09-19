@@ -18,9 +18,9 @@ Everything that something else matches on keeps the old name, deliberately:
 
 | Keeps `OpenLens` | Because |
 | --- | --- |
-| `OpenLens.app`, executable `OpenLens` (`PRODUCT_NAME`) | The broker profile declares both, and AppUpdater only installs an update whose folder name matches the installed app |
+| `OpenLens.app`, executable `OpenLens` (`PRODUCT_NAME`) | The broker profile declares both |
 | `com.trsdn.openlens*` bundle ids, app group, `control.sock` | Scenes live in the sandbox container, and code signing, the extension and the deck plugin are keyed on them |
-| `AppUpdater(owner: "trsdn", repo: "OpenLens")` and `OpenLens-<version>.dmg` | Installed copies look for exactly that repo and asset name; changing either strands them on their current version |
+| `OpenLens-<version>.dmg` release asset | Copies from 0.3.0–0.4.0 still use AppUpdater, which looks for exactly that name in `trsdn/OpenLens` |
 | The camera's device UID and stream names | Teams and Zoom remember the camera by UID; the app finds its extension's sink stream by name |
 | `OpenLens.xcodeproj`, scheme, targets, `Sources/OpenLens*` | The broker's `openlens-xcode` adapter builds that project and scheme |
 | Deck action UUIDs `com.trsdn.openlens.*`, MCP tool names `openlens_*` | Saved deck profiles and MCP configs reference them |
@@ -156,36 +156,26 @@ spctl -a -vvv -t exec OpenLens.app                   # must say "accepted"
 open OpenLens.app                                    # must actually open
 ```
 
-## In-app updates depend on the release layout and the broker
+## Updates are offered, not installed
 
-`UpdateManager` uses [AppUpdater](https://github.com/mxcl/AppUpdater) 4.x. It
-fails without an error the user can act on if any of these are wrong:
+The app is sandboxed, and a sandboxed app may neither mount a disk image nor
+replace itself in /Applications. The in-app installer it used to have
+(AppUpdater) failed at exactly that step (#41), so it was removed.
 
-- **Asset name.** AppUpdater only looks at an asset named exactly
-  `OpenLens-<semver>.dmg`: no `v` and no architecture suffix. The broker
-  profile produces that name as a `copy_of` its
-  `OpenLens-vX.Y.Z-macOS-arm64.dmg`, and `request.sh --publish` uploads it. If a
-  release lacks the file, installed copies never see that release.
-- **No attestation policy.** The broker builds the release in its own
-  repository, so there is no GitHub artifact attestation from `trsdn/OpenLens`
-  to check. Do not add a `GitHubAttestationPolicy` unless releases are built
-  here. AppUpdater still requires the downloaded app to have the same Team ID,
-  signing identifier and bundle identifier as the installed one.
-- **Resource bundle.** Linking AppUpdater makes Xcode embed
-  `Contents/Resources/AppUpdater_AppUpdater.bundle`, a bundle with no code that
-  holds the Sigstore trust roots. The broker preflight rejects every nested
-  bundle a profile does not declare, so the `openlens` profile has to list it
-  under `nested_resource_bundles`.
-- **Pinned dependencies.** The package is pinned with `exactVersion` in
-  `project.yml`, and its resolution is committed in
-  `OpenLens.xcodeproj/project.xcworkspace/xcshareddata/swiftpm/Package.resolved`.
-  Update both together, and update the broker's copy of the lock if it keeps one.
+`UpdateManager` now only checks
+`api.github.com/repos/trsdn/OpenCamraHub/releases/latest` once a day and on
+**Check for Updates…**, and `ReleaseCheck` decides from the response. When a
+newer version exists, the banner offers **Download**, which opens
+`OpenLens-vX.Y.Z-macOS-arm64.dmg` in the browser, and says how to install it:
+open the disk image and drag the app over the old copy. Settings and scenes
+survive that, because they belong to the bundle identifier. If a release lacks
+that disk image, **Download** falls back to the release page.
 
-Installing an update calls `AppModel.shutdown()` first, then AppUpdater
-replaces the bundle and relaunches the app. The new process re-activates the
-extension, and `SystemExtensionInstaller` answers `.replace`. If the install
-fails after shutdown, the banner offers **Restart OpenLens**, because the
-pipeline is already down.
+Copies from 0.3.0 to 0.4.0 still carry AppUpdater. They look for
+`OpenLens-<version>.dmg` in `trsdn/OpenLens` (reached through the rename
+redirect), find the release, and then fail to install it. That is accepted:
+those users update by hand once, and keep the download-based flow from then on.
+The broker still publishes `OpenLens-<version>.dmg` for them.
 
 ## Build and test
 

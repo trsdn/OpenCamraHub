@@ -114,16 +114,14 @@ shasum -a 256 -c OpenLens-*.dmg.sha256
 
 ### Updates
 
-OpenCamraHub checks GitHub Releases for a newer version once a day and downloads it
-in the background; a banner over the preview then offers **Install and
-Restart**. **OpenCamraHub › Check for Updates…** checks right away, and
+OpenCamraHub checks GitHub Releases for a newer version once a day. When there
+is one, a banner over the preview offers **Download**: open the disk image,
+drag the app into **Applications** and replace the old copy. Your scenes and
+settings stay. **OpenCamraHub › Check for Updates…** checks right away, and
 **Check for Updates Automatically** in the same menu turns the daily check off.
 
-An update is only installed if it is signed with the same Developer ID, signing
-identifier and bundle identifier as the installed app. It is handled by
-[AppUpdater](https://github.com/mxcl/AppUpdater). Installing restarts OpenCamraHub
-and replaces the camera extension, so a call that is using the camera loses
-its picture for a few seconds.
+The app does not install updates itself: it is sandboxed, and a sandboxed app
+cannot replace itself in /Applications.
 
 ## How it works
 

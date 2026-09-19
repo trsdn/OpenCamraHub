@@ -1,30 +1,22 @@
-import AppUpdater
+import AppKit
 import Foundation
 import os.log
 
-/// Checks GitHub Releases for a newer OpenLens and installs it in place.
+/// Checks GitHub Releases for a newer OpenCamraHub and offers its disk image.
 ///
-/// Backed by [AppUpdater](https://github.com/mxcl/AppUpdater), the same library
-/// OpenWritr uses. It only accepts a release asset named exactly
-/// `OpenLens-<semver>.dmg`, and only if the app inside carries the same Developer
-/// ID Team ID, signing identifier and bundle identifier as this one.
-///
-/// GitHub artifact attestation is deliberately not required: the notarization
-/// broker builds the release in its own repository, so there is no provenance
-/// from `trsdn/OpenLens` for AppUpdater to check against.
+/// It does not install anything. A sandboxed app may neither mount a disk
+/// image nor replace itself in /Applications, which is why the in-app installer
+/// failed (#41). Downloading goes through the browser, and the person drags the
+/// new app over the old one; scenes and settings survive because they belong
+/// to the bundle identifier, not to the copy on disk.
 @MainActor
 final class UpdateManager: ObservableObject {
     enum State: Equatable {
         case idle
         case checking
         case upToDate
-        case downloading(version: String)
-        case readyToInstall(version: String)
-        case installing
+        case available(AvailableUpdate)
         case failed(String)
-        /// The camera pipeline was already shut down for the install, so the
-        /// only way back to a working camera is a relaunch.
-        case installFailed(String)
     }
 
     @Published private(set) var state: State = .idle
@@ -37,17 +29,10 @@ final class UpdateManager: ObservableObject {
         }
     }
 
-    /// Runs right before the bundle is replaced, so the host can let go of the
-    /// camera, the control socket and the lights instead of being killed mid-frame.
-    var onWillInstall: (() -> Void)?
-
     private static let automaticChecksKey = "updates.automaticChecks.v1"
     private static let automaticCheckInterval: TimeInterval = 24 * 60 * 60
 
-    // Not OpenCamraHub: installed copies match "openlens-<version>" assets and reach the renamed repository through GitHub's redirect.
-    private let updater = AppUpdater(owner: "trsdn", repo: "OpenLens")
     private let log = Logger(subsystem: OpenLensID.appBundleID, category: "updates")
-    private var preparedUpdate: PreparedUpdate?
     private var lastAutomaticCheck: Date?
     private var automaticCheckTask: Task<Void, Never>?
 
@@ -55,11 +40,10 @@ final class UpdateManager: ObservableObject {
         automaticChecksEnabled = UserDefaults.standard.object(forKey: Self.automaticChecksKey) as? Bool ?? true
     }
 
-    var isBusy: Bool {
-        switch state {
-        case .checking, .downloading, .installing: return true
-        default: return false
-        }
+    var isBusy: Bool { state == .checking }
+
+    private var currentVersion: String {
+        Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "0"
     }
 
     // MARK: - Automatic checks
@@ -89,15 +73,13 @@ final class UpdateManager: ObservableObject {
         return Date().timeIntervalSince(lastAutomaticCheck) >= Self.automaticCheckInterval
     }
 
-    // MARK: - Check, install, dismiss
+    // MARK: - Check, download, dismiss
 
-    /// Looks for a newer release and, if there is one, downloads and validates it
-    /// so that installing is a single click.
-    ///
     /// A failed background check stays in the log: being offline is not worth a
     /// banner over the preview. A check the user asked for always answers.
     func check(userInitiated: Bool) async {
-        guard !isBusy, preparedUpdate == nil else { return }
+        guard !isBusy else { return }
+        if case .available = state, !userInitiated { return }
         if userInitiated {
             state = .checking
         } else {
@@ -105,15 +87,19 @@ final class UpdateManager: ObservableObject {
         }
 
         do {
-            guard let update = try await updater.check() else {
+            var request = URLRequest(url: ReleaseCheck.latestReleaseURL, timeoutInterval: 20)
+            request.setValue("application/vnd.github+json", forHTTPHeaderField: "Accept")
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let http = response as? HTTPURLResponse, http.statusCode == 200 else {
+                throw URLError(.badServerResponse)
+            }
+            if let update = try ReleaseCheck.update(fromLatestRelease: data, currentVersion: currentVersion) {
+                log.notice("Update available: \(update.version, privacy: .public)")
+                state = .available(update)
+            } else {
                 log.info("No update available")
                 state = userInitiated ? .upToDate : .idle
-                return
             }
-            log.notice("Update available: \(update.version, privacy: .public)")
-            state = .downloading(version: update.version)
-            preparedUpdate = try await update.prepareInstallation()
-            state = .readyToInstall(version: update.version)
         } catch is CancellationError {
             state = .idle
         } catch {
@@ -122,29 +108,20 @@ final class UpdateManager: ObservableObject {
         }
     }
 
-    /// Replaces the app and relaunches it. On success this never returns; the new
-    /// process then re-activates the camera extension, which macOS swaps in place.
-    func installAndRelaunch() async {
-        guard let prepared = preparedUpdate else { return }
-        preparedUpdate = nil
-        state = .installing
-        stopAutomaticChecks()
-        onWillInstall?()
-
-        do {
-            try await prepared.installAndRelaunch()
-        } catch {
-            log.error("Install failed: \(error.localizedDescription, privacy: .public)")
-            state = .installFailed(error.localizedDescription)
-        }
+    /// Hands the disk image to the browser, which saves it to Downloads. The
+    /// banner stays up so the installation steps remain in view.
+    func download() {
+        guard case .available(let update) = state else { return }
+        NSWorkspace.shared.open(update.downloadURL)
     }
 
-    /// Throws the downloaded update away. The next automatic check finds it again.
-    func dismiss() async {
-        if let prepared = preparedUpdate {
-            preparedUpdate = nil
-            await prepared.discard()
-        }
+    func showReleaseNotes() {
+        guard case .available(let update) = state else { return }
+        NSWorkspace.shared.open(update.releaseURL)
+    }
+
+    /// Hides the offer; the next daily check brings it back.
+    func dismiss() {
         state = .idle
     }
 }

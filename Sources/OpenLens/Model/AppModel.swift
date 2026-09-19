@@ -156,7 +156,6 @@ final class AppModel: ObservableObject {
         }
         observeStateForSubscribers()
 
-        updates.onWillInstall = { [weak self] in self?.shutdown() }
         updates.startAutomaticChecks()
     }
 
