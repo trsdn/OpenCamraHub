@@ -133,6 +133,34 @@ final class CropGeometryTests: XCTestCase {
         XCTAssertEqual(limit, 1.0, accuracy: 0.0001)
     }
 
+    /// Before the asynchronous capture start reports a size there is nothing to
+    /// derive headroom from, and the answer has to be "none" rather than a crash
+    /// or a stale number.
+    func testAnUnknownSourceSizeGivesNoLosslessHeadroom() {
+        let limit = CropGeometry.losslessZoomLimit(
+            sourcePixelSize: .zero,
+            outputPixelSize: CGSize(width: 1920, height: 1080)
+        )
+        XCTAssertEqual(limit, 1.0, accuracy: 0.0001)
+    }
+
+    /// The limit follows the source: the same output gives 1x at 1080p and 2x
+    /// once a 4K format is delivered, which is why it has to be recomputed when
+    /// the size changes.
+    func testTheLimitFollowsTheSourceWhenItsResolutionChanges() {
+        let output = CGSize(width: 1920, height: 1080)
+        let before = CropGeometry.losslessZoomLimit(
+            sourcePixelSize: CGSize(width: 1920, height: 1080),
+            outputPixelSize: output
+        )
+        let after = CropGeometry.losslessZoomLimit(
+            sourcePixelSize: CGSize(width: 3840, height: 2160),
+            outputPixelSize: output
+        )
+        XCTAssertEqual(before, 1.0, accuracy: 0.0001)
+        XCTAssertEqual(after, 2.0, accuracy: 0.0001)
+    }
+
     func testInterpolationIsGeometricInZoom() {
         let mid = CropGeometry.interpolate(
             from: CropState(center: .init(x: 0.5, y: 0.5), zoom: 1),

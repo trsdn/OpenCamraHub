@@ -5,6 +5,10 @@ struct InspectorView: View {
     @ObservedObject var model: AppModel
     @ObservedObject private var scenes: SceneStore
     @State private var sceneName = ""
+    /// The name `sceneName` was seeded from, so only a real edit is committed:
+    /// a draft that merely went stale must not overwrite a rename made elsewhere.
+    @State private var loadedSceneName = ""
+    @FocusState private var nameFieldFocused: Bool
 
     // Which sections are open, remembered across launches.
     //
@@ -30,7 +34,11 @@ struct InspectorView: View {
         Form {
             Section(isExpanded: $sceneExpanded) {
                 TextField("Name", text: $sceneName)
-                    .onSubmit { model.renameSelectedScene(sceneName) }
+                    .focused($nameFieldFocused)
+                    .onSubmit(commitAndReloadSceneName)
+                    .onChange(of: nameFieldFocused) { _, focused in
+                        if !focused { commitAndReloadSceneName() }
+                    }
 
                 Picker("Camera", selection: deviceBinding) {
                     ForEach(model.devices) { device in
@@ -339,10 +347,31 @@ struct InspectorView: View {
             }
         }
         .formStyle(.grouped)
-        .onAppear { sceneName = scenes.selectedScene?.name ?? "" }
-        .onChange(of: scenes.selectedSceneID) { _, _ in
-            sceneName = scenes.selectedScene?.name ?? ""
+        .onAppear(perform: reloadSceneName)
+        .onChange(of: scenes.selectedSceneID) { old, _ in
+            // The draft was typed for the scene being left, so it goes there.
+            commitSceneName(for: old)
+            reloadSceneName()
         }
+    }
+
+    // MARK: - Scene name draft
+
+    private func commitSceneName(for id: UUID?) {
+        guard let id, sceneName != loadedSceneName else { return }
+        model.renameScene(id: id, to: sceneName)
+    }
+
+    /// Reloading afterwards also puts back the real name when the draft was
+    /// refused, for instance because it was emptied.
+    private func commitAndReloadSceneName() {
+        commitSceneName(for: scenes.selectedSceneID)
+        reloadSceneName()
+    }
+
+    private func reloadSceneName() {
+        sceneName = scenes.selectedScene?.name ?? ""
+        loadedSceneName = sceneName
     }
 
     // MARK: - Section summaries

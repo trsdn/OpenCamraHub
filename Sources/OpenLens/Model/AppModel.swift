@@ -54,6 +54,9 @@ final class AppModel: ObservableObject {
     /// put them back. Deliberately not persisted: an app that quit while paused
     /// should not reach out and change the lights on the next launch.
     private var lightsBeforePause: [String: KeyLightState]?
+    /// Which scene was selected when the pause began. A different one at resume
+    /// means a scene was chosen meanwhile, and its lighting was held back.
+    private var sceneIDAtPause: UUID?
     /// Video work is latency sensitive and mostly happens while the window is in
     /// the background, which is exactly when App Nap would otherwise throttle
     /// timers and delay the switch into streaming by several seconds.
@@ -87,10 +90,13 @@ final class AppModel: ObservableObject {
             .sink { [weak self] streaming in self?.reconcilePipeline(streaming: streaming) }
             .store(in: &cancellables)
 
-        scenes.$selectedSceneID
-            .removeDuplicates()
-            .sink { [weak self] _ in self?.applySelectedScene(animated: true) }
+        scenes.selectedSceneChanges
+            .sink { [weak self] scene in self?.apply(scene, animated: true) }
             .store(in: &cancellables)
+
+        capture.onSourceSizeChange = { [weak self] _ in
+            Task { @MainActor in self?.updateZoomReadout() }
+        }
 
         NotificationCenter.default
             .publisher(for: AVCaptureDevice.wasConnectedNotification)
@@ -230,7 +236,13 @@ final class AppModel: ObservableObject {
     // MARK: - Scenes
 
     private func applySelectedScene(animated: Bool) {
-        guard let scene = scenes.selectedScene else {
+        apply(scenes.selectedScene, animated: animated)
+    }
+
+    /// Takes the scene to apply rather than reading the selection, because the
+    /// selection publisher fires before the selection has changed.
+    private func apply(_ scene: CameraScene?, animated: Bool) {
+        guard let scene else {
             capture.stop()
             return
         }
@@ -248,11 +260,15 @@ final class AppModel: ObservableObject {
         if !animated || switchingCamera {
             pipeline?.snapCrop(to: scene.crop)
         }
-        capture.start(deviceID: scene.deviceID, quality: scene.quality)
+        // Through the gate, not straight to the camera: a scene change while
+        // paused, or with nobody watching, must not turn the camera light on.
+        reconcilePipeline(scene: scene)
         updateZoomReadout()
         // Deliberately last and deliberately fire-and-forget: an unreachable
         // lamp must not delay the picture coming back.
-        lights.apply(scene.lighting)
+        if PipelineGating.shouldApplyLighting(isPaused: isPaused) {
+            lights.apply(scene.lighting)
+        }
     }
 
     func selectScene(at index: Int) {
@@ -282,6 +298,12 @@ final class AppModel: ObservableObject {
     func renameSelectedScene(_ name: String) {
         scenes.mutateSelected { $0.name = name }
         scenes.save()
+    }
+
+    /// By ID, so a name typed for one scene is not applied to whichever scene
+    /// is selected by the time it is committed.
+    func renameScene(id: UUID, to name: String) {
+        scenes.rename(id: id, to: name)
     }
 
     func setDevice(_ device: CaptureDeviceInfo) {
@@ -576,17 +598,27 @@ final class AppModel: ObservableObject {
     /// `@Published` sends its value from `willSet`, so a subscriber that re-reads
     /// `extensionClient.isStreaming` sees the *previous* value and would undo the
     /// change it was notified about. The new value is therefore passed in.
-    private func reconcilePipeline(streaming streamingOverride: Bool? = nil) {
+    ///
+    /// The selection publisher has the same problem, so a caller that is handling
+    /// a selection change passes the scene in.
+    private func reconcilePipeline(
+        streaming streamingOverride: Bool? = nil,
+        scene sceneOverride: CameraScene? = nil
+    ) {
         let streaming = streamingOverride ?? extensionClient.isStreaming
         pipeline?.update { $0.wantsOutput = streaming }
 
         // Pause means the camera is off, full stop: what the call sees is a
         // black frame the pipeline produces by itself, so there is nothing left
         // to capture for.
-        let needsCamera = !isPaused && (streaming || (previewVisible && previewEnabled))
+        let needsCamera = PipelineGating.needsCamera(
+            isPaused: isPaused,
+            isStreaming: streaming,
+            previewWanted: previewVisible && previewEnabled
+        )
 
         if needsCamera {
-            if let scene = scenes.selectedScene {
+            if let scene = sceneOverride ?? scenes.selectedScene {
                 capture.start(deviceID: scene.deviceID, quality: scene.quality)
             }
         } else {
@@ -609,6 +641,7 @@ final class AppModel: ObservableObject {
         isPaused = paused
         pipeline?.setPaused(paused)
         if paused {
+            sceneIDAtPause = scenes.selectedSceneID
             darkenLightsForPause()
         } else {
             restoreLightsAfterPause()
@@ -636,10 +669,18 @@ final class AppModel: ObservableObject {
     }
 
     /// Puts the lamps back exactly as the pause found them.
+    ///
+    /// A scene picked during the pause never got to set its lamps, so its
+    /// lighting goes on top once the old ones are back.
     private func restoreLightsAfterPause() {
-        guard let remembered = lightsBeforePause else { return }
-        lightsBeforePause = nil
-        lights.apply(SceneLighting(isEnabled: true, lights: remembered))
+        if let remembered = lightsBeforePause {
+            lightsBeforePause = nil
+            lights.apply(SceneLighting(isEnabled: true, lights: remembered))
+        }
+        if let pausedScene = sceneIDAtPause, pausedScene != scenes.selectedSceneID {
+            lights.apply(sceneLighting)
+        }
+        sceneIDAtPause = nil
     }
 
     /// While paused the app must keep feeding the extension, or `FrameRelay`

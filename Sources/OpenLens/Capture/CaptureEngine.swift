@@ -78,7 +78,15 @@ final class CaptureEngine: NSObject {
 
     private var currentInput: AVCaptureDeviceInput?
     private(set) var currentDeviceID: String?
-    private(set) var sourcePixelSize = CGSize.zero
+    /// Written on the session queue when a format is chosen and on the sample
+    /// queue when frames arrive, read on the main thread, so it sits behind a lock.
+    var sourcePixelSize: CGSize { sizeLock.withLock { storedSourcePixelSize } }
+    private let sizeLock = NSLock()
+    private var storedSourcePixelSize = CGSize.zero
+    /// Called from a capture queue whenever the size of what we receive changes,
+    /// so whoever derives something from it (the lossless zoom limit) does not
+    /// have to guess when the asynchronous start has finished.
+    var onSourceSizeChange: ((CGSize) -> Void)?
     /// Frames per second actually arriving from the device. A camera can advertise 30 and
     /// still deliver far less: uncompressed 4K saturates USB long before it gets there.
     private(set) var sourceFrameRate: Double = 0
@@ -239,7 +247,7 @@ final class CaptureEngine: NSObject {
         )
 
         let dimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
-        sourcePixelSize = CGSize(width: Int(dimensions.width), height: Int(dimensions.height))
+        updateSourcePixelSize(CGSize(width: Int(dimensions.width), height: Int(dimensions.height)))
         sourceFrameRate = 0
         rateWindowStart = 0
         currentDeviceID = deviceID
@@ -387,12 +395,23 @@ extension CaptureEngine: AVCaptureVideoDataOutputSampleBufferDelegate {
             width: CVPixelBufferGetWidth(pixelBuffer),
             height: CVPixelBufferGetHeight(pixelBuffer)
         )
-        if delivered != sourcePixelSize {
-            sourcePixelSize = delivered
+        if updateSourcePixelSize(delivered) {
             rateWindowStart = 0
         }
         measureFrameRate()
         delegate?.captureEngine(self, didOutput: pixelBuffer)
+    }
+
+    /// Returns whether the size actually changed.
+    @discardableResult
+    private func updateSourcePixelSize(_ size: CGSize) -> Bool {
+        let changed = sizeLock.withLock {
+            let changed = storedSourcePixelSize != size
+            storedSourcePixelSize = size
+            return changed
+        }
+        if changed { onSourceSizeChange?(size) }
+        return changed
     }
 
     /// Averages over a one-second window, which is long enough to be steady and short

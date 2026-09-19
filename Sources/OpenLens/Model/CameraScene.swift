@@ -1,3 +1,4 @@
+import Combine
 import CoreGraphics
 import Foundation
 
@@ -184,9 +185,38 @@ final class SceneStore: ObservableObject {
         return scenes.first { $0.id == selectedSceneID }
     }
 
+    func scene(for id: UUID?) -> CameraScene? {
+        guard let id else { return nil }
+        return scenes.first { $0.id == id }
+    }
+
+    /// The scene each new selection lands on.
+    ///
+    /// `@Published` sends from `willSet`, so a subscriber that reads
+    /// `selectedScene` while handling the value still sees the scene being left
+    /// and applies the wrong one. Resolving the emitted ID hands over the scene
+    /// being selected instead.
+    var selectedSceneChanges: AnyPublisher<CameraScene?, Never> {
+        $selectedSceneID
+            .removeDuplicates()
+            .map { [unowned self] id in self.scene(for: id) }
+            .eraseToAnyPublisher()
+    }
+
     func update(_ scene: CameraScene) {
         guard let index = scenes.firstIndex(where: { $0.id == scene.id }) else { return }
         scenes[index] = scene
+        save()
+    }
+
+    /// Renames by ID rather than through the selection, so a draft committed as
+    /// the selection moves on still lands on the scene it was typed for.
+    func rename(id: UUID, to name: String) {
+        guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
+              let index = scenes.firstIndex(where: { $0.id == id }),
+              scenes[index].name != name
+        else { return }
+        scenes[index].name = name
         save()
     }
 
