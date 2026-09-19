@@ -122,24 +122,59 @@ final class KeyLightTests: XCTestCase {
 
     // MARK: - URLs
 
-    func testURLIsBuiltForTheDevicePort() {
-        let url = KeyLightClient.lightsURL(host: "192.168.2.75", port: 9123)
+    func testURLIsBuiltForTheDevicePort() throws {
+        let url = try KeyLightClient.lightsURL(host: "192.168.2.75", port: 9123)
         XCTAssertEqual(url.absoluteString, "http://192.168.2.75:9123/elgato/lights")
     }
 
     /// Bonjour hands back IPv6 on plenty of networks and a bare literal has to
     /// end up bracketed or the request will not resolve.
-    func testIPv6HostIsBracketed() {
-        let url = KeyLightClient.lightsURL(host: "fd00::1", port: 9123)
+    func testIPv6HostIsBracketed() throws {
+        let url = try KeyLightClient.lightsURL(host: "fd00::1", port: 9123)
         XCTAssertEqual(url.absoluteString, "http://[fd00::1]:9123/elgato/lights")
     }
 
     /// The scope id on a link-local address names the interface it is
     /// reachable on. Dropping it leaves an address that parses cleanly and has
     /// no route at all, which is indistinguishable from an unplugged lamp.
-    func testLinkLocalScopeIsKeptAndEscaped() {
-        let url = KeyLightClient.lightsURL(host: "fe80::1%en0", port: 9123)
+    func testLinkLocalScopeIsKeptAndEscaped() throws {
+        let url = try KeyLightClient.lightsURL(host: "fe80::1%en0", port: 9123)
         XCTAssertEqual(url.absoluteString, "http://[fe80::1%25en0]:9123/elgato/lights")
+    }
+
+    func testAnAddressNoURLCanBeBuiltFromThrowsInsteadOfTrapping() {
+        XCTAssertThrowsError(try KeyLightClient.lightsURL(host: "not a host", port: 9123)) {
+            XCTAssertEqual($0 as? KeyLightError, .invalidAddress)
+        }
+    }
+
+    // MARK: - Typed-in addresses
+
+    func testTypedAddressesAreReducedToABareHost() {
+        XCTAssertEqual(KeyLightAddress.normalized("192.168.1.2"), "192.168.1.2")
+        XCTAssertEqual(KeyLightAddress.normalized("  192.168.1.2 \n"), "192.168.1.2")
+        XCTAssertEqual(KeyLightAddress.normalized("http://192.168.1.2"), "192.168.1.2")
+        XCTAssertEqual(KeyLightAddress.normalized("HTTP://192.168.1.2:9123/elgato/lights"), "192.168.1.2")
+        XCTAssertEqual(KeyLightAddress.normalized("elgato-key-light.local"), "elgato-key-light.local")
+        XCTAssertEqual(KeyLightAddress.normalized("fd00::1"), "fd00::1")
+        XCTAssertEqual(KeyLightAddress.normalized("[fd00::1]:9123"), "fd00::1")
+        XCTAssertEqual(KeyLightAddress.normalized("fe80::1%en0"), "fe80::1%en0")
+    }
+
+    func testAddressesThatCannotBeHostsAreRefused() {
+        for bad in ["", "   ", "not a host", "192.168.1.2 extra", "http://", "[fd00::1",
+                    "host\u{7}name", "höst.local", ":9123"] {
+            XCTAssertNil(KeyLightAddress.normalized(bad), "\(bad.debugDescription) should be refused")
+        }
+    }
+
+    /// Whatever normalisation lets through must be buildable into a URL, since
+    /// that is the step that used to trap.
+    func testEveryAcceptedAddressBuildsAURL() throws {
+        for input in ["192.168.1.2", "http://192.168.1.2:9123/", "fd00::1", "fe80::1%en0", "key-light_1.local"] {
+            let host = try XCTUnwrap(KeyLightAddress.normalized(input))
+            XCTAssertNoThrow(try KeyLightClient.lightsURL(host: host, port: 9123), input)
+        }
     }
 
     // MARK: - Devices

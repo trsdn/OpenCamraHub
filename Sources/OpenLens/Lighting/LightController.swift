@@ -130,8 +130,13 @@ final class LightController: ObservableObject {
     /// Identity still comes from the lamp, so a manual entry and a discovered
     /// one for the same lamp collapse into a single row.
     func addManual(host: String, port: Int = KeyLightDevice.defaultPort) async -> String? {
-        let trimmed = host.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return "Enter an address." }
+        guard !host.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return "Enter an address."
+        }
+        guard let trimmed = KeyLightAddress.normalized(host) else {
+            return "That is not a valid address. Use an IP address or host name, "
+                + "for example 192.168.1.20."
+        }
         do {
             let info = try await client.accessoryInfo(host: trimmed, port: port)
             guard let serial = info.serialNumber, !serial.isEmpty else {
