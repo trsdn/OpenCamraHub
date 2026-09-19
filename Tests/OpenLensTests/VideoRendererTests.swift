@@ -58,7 +58,10 @@ final class VideoRendererTests: XCTestCase {
         return pixelBuffer
     }
 
-    private func makeOverlay(rect: CGRect) throws -> OverlayTexture {
+    private func makeOverlay(
+        rect: CGRect,
+        color: (r: UInt8, g: UInt8, b: UInt8) = (0, 255, 0)
+    ) throws -> OverlayTexture {
         let descriptor = MTLTextureDescriptor.texture2DDescriptor(
             pixelFormat: .rgba8Unorm,
             width: 2,
@@ -68,10 +71,12 @@ final class VideoRendererTests: XCTestCase {
         descriptor.usage = .shaderRead
         descriptor.storageMode = .shared
         let texture = try XCTUnwrap(renderer.device.makeTexture(descriptor: descriptor))
-        // Opaque green, premultiplied (which for a fully opaque pixel is a no-op).
+        // Opaque, premultiplied (which for a fully opaque pixel is a no-op).
         var pixels = [UInt8](repeating: 0, count: 2 * 2 * 4)
         for index in 0..<4 {
-            pixels[index * 4 + 1] = 255
+            pixels[index * 4] = color.r
+            pixels[index * 4 + 1] = color.g
+            pixels[index * 4 + 2] = color.b
             pixels[index * 4 + 3] = 255
         }
         texture.replace(
@@ -631,6 +636,27 @@ final class VideoRendererTests: XCTestCase {
         let x = Int(CGFloat(CVPixelBufferGetWidth(buffer) - 1) * xFraction)
         let y = CVPixelBufferGetHeight(buffer) / 2
         return Int(base.advanced(by: y * stride + x).assumingMemoryBound(to: UInt8.self)[0])
+    }
+
+    // MARK: - Overlay blending
+
+    func testBlackOverlayOverBlackKeepsVideoRangeBlackAtAnyOpacity() throws {
+        for opacity in [0.0, 0.25, 0.5, 1.0] {
+            var overlay = try makeOverlay(
+                rect: CGRect(x: 0, y: 0, width: 1, height: 1),
+                color: (0, 0, 0)
+            )
+            overlay.opacity = opacity
+            let output = try render(
+                VideoRenderer.Frame(
+                    pixelBuffer: try XCTUnwrap(VideoRenderer.makeBlackOutputBuffer()),
+                    crop: CGRect(x: 0, y: 0, width: 1, height: 1),
+                    mirror: false,
+                    overlay: overlay
+                )
+            )
+            XCTAssertEqual(try luma(of: output), 16, accuracy: 1, "opacity \(opacity)")
+        }
     }
 
     // MARK: - Colour tagging

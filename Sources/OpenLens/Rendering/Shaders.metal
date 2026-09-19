@@ -224,7 +224,12 @@ fragment float openlens_fragment_luma_biplanar(VertexOut in [[stage_in]],
 
     float4 texel = overlay_texel(in.outputCoord, overlayTexture, u);
     if (texel.a <= 0.0) { return y; }
-    return y * (1.0 - texel.a) + encode_luma(rgb_to_luma(texel.rgb));
+    // The overlay is premultiplied, so its luma already carries the alpha weight.
+    // The video-range black offset has to be weighted the same way, or a black
+    // overlay over black lifts Y from 16 to 16 + 16a.
+    return y * (1.0 - texel.a)
+        + rgb_to_luma(texel.rgb) / kVideoLumaScale
+        + kVideoLumaOffset * texel.a;
 }
 
 fragment float2 openlens_fragment_chroma_biplanar(VertexOut in [[stage_in]],
