@@ -6,6 +6,8 @@ All notable changes to OpenLens are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.4.1] - 2026-09-19
+
 ### Changed
 
 - Updates are offered, not installed: when a newer version is out, a banner
@@ -75,6 +77,7 @@ All notable changes to OpenLens are documented here. The format follows
 - Colours are encoded in the correct video range, so saturated colours match
   between the preview and calls (#24).
 
-[Unreleased]: https://github.com/trsdn/OpenCamraHub/compare/v0.4.0...HEAD
+[Unreleased]: https://github.com/trsdn/OpenCamraHub/compare/v0.4.1...HEAD
+[0.4.1]: https://github.com/trsdn/OpenCamraHub/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/trsdn/OpenCamraHub/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/trsdn/OpenCamraHub/compare/v0.3.0...v0.3.1
