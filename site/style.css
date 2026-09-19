@@ -1,0 +1,354 @@
+/* The accent is the app's own: it uses the system accent, blue by default, and
+   the orange its deck keys light up in. System fonts only: nothing is fetched
+   from another host. */
+
+:root {
+  color-scheme: dark light;
+  --ink: #1b1b1f;
+  --panel: #242429;
+  --raised: #2e2e33;
+  --text: #f2f2f4;
+  --muted: #9c9ca6;
+  --line: rgba(255, 255, 255, 0.1);
+  --button: #0a84ff;
+  --button-hover: #0070e0;
+  --button-text: #ffffff;
+  --link: #64b0ff;
+  --live: #f7821b;
+  --room: #3a3a42;
+  --room-line: #5a5a64;
+  --person: #8a8a96;
+  --shade: rgba(0, 0, 0, 0.62);
+  --shadow: 0 30px 60px -20px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-color-scheme: light) {
+  :root {
+    --ink: #f5f5f7;
+    --panel: #ffffff;
+    --raised: #ececf0;
+    --text: #1d1d1f;
+    --muted: #5c5c66;
+    --line: rgba(0, 0, 0, 0.12);
+    --button: #0071e3;
+    --button-hover: #0060c0;
+    --link: #0064c8;
+    --live: #d96a08;
+    --room: #dcdce2;
+    --room-line: #c8c8d0;
+    --person: #9a9aa6;
+    --shade: rgba(20, 20, 30, 0.45);
+    --shadow: 0 30px 60px -24px rgba(0, 0, 0, 0.35);
+  }
+}
+
+* { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--ink);
+  color: var(--text);
+  font: 400 1.0625rem/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+img { display: block; max-width: 100%; height: auto; }
+
+a { color: var(--link); text-underline-offset: 0.2em; }
+a:hover { text-decoration-thickness: 2px; }
+a:focus-visible,
+.button:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+
+kbd {
+  font: 600 0.875em/1 ui-monospace, "SF Mono", Menlo, monospace;
+  padding: 0.15em 0.4em;
+  border-radius: 5px;
+  background: var(--raised);
+  color: var(--text);
+  white-space: nowrap;
+}
+
+h1, h2 {
+  font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.08;
+  margin: 0;
+  text-wrap: balance;
+}
+h1 { font-size: clamp(2.5rem, 6.4vw, 4.5rem); letter-spacing: -0.035em; }
+h2 { font-size: clamp(1.5rem, 3vw, 2.125rem); }
+
+p { margin: 0; }
+
+/* Every section shares one measure so the left edge never wanders. */
+.top, main > section, footer {
+  width: min(100% - 2.5rem, 68rem);
+  margin-inline: auto;
+}
+
+.top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-block: 1.25rem;
+}
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: var(--text);
+  font: 700 1.125rem/1 ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  text-decoration: none;
+}
+.brand img { border-radius: 8px; }
+.source { font-size: 0.9375rem; }
+
+main > section { padding-block: clamp(2.75rem, 7vw, 5.5rem); }
+main > section + section { border-top: 1px solid var(--line); }
+
+/* Hero */
+.hero {
+  display: grid;
+  gap: clamp(2rem, 5vw, 4rem);
+  align-items: center;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  padding-top: clamp(1.5rem, 4vw, 3.5rem);
+}
+.lead {
+  margin-top: 1.5rem;
+  max-width: 34rem;
+  font-size: 1.25rem;
+  line-height: 1.5;
+  color: var(--muted);
+}
+.lead strong { color: var(--text); font-weight: 650; }
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem 1.5rem;
+  margin-top: 2rem;
+}
+.button {
+  display: inline-block;
+  padding: 0.85rem 1.4rem;
+  border-radius: 12px;
+  background: var(--button);
+  color: var(--button-text);
+  font: 650 1.0625rem/1.2 system-ui, -apple-system, sans-serif;
+  text-decoration: none;
+  transition: background-color 0.15s;
+}
+.button:hover { background: var(--button-hover); }
+.quiet { color: var(--text); }
+
+.status {
+  margin-top: 1.1rem;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+
+/* The figure: the one place the page moves. One crop glides between three
+   scenes, the way ⌃⌥1…3 move it in the app. Each scene is a translate and a
+   scale of the full frame, so the crop is always the frame's own shape. */
+.frame { margin: 0; }
+.frame svg { display: block; width: 100%; height: auto; overflow: visible; }
+.frame figcaption {
+  margin-top: 0.9rem;
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+.sensor { fill: var(--room); }
+.room rect { fill: none; stroke: var(--room-line); stroke-width: 3; }
+.room rect:last-child { fill: var(--room-line); stroke: none; opacity: 0.5; }
+.person { fill: var(--person); }
+.light rect { fill: var(--live); }
+.light path { stroke: var(--room-line); stroke-width: 4; }
+.shade { fill: var(--shade); }
+.edge {
+  fill: none;
+  stroke: var(--button);
+  stroke-width: 3;
+  vector-effect: non-scaling-stroke;
+}
+.window { animation: reframe 12s ease-in-out infinite; }
+.badges { animation: badge-move 12s ease-in-out infinite; }
+.badge {
+  fill: var(--button);
+  font: 800 20px/1 ui-rounded, "SF Pro Rounded", system-ui, -apple-system, sans-serif;
+  opacity: 0;
+}
+.b1 { animation: show-1 12s step-end infinite; }
+.b2 { animation: show-2 12s step-end infinite; }
+.b3 { animation: show-3 12s step-end infinite; }
+.chip rect { fill: var(--panel); stroke: var(--line); stroke-width: 1.5; }
+.chip text { fill: var(--muted); font: 600 14px/1 system-ui, -apple-system, sans-serif; }
+.c1 rect { animation: chip-1 12s step-end infinite; }
+.c2 rect { animation: chip-2 12s step-end infinite; }
+.c3 rect { animation: chip-3 12s step-end infinite; }
+
+/* Desk 1.5×, then Close 2.0× on the face, then Wide 1.0×. */
+@keyframes reframe {
+  0%, 30%   { transform: translate(107px, 60px) scale(0.667); }
+  36%, 63%  { transform: translate(160px, 60px) scale(0.5); }
+  69%, 96%  { transform: translate(0, 0) scale(1); }
+  100%      { transform: translate(107px, 60px) scale(0.667); }
+}
+@keyframes badge-move {
+  0%, 30%   { transform: translate(107px, 60px); }
+  36%, 63%  { transform: translate(160px, 60px); }
+  69%, 96%  { transform: translate(0, 0); }
+  100%      { transform: translate(107px, 60px); }
+}
+@keyframes show-1 { 0% { opacity: 1; } 33% { opacity: 0; } }
+@keyframes show-2 { 0% { opacity: 0; } 33% { opacity: 1; } 66% { opacity: 0; } }
+@keyframes show-3 { 0% { opacity: 0; } 66% { opacity: 1; } }
+@keyframes chip-1 { 0% { stroke: var(--button); stroke-width: 3; } 33% { stroke: var(--line); stroke-width: 1.5; } }
+@keyframes chip-2 { 0% { stroke: var(--line); } 33% { stroke: var(--button); stroke-width: 3; } 66% { stroke: var(--line); stroke-width: 1.5; } }
+@keyframes chip-3 { 0% { stroke: var(--line); } 66% { stroke: var(--button); stroke-width: 3; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .window, .badges, .badge, .chip rect { animation: none; }
+  .window { transform: translate(107px, 60px) scale(0.667); }
+  .badges { transform: translate(107px, 60px); }
+  .b1 { opacity: 1; }
+  .c1 rect { stroke: var(--button); stroke-width: 3; }
+}
+
+/* Why */
+.why {
+  display: grid;
+  gap: clamp(2rem, 5vw, 4rem);
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+  align-items: center;
+}
+.why-text { max-width: 34rem; }
+.why-text p { margin-top: 1.1rem; color: var(--muted); }
+.why-text h2 + p { margin-top: 1.4rem; }
+.why-text em { color: var(--text); font-style: normal; font-weight: 600; }
+
+.numbers { margin: 0; display: grid; gap: 1.5rem; }
+.numbers div {
+  padding: 1.1rem 1.3rem;
+  border-radius: 12px;
+  background: var(--panel);
+  outline: 1px solid var(--line);
+}
+.numbers dt {
+  font: 800 2.25rem/1 ui-rounded, "SF Pro Rounded", system-ui, sans-serif;
+  letter-spacing: -0.02em;
+}
+.numbers dd { margin: 0.4rem 0 0; color: var(--muted); font-size: 0.9375rem; }
+
+/* What you get */
+.features h2 { max-width: 30rem; }
+.features dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2.25rem 3.5rem;
+  margin: 2.5rem 0 0;
+}
+.features dt {
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1.3;
+}
+.features dd {
+  margin: 0.45rem 0 0;
+  max-width: 30rem;
+  color: var(--muted);
+}
+.not { margin-top: 2.75rem; max-width: 40rem; color: var(--muted); }
+
+/* Deck */
+.deck {
+  display: grid;
+  gap: clamp(2rem, 5vw, 4rem);
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+}
+.deck-text { max-width: 34rem; }
+.deck-text p { margin-top: 1.1rem; color: var(--muted); }
+.deck-text h2 + p { margin-top: 1.4rem; }
+
+.keys {
+  list-style: none;
+  margin: 0;
+  padding: 1rem;
+  display: grid;
+  grid-template-columns: repeat(3, 5.25rem);
+  gap: 0.75rem;
+  border-radius: 20px;
+  background: #111114;
+  box-shadow: var(--shadow);
+}
+.key {
+  display: grid;
+  justify-items: center;
+  align-content: center;
+  gap: 0.35rem;
+  aspect-ratio: 1;
+  border-radius: 12px;
+  background: #000;
+  outline: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fff;
+  font: 600 0.8125rem/1 system-ui, -apple-system, sans-serif;
+}
+.key img { width: 2.75rem; height: 2.75rem; }
+
+/* Get it */
+.get ol {
+  margin: 1.75rem 0 0;
+  padding: 0;
+  max-width: 40rem;
+  list-style: none;
+  counter-reset: step;
+}
+.get li {
+  position: relative;
+  padding-left: 3rem;
+  counter-increment: step;
+}
+.get li + li { margin-top: 1.1rem; }
+.get li::before {
+  content: counter(step);
+  position: absolute;
+  left: 0;
+  top: 0.05rem;
+  display: grid;
+  place-items: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: 50%;
+  background: var(--raised);
+  font-weight: 700;
+  font-size: 0.9375rem;
+}
+.get .actions { margin-top: 2rem; }
+.fine { margin-top: 1.1rem; font-size: 0.9375rem; color: var(--muted); max-width: 40rem; }
+
+/* Privacy */
+.privacy p { margin-top: 1.2rem; max-width: 40rem; color: var(--muted); }
+
+footer {
+  padding-block: 2.5rem 3.5rem;
+  border-top: 1px solid var(--line);
+  font-size: 0.9375rem;
+  color: var(--muted);
+}
+footer nav { display: flex; flex-wrap: wrap; gap: 0.5rem 1.75rem; }
+footer p { margin-top: 1.25rem; }
+
+@media (max-width: 52rem) {
+  .hero, .why, .deck { grid-template-columns: minmax(0, 1fr); }
+  .features dl { grid-template-columns: minmax(0, 1fr); }
+  .keys { justify-self: start; }
+}
