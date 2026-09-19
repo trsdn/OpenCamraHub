@@ -84,6 +84,7 @@ targets:
       # a decoding regression there silently discards every saved scene.
       - path: Sources/OpenLens/Model/CameraScene.swift
       - path: Sources/OpenLens/Model/OverlayGeometry.swift
+      - path: Sources/OpenLens/Model/PipelineGating.swift
       - path: Sources/OpenLens/Capture/CaptureEngine.swift
       # The wire format for the lights: the DTOs have to survive a firmware
       # that omits fields, and the partial PUT body has to stay partial.
