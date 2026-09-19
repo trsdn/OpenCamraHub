@@ -14,8 +14,8 @@ public enum OpenLensID {
 
 
     /// Stable identity of the published virtual camera device.
-    public static let deviceName = "OpenLens"
-    public static let deviceModel = "OpenLens Virtual Camera"
+    public static let deviceName = "OpenCamraHub"
+    public static let deviceModel = "OpenCamraHub Virtual Camera"
     public static let deviceUUID = UUID(uuidString: "6F1E6D9C-1C2E-4C1A-9E4B-2A7D3B5C8E10")!
     public static let streamUUID = UUID(uuidString: "6F1E6D9C-1C2E-4C1A-9E4B-2A7D3B5C8E11")!
     public static let sinkStreamUUID = UUID(uuidString: "6F1E6D9C-1C2E-4C1A-9E4B-2A7D3B5C8E12")!

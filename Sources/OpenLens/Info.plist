@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>OpenLens</string>
+	<string>OpenCamraHub</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconFile</key>
@@ -15,7 +15,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>$(PRODUCT_NAME)</string>
+	<string>OpenCamraHub</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
@@ -29,16 +29,16 @@
 		<string>_elg._tcp</string>
 	</array>
 	<key>NSCameraUsageDescription</key>
-	<string>OpenLens needs your camera so it can zoom, crop, and send the result to your conferencing app.</string>
+	<string>OpenCamraHub needs your camera so it can zoom, crop, and send the result to your conferencing app.</string>
 	<key>NSHighResolutionCapable</key>
 	<true/>
 	<key>NSLocalNetworkUsageDescription</key>
-	<string>OpenLens looks for Elgato Key Lights on your network so it can set their brightness and colour temperature with the rest of a scene.</string>
+	<string>OpenCamraHub looks for Elgato Key Lights on your network so it can set their brightness and colour temperature with the rest of a scene.</string>
 	<key>NSSupportsAutomaticTermination</key>
 	<false/>
 	<key>NSSupportsSuddenTermination</key>
 	<false/>
 	<key>NSSystemExtensionUsageDescription</key>
-	<string>OpenLens installs a camera extension so conferencing apps can select OpenLens as a camera.</string>
+	<string>OpenCamraHub installs a camera extension so conferencing apps can select OpenCamraHub as a camera.</string>
 </dict>
 </plist>

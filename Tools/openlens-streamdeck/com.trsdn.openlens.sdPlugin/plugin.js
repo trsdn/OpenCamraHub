@@ -106,7 +106,7 @@ function handle(message) {
                 // A refusal is worth showing on the key itself: the person
                 // pressing it is looking at the device, not at a log file.
                 toDeck("showAlert", context);
-                log(error instanceof NotRunningError ? "OpenLens is not running" : error.message);
+                log(error instanceof NotRunningError ? "OpenCamraHub is not running" : error.message);
             });
             break;
 
@@ -139,7 +139,7 @@ function handle(message) {
 
 function log(message) {
     if (deck?.readyState === DeckSocket.OPEN) {
-        deck.send(JSON.stringify({ event: "logMessage", payload: { message: `OpenLens: ${message}` } }));
+        deck.send(JSON.stringify({ event: "logMessage", payload: { message: `OpenCamraHub: ${message}` } }));
     }
 }
 

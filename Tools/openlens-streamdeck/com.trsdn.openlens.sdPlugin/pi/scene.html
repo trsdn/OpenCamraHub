@@ -20,7 +20,7 @@
             fillSelect(select, options.scenes, settings.sceneId, "Next scene (cycles)");
             note.textContent = options.running
                 ? "The key shows the scene's name and lights up while it is live."
-                : "OpenLens is not running, so there are no scenes to list yet.";
+                : "OpenCamraHub is not running, so there are no scenes to list yet.";
             note.className = options.running ? "note" : "note warning";
             select.onchange = () => OpenLensPI.save({ sceneId: select.value });
         });

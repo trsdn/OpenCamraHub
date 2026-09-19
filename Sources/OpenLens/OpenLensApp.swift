@@ -5,7 +5,7 @@ struct OpenLensApp: App {
     @StateObject private var model = AppModel()
 
     var body: some Scene {
-        Window("OpenLens", id: "main") {
+        Window("OpenCamraHub", id: "main") {
             ContentView(model: model)
                 .frame(minWidth: 960, minHeight: 560)
         }

@@ -25,7 +25,7 @@ final class SystemExtensionInstaller: NSObject, ObservableObject {
     func activate() {
         guard Bundle.main.bundlePath.hasPrefix("/Applications") else {
             state = .failed(
-                "Move OpenLens to your Applications folder — macOS refuses to install a "
+                "Move OpenCamraHub to your Applications folder — macOS refuses to install a "
                     + "camera extension from anywhere else."
             )
             return

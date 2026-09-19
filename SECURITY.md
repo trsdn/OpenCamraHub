@@ -3,16 +3,16 @@
 ## Reporting a vulnerability
 
 Report privately through
-[GitHub Security Advisories](https://github.com/trsdn/OpenLens/security/advisories/new).
+[GitHub Security Advisories](https://github.com/trsdn/OpenCamraHub/security/advisories/new).
 **Do not open a public issue.**
 
-Please include the macOS version, the OpenLens version (`Contents/Info.plist` →
+Please include the macOS version, the OpenCamraHub version (`Contents/Info.plist` →
 `CFBundleShortVersionString`), and the smallest reproduction you can manage. You
 should get an acknowledgement within seven days and an assessment within thirty.
 
 ## What is in scope
 
-OpenLens is two pieces of code, and only one of them is an ordinary app. The
+OpenCamraHub is two pieces of code, and only one of them is an ordinary app. The
 other is a camera extension that macOS keeps running on its own so that calls do
 not break when the app quits.
 
@@ -23,11 +23,11 @@ not break when the app quits.
 
 Taken seriously:
 
-- Anything that lets a process other than OpenLens push frames into the virtual
+- Anything that lets a process other than OpenCamraHub push frames into the virtual
   camera, or read frames out of the transport between the app and the extension.
 - Anything that makes the extension crash, hang or corrupt memory. It is a
   long-lived process that other applications open, so a fault there is not
-  contained to OpenLens.
+  contained to OpenCamraHub.
 - A way to make the extension keep publishing after it should have stopped, or
   to keep a frame visible after the user paused or quit — a pause that does not
   actually stop the picture is a privacy failure, not a cosmetic bug.
@@ -44,11 +44,11 @@ Taken seriously:
 ## What is out of scope
 
 - Physical access to an unlocked machine.
-- The user deliberately pointing OpenLens at a camera they should not be using.
-  OpenLens asks macOS for camera access like any other app and inherits its
+- The user deliberately pointing OpenCamraHub at a camera they should not be using.
+  OpenCamraHub asks macOS for camera access like any other app and inherits its
   permission model.
 - Elgato lamps being controllable by anyone on the same network. That is the
-  lamps' own design: their HTTP API has no authentication, and OpenLens neither
+  lamps' own design: their HTTP API has no authentication, and OpenCamraHub neither
   adds nor can add one.
 - Denial of service that needs an attacker already able to run code as the
   logged-in user.

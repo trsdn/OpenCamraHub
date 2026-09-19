@@ -1,11 +1,11 @@
 {
   "$schema": "https://schemas.elgato.com/streamdeck/plugins/manifest.json",
-  "Name": "OpenLens",
+  "Name": "OpenCamraHub",
   "UUID": "com.trsdn.openlens",
   "Author": "Torsten Mahr",
   "Version": "0.2.0.0",
   "Icon": "icons/plugin",
-  "Category": "OpenLens",
+  "Category": "OpenCamraHub",
   "CategoryIcon": "icons/category",
   "CodePath": "plugin.js",
   "Nodejs": {
@@ -21,7 +21,7 @@
   "Software": {
     "MinimumVersion": "6.4"
   },
-  "Description": "Switch OpenLens scenes, pause the camera and control key lights from a Stream Deck. Keys show what OpenLens is actually doing, including changes made with the hotkeys or in the app window.",
+  "Description": "Switch OpenCamraHub scenes, pause the camera and control key lights from a Stream Deck. Keys show what OpenCamraHub is actually doing, including changes made with the hotkeys or in the app window.",
   "Actions": [
     {
       "Name": "Select scene",
