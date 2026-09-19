@@ -39,6 +39,19 @@ final class AppDisplayNameTests: XCTestCase {
         XCTAssertEqual(info["LSHasLocalizedDisplayName"] as? Bool, true)
     }
 
+    /// The Help menu and the README badges read these, and the standard
+    /// requires a release build to carry them (I02, I03).
+    func testTheBundleNamesItsRepositoryIssueTrackerAndLicense() throws {
+        let info = try appInfoPlist()
+        XCTAssertEqual(info["OCHRepositoryURL"] as? String, "https://github.com/trsdn/OpenCamraHub")
+        XCTAssertEqual(info["OCHIssueTrackerURL"] as? String, "https://github.com/trsdn/OpenCamraHub/issues")
+        XCTAssertEqual(info["OCHLicenseIdentifier"] as? String, "MIT")
+        let copyright = try XCTUnwrap(info["NSHumanReadableCopyright"] as? String)
+        XCTAssertTrue(copyright.contains("MIT"), "The copyright line should name the license the badge shows.")
+        let license = try String(contentsOf: root.appendingPathComponent("LICENSE"), encoding: .utf8)
+        XCTAssertTrue(license.hasPrefix("MIT License"), "OCHLicenseIdentifier must match the LICENSE file.")
+    }
+
     func testThePublicNameComesFromTheLocalizedStrings() throws {
         let strings = try localizedInfoStrings()
         XCTAssertEqual(strings["CFBundleDisplayName"], "OpenCamraHub")

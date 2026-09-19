@@ -1,0 +1,15 @@
+version: 2
+
+updates:
+  # The app has no package dependencies since AppUpdater was removed, so the
+  # pinned action versions in the workflows are the only thing that ages.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: build
+      include: scope
+    labels:
+      - dependencies

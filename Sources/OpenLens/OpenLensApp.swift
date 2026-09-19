@@ -4,6 +4,10 @@ import SwiftUI
 struct OpenLensApp: App {
     @StateObject private var model = AppModel()
 
+    private static func infoURL(_ key: String) -> URL? {
+        (Bundle.main.object(forInfoDictionaryKey: key) as? String).flatMap(URL.init(string:))
+    }
+
     var body: some Scene {
         Window("OpenCamraHub", id: "main") {
             ContentView(model: model)
@@ -56,6 +60,17 @@ struct OpenLensApp: App {
                 Divider()
                 Button("Reinstall Camera Extension") { model.installer.activate() }
                 Button("Remove Camera Extension") { model.installer.deactivate() }
+            }
+
+            // The repository and issue tracker come from Info.plist, the same
+            // entries a release build carries, so the menu cannot drift from them.
+            CommandGroup(replacing: .help) {
+                if let url = Self.infoURL("OCHRepositoryURL") {
+                    Link("OpenCamraHub on GitHub", destination: url)
+                }
+                if let url = Self.infoURL("OCHIssueTrackerURL") {
+                    Link("Report an Issue…", destination: url)
+                }
             }
         }
     }

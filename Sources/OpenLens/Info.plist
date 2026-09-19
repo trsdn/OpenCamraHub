@@ -8,6 +8,14 @@
 	<string>OpenLens</string>
 	<key>LSHasLocalizedDisplayName</key>
 	<true/>
+	<key>NSHumanReadableCopyright</key>
+	<string>Copyright © 2026 Torsten Mahr. Released under the MIT License.</string>
+	<key>OCHLicenseIdentifier</key>
+	<string>MIT</string>
+	<key>OCHRepositoryURL</key>
+	<string>https://github.com/trsdn/OpenCamraHub</string>
+	<key>OCHIssueTrackerURL</key>
+	<string>https://github.com/trsdn/OpenCamraHub/issues</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIconFile</key>

@@ -1,10 +1,10 @@
 # OpenCamraHub
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Latest release](https://img.shields.io/github/v/release/trsdn/OpenCamraHub?label=release)](https://github.com/trsdn/OpenCamraHub/releases/latest)
-[![macOS](https://img.shields.io/badge/macOS-14%2B-black?logo=apple)](https://github.com/trsdn/OpenCamraHub)
-[![Swift 6](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)](https://swift.org)
-[![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-M1%2B-333?logo=apple)](https://github.com/trsdn/OpenCamraHub)
+[![License](https://raw.githubusercontent.com/trsdn/OpenCamraHub/repo-stats/.github/badges-generated/license.svg)](LICENSE)
+[![Minimum macOS version](https://raw.githubusercontent.com/trsdn/OpenCamraHub/repo-stats/.github/badges-generated/platform.svg)](#requirements)
+[![CI](https://github.com/trsdn/OpenCamraHub/actions/workflows/ci.yml/badge.svg?branch=master)](https://github.com/trsdn/OpenCamraHub/actions/workflows/ci.yml)
+[![Latest release](https://raw.githubusercontent.com/trsdn/OpenCamraHub/repo-stats/.github/badges-generated/release.svg)](https://github.com/trsdn/OpenCamraHub/releases/latest)
+[![Conformance](.github/badges/conformance.svg)](.github/conformance.yml)
 
 A lightweight virtual camera for video calls. Point it at a camera, zoom into the
 part of the frame that matters, and pick **OpenCamraHub** as your camera in Zoom,
@@ -17,6 +17,13 @@ not touch audio, and has no timeline, no projects and no accounts.
 > app still installs as `OpenLens.app`, downloads are still named `OpenLens-*.dmg`,
 > and the bundle identifiers are unchanged, so existing installs keep their scenes,
 > their camera selection in conferencing apps, and their updates.
+
+**Status:** actively developed and in daily use by its maintainer. Signed,
+notarized builds are on the
+[latest release](https://github.com/trsdn/OpenCamraHub/releases/latest) page, and
+there is a [project page](https://trsdn.github.io/OpenCamraHub/) for readers who
+want the product rather than the source. See
+[Support and maintenance](#support-and-maintenance) for what to expect.
 
 ---
 
@@ -31,6 +38,10 @@ not touch audio, and has no timeline, no projects and no accounts.
 - [Build from source](#build-from-source)
 - [Releasing](#releasing)
 - [Troubleshooting](#troubleshooting)
+- [Privacy and your data](#privacy-and-your-data)
+- [Language](#language)
+- [Accessibility](#accessibility)
+- [Support and maintenance](#support-and-maintenance)
 - [Contributing](#contributing)
 - [Repository stats](#repository-stats)
 - [License](#license)
@@ -92,6 +103,9 @@ not touch audio, and has no timeline, no projects and no accounts.
 | **Lighting (optional)** | Elgato Key Light, Key Light Air or Key Light Mini on the same network |
 | **Build tools** | Xcode 16 command-line tools, and [XcodeGen](https://github.com/yonaskolb/XcodeGen) if you change `project.yml` |
 
+CI builds and tests on macOS 15 only. macOS 14 is supported, because that is
+the deployment target, but it is not covered by an automated run.
+
 ## Install
 
 Download the latest DMG from
@@ -111,6 +125,12 @@ runs without a Gatekeeper prompt. To check a download yourself:
 spctl -a -vvv -t open --context context:primary-signature OpenLens-*.dmg
 shasum -a 256 -c OpenLens-*.dmg.sha256
 ```
+
+What this proves: the download is intact, and Apple notarized a build signed
+with the maintainer's Developer ID. What it does not prove: that the build came
+from a particular commit of this repository. The release's `provenance.json`
+names the source commit the broker built, but it is the broker's own record,
+not an independent attestation.
 
 ### Updates
 
@@ -388,8 +408,8 @@ what that validation described. The signing job waits for a human approval.
 creating the release from the tag message if it does not exist yet:
 
 - the ZIP and the DMG, each with a `.sha256` file;
-- `OpenLens-X.Y.Z.dmg`, a byte-identical copy of the DMG. This is the only
-  asset name in-app updates look for;
+- `OpenLens-X.Y.Z.dmg`, a byte-identical copy of the DMG, kept for copies up
+  to 0.4.0 whose built-in updater looks for exactly that name;
 - `provenance.json` and `preflight-manifest.json`.
 
 Two consequences for this repository:
@@ -401,6 +421,15 @@ Two consequences for this repository:
   or the minimum macOS version needs a reviewed change to the broker profile
   first, or the preflight rejects the build.
 
+The release notes are the `CHANGELOG.md` entry for the version, never
+freestanding text. The broker refuses to publish when that entry is missing or
+empty, or when anything is still listed under **Unreleased**, so promote the
+entries into the new version's heading before tagging.
+
+Every release is installed from its published artifact and launched before it
+counts as done; the dated results are in
+[docs/release-smoke-tests.md](docs/release-smoke-tests.md).
+
 `scripts/release.sh` predates the broker and is kept only for reference. See
 [AGENTS.md](AGENTS.md).
 
@@ -408,12 +437,89 @@ Two consequences for this repository:
 
 | Symptom | Cause |
 | --- | --- |
-| The camera never appears in Zoom | The extension is not approved yet, or the app was launched from outside `/Applications`. Conferencing apps also enumerate cameras **at launch** — quit and reopen Zoom/Teams/Meet after installing OpenLens. |
-| Picked OpenCamraHub, but the app shows no picture | Selecting a camera in a settings menu does not open it. Start a call or open the app's device preview and switch video on; the OpenLens banner turns green the moment a consumer attaches. |
-| "Lost contact with the camera extension" | The extension was replaced while the app was running (an update does this). That kills the app's CoreMediaIO client state for good, so the banner offers a **Restart OpenLens** button; a fresh process reconnects instantly. |
+| The camera never appears in Zoom | The extension is not approved yet, or the app was launched from outside `/Applications`. Conferencing apps also enumerate cameras **at launch** — quit and reopen Zoom/Teams/Meet after installing. |
+| Picked OpenCamraHub, but the app shows no picture | Selecting a camera in a settings menu does not open it. Start a call or open the app's device preview and switch video on; the app's banner turns green the moment a consumer attaches. |
+| "Lost contact with the camera extension" | The extension was replaced while the app was running (an update does this). That kills the app's CoreMediaIO client state for good, so the banner offers a **Restart OpenCamraHub** button; a fresh process reconnects instantly. |
 | "Camera is in use" | Some UVC devices (Cam Link 4K among them) refuse concurrent access. Quit OBS or any other app holding the camera. |
 | A static card instead of the picture | The app is not running. The extension keeps the device alive on its own so calls do not break. |
 | Zoom looks soft | You are past the "Stays sharp up to" limit in the inspector, and the badge says `soft`. Raise **Capture quality**. |
+
+## Privacy and your data
+
+OpenCamraHub collects nothing. There is no account, no analytics, no telemetry
+and no crash reporting. The picture never leaves your Mac except through the
+conferencing app you choose it in.
+
+It opens two kinds of network connection:
+
+- **Once a day, the update check** asks the GitHub Releases API whether a newer
+  version exists. The request carries no identifier. Turn off
+  **Check for Updates Automatically** and nothing is contacted unless you choose
+  **Check for Updates…** yourself.
+- **Elgato Key Lights on your local network**, found over Bonjour and driven over
+  their local HTTP API. Nothing about them leaves your network.
+
+**What is stored, and where.** Everything the app remembers is in one
+preferences file inside its sandbox container:
+
+```
+~/Library/Containers/com.trsdn.openlens/Data/Library/Preferences/com.trsdn.openlens.plist
+```
+
+It holds your scenes, the selected scene, the lights the app has found or you
+added, which inspector sections are open, and the update setting. An overlay
+image is not copied: the app keeps a bookmark to the file wherever you keep it.
+If saved scenes ever cannot be read, the app copies them to
+`scenes.v1.unreadable` in the same preferences before anything else happens.
+
+**How long, and how to remove it.** It is kept until you delete it. Removing the
+app does not remove it, so an update or reinstall keeps your scenes. To export
+it, copy the file above. To delete everything, quit the app and move
+`~/Library/Containers/com.trsdn.openlens` to the Trash.
+
+## Language
+
+**English only.** English is the interface language and the language of every
+document, commit and issue here. There are no other localizations. The one
+`en.lproj` in the bundle exists only to show the app's name as OpenCamraHub in
+Finder (see AGENTS.md), not to translate anything.
+
+## Accessibility
+
+What works:
+
+- **Every action has a keyboard route.** Scenes switch with ⌃⌥1…⌃⌥9 from any
+  app and pause with ⌃⌥P. Zoom (⌘+, ⌘−, ⌘0), the preview (⌘P) and the scene
+  commands are menu items, so they are reachable from the keyboard like any
+  menu. Tone, colour and zoom values each have a number field you can type an
+  exact value into.
+- **Most controls carry names.** The inspector's tone and colour fields and
+  sliders expose their names to VoiceOver ("Exposure value", "Exposure"), and
+  the collapsible sections can be opened through accessibility.
+
+Known limitations, stated rather than left implicit:
+
+- **Placing the zoom and the overlay by dragging is pointer-only.** The keyboard
+  equivalents are the zoom shortcuts and the overlay's percentage fields and
+  nine snap positions, which reach every placement the pointer can.
+- **The Key Light brightness and temperature sliders have no name** for
+  VoiceOver (they read as "slider") and no number field.
+- **No systematic keyboard or VoiceOver audit has been recorded yet.** Focus
+  order and the focus indicator have not been checked end to end.
+
+## Support and maintenance
+
+Maintained by [@trsdn](https://github.com/trsdn) as a single-maintainer project,
+best-effort and in the open. There is no service-level commitment and no
+guaranteed response time.
+
+- **Bugs and proposals** → [issues](https://github.com/trsdn/OpenCamraHub/issues),
+  which offer a form for each.
+- **Security vulnerabilities** → report privately through
+  [a security advisory](https://github.com/trsdn/OpenCamraHub/security/advisories/new),
+  not a public issue. See [SECURITY.md](SECURITY.md).
+- **Why the code is shaped the way it is** → [AGENTS.md](AGENTS.md), which
+  records the design constraints and the traps that produced them.
 
 ## Contributing
 
@@ -424,11 +530,13 @@ for how to build, test and structure a change, and
 ## Repository stats
 
 <picture>
-  <source media="(prefers-color-scheme: dark)" srcset=".github/stats/repo-card-dark.svg">
-  <img alt="Repository statistics" src=".github/stats/repo-card.svg">
+  <source media="(prefers-color-scheme: dark)" srcset="https://raw.githubusercontent.com/trsdn/OpenCamraHub/repo-stats/.github/stats/repo-card-dark.svg">
+  <img alt="Repository statistics" src="https://raw.githubusercontent.com/trsdn/OpenCamraHub/repo-stats/.github/stats/repo-card.svg">
 </picture>
 
-Generated daily by the [shared stats workflow](https://github.com/trsdn/.github/blob/main/docs/repo-stats.md).
+Generated daily by the [shared stats workflow](https://github.com/trsdn/.github/blob/main/docs/repo-stats.md)
+into the `repo-stats` branch, together with the license, platform and release
+badges above, so neither is committed to master by hand or by a bot.
 
 ## License
 

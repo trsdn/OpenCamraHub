@@ -1,5 +1,51 @@
 # Working on OpenCamraHub (formerly OpenLens)
 
+OpenCamraHub is a macOS virtual camera: it captures a real camera, crops,
+corrects and composites it in one Metal pass, and publishes the result through
+a CoreMediaIO camera extension that Teams, Zoom and Meet can select. It also
+drives Elgato Key Lights and is remote-controllable over a local socket.
+
+## Layout
+
+| Path | What it is |
+| --- | --- |
+| `Sources/OpenLens` | The app: capture, rendering, scenes, lighting, updates, UI |
+| `Sources/OpenLensCamera` | The camera system extension |
+| `Sources/OpenLensShared` | Identifiers and types both processes share |
+| `Tests/OpenLensTests` | Unit and rendering tests; the test target compiles app sources directly (see `project.yml`) |
+| `Tools/openlens-streamdeck` | The OpenDeck / Stream Deck plugin (Node, no dependencies) |
+| `Tools/openlens-mcp` | The MCP server and socket client the plugin vendors |
+| `site/`, `scripts/build_site.sh` | The GitHub Pages site |
+| `project.yml` → `OpenLens.xcodeproj` | XcodeGen spec and the committed project generated from it |
+
+Authoritative commands:
+
+```bash
+xcodebuild test -project OpenLens.xcodeproj -scheme OpenLens -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
+(cd Tools/openlens-streamdeck && npm test)
+xcodegen generate   # after changing project.yml; commit the result
+```
+
+## Forbidden and high-risk operations
+
+- **No force pushes, no history rewriting, no deleting `master`.** The branch
+  ruleset refuses all three, and `master` only changes through a pull request
+  whose CI passes. Release commits go through a pull request too. Never ask
+  for a bypass.
+- **Never move or re-point a published release tag.** A tag that already has a
+  GitHub release is what installed copies and the broker's provenance refer to;
+  cut a new patch version instead.
+- **No credentials in the repository.** Apple credentials exist only in the
+  notarization broker; do not create an app-specific password or a `notarytool`
+  profile here (see below). Secret scanning with push protection is on.
+- **Releases only through the broker**, as described below, and only after the
+  changelog entry for the version exists.
+- **Never delete or overwrite the user's scenes.** The sandbox container
+  `~/Library/Containers/com.trsdn.openlens` holds them; do not remove it or its
+  preferences to "reset" a test. Use a debug build, which writes elsewhere (see
+  the last section), and copy the preferences aside first if a test must touch
+  them.
+
 ## The name changed; the identity did not
 
 The app is called **OpenCamraHub** wherever a person reads it: Finder,
@@ -47,14 +93,22 @@ isolated jobs so that source-repository code never touches the signing secrets.
 
 To cut a release:
 
-1. Tag the commit in this repository as `vX.Y.Z` and push the tag.
-2. From a checkout of the broker: `scripts/request.sh openlens vX.Y.Z --publish`.
+1. In a pull request: move the `## [Unreleased]` entries under a new
+   `## [X.Y.Z] - YYYY-MM-DD` heading in `CHANGELOG.md`, bump `MARKETING_VERSION`
+   and `CURRENT_PROJECT_VERSION` in `project.yml`, regenerate the project, and
+   merge once CI passes. `master` accepts no direct pushes.
+2. Tag the merged commit on `master` as `vX.Y.Z` and push the tag.
+3. From a clean checkout of the broker's `main`:
+   `scripts/request.sh openlens vX.Y.Z --publish`.
+4. Download the published release, install it into `/Applications`, launch it,
+   and add a dated entry to `docs/release-smoke-tests.md`.
 
 `request.sh` correlates the exact run, downloads only that artifact, and
-verifies `provenance.json` plus the release digests. `--publish` then uploads
-the verified files to this repository's release for the tag. Dispatching the
-workflow from the Actions tab skips that step, so the release would miss its
-files, including the one in-app updates need.
+verifies `provenance.json` plus the release digests. `--publish` then creates
+the release with the changelog entry as its notes, and refuses if that entry is
+missing or empty or anything is still under Unreleased; then it uploads the
+verified files. Dispatching the workflow from the Actions tab skips that step,
+so the release would miss its files and notes.
 
 ### OpenLens is allowlisted as the `openlens` profile
 

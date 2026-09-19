@@ -2,6 +2,10 @@
 
 <!-- What changes and why. Link the issue, for example "Closes #12". -->
 
+## Risk
+
+<!-- What could this break, and for whom? Name anything that affects installed copies, saved scenes, the camera extension, releases or the broker. "None" is a valid answer when it is true. -->
+
 ## Validation
 
 - [ ] `xcodebuild test -project OpenLens.xcodeproj -scheme OpenLens -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO` passes
