@@ -20,7 +20,7 @@ struct OpenLensApp: App {
             TextEditingCommands()
 
             CommandMenu("Scene") {
-                // Option-number is deliberately not a plain number: the shortcut
+                // Control-Option-number is deliberately not a plain number: the shortcut
                 // has to survive being pressed while a text field has focus.
                 ForEach(0..<9, id: \.self) { index in
                     Button("Switch to Scene \(index + 1)") {
@@ -28,7 +28,7 @@ struct OpenLensApp: App {
                     }
                     .keyboardShortcut(
                         KeyEquivalent(Character("\(index + 1)")),
-                        modifiers: .option
+                        modifiers: [.control, .option]
                     )
                 }
                 Divider()

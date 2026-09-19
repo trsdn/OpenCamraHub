@@ -327,7 +327,7 @@ struct ControlCommandHandler {
         guard !scenes.isEmpty else { throw ControlError("There are no scenes") }
 
         if let index = request.param("index")?.intValue {
-            // One-based, to line up with the ⌥1…⌥9 shortcuts and with what the
+            // One-based, to line up with the ⌃⌥1…⌃⌥9 shortcuts and with what the
             // scene strip shows. Off-by-one here would silently pick a
             // neighbour, so it is worth being loud about the range.
             guard (1...scenes.count).contains(index) else {
