@@ -92,6 +92,9 @@ targets:
       # write must carry only the fields that changed.
       - path: Sources/OpenLens/Lighting/LightController.swift
       - path: Sources/OpenLens/Lighting/KeyLightDiscovery.swift
+      # The shortcut table, so no default can drift back to a modifier that
+      # types characters on some keyboard layouts.
+      - path: Sources/OpenLens/UI/GlobalHotKeys.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: com.trsdn.openlens.tests

@@ -96,10 +96,10 @@ struct PauseButton: View {
         .help(
             model.isPaused
                 ? "Resume sending live video and put the scene's lights back "
-                    + "(⌥P works from any app)."
+                    + "(⌃⌥P works from any app)."
                 : "Black out the picture your call sees, release the camera so "
                     + "its light goes out, and switch off the lights this scene "
-                    + "owns. ⌥P works from any app."
+                    + "owns. ⌃⌥P works from any app."
         )
     }
 }
@@ -149,7 +149,7 @@ struct SceneCard: View {
                     .lineLimit(1)
                 Spacer(minLength: 0)
                 if index < 9 {
-                    Text("⌥\(index + 1)")
+                    Text("⌃⌥\(index + 1)")
                         .font(.caption2.monospaced())
                         .foregroundStyle(.secondary)
                 }

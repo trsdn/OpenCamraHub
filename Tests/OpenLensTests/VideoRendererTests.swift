@@ -58,7 +58,10 @@ final class VideoRendererTests: XCTestCase {
         return pixelBuffer
     }
 
-    private func makeOverlay(rect: CGRect) throws -> OverlayTexture {
+    private func makeOverlay(
+        rect: CGRect,
+        color: (r: UInt8, g: UInt8, b: UInt8) = (0, 255, 0)
+    ) throws -> OverlayTexture {
         let descriptor = MTLTextureDescriptor.texture2DDescriptor(
             pixelFormat: .rgba8Unorm,
             width: 2,
@@ -68,10 +71,12 @@ final class VideoRendererTests: XCTestCase {
         descriptor.usage = .shaderRead
         descriptor.storageMode = .shared
         let texture = try XCTUnwrap(renderer.device.makeTexture(descriptor: descriptor))
-        // Opaque green, premultiplied (which for a fully opaque pixel is a no-op).
+        // Opaque, premultiplied (which for a fully opaque pixel is a no-op).
         var pixels = [UInt8](repeating: 0, count: 2 * 2 * 4)
         for index in 0..<4 {
-            pixels[index * 4 + 1] = 255
+            pixels[index * 4] = color.r
+            pixels[index * 4 + 1] = color.g
+            pixels[index * 4 + 2] = color.b
             pixels[index * 4 + 3] = 255
         }
         texture.replace(
@@ -130,8 +135,9 @@ final class VideoRendererTests: XCTestCase {
             .assumingMemoryBound(to: UInt8.self)
 
         let luminance = (Double(luma) - 16) / 219
-        let cb = (Double(chroma[0]) - 128) / 255
-        let cr = (Double(chroma[1]) - 128) / 255
+        // Video-range chroma is centred on 128 and spans 224 codes (16...240).
+        let cb = (Double(chroma[0]) - 128) / 224
+        let cr = (Double(chroma[1]) - 128) / 224
 
         func byte(_ value: Double) -> UInt8 {
             UInt8(clamping: Int((min(max(value, 0), 1) * 255).rounded()))
@@ -298,9 +304,9 @@ final class VideoRendererTests: XCTestCase {
     /// every real source negotiates 4:2:0 biplanar, so the shaders that grade
     /// luma and chroma separately are the ones that actually ship.
     ///
-    /// Red on the left, blue on the right, encoded with the same BT.601
-    /// video-range constants the shader inverts.
-    private func makeBiplanarSourceBuffer() throws -> CVPixelBuffer {
+    /// Red on the left, blue on the right, encoded from BT.601 with the range's
+    /// own code spans, written out independently of the shader's constants.
+    private func makeBiplanarSourceBuffer(fullRange: Bool = false) throws -> CVPixelBuffer {
         let width = 1280
         let height = 720
         var buffer: CVPixelBuffer?
@@ -313,7 +319,9 @@ final class VideoRendererTests: XCTestCase {
                 kCFAllocatorDefault,
                 width,
                 height,
-                kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
+                fullRange
+                    ? kCVPixelFormatType_420YpCbCr8BiPlanarFullRange
+                    : kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
                 attributes as CFDictionary,
                 &buffer
             ),
@@ -324,8 +332,10 @@ final class VideoRendererTests: XCTestCase {
         CVPixelBufferLockBaseAddress(pixelBuffer, [])
         defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, []) }
 
-        // Y = 0.299R + 0.587G + 0.114B, scaled into the 16...235 window.
-        func videoLuma(_ full: Double) -> UInt8 { UInt8((full * 219 + 16).rounded()) }
+        // Y = 0.299R + 0.587G + 0.114B, scaled into the 16...235 window (or 0...255).
+        func videoLuma(_ full: Double) -> UInt8 {
+            fullRange ? UInt8((full * 255).rounded()) : UInt8((full * 219 + 16).rounded())
+        }
         let redLuma = videoLuma(0.299)
         let blueLuma = videoLuma(0.114)
 
@@ -340,9 +350,12 @@ final class VideoRendererTests: XCTestCase {
 
         func chroma(r: Double, g: Double, b: Double) -> (UInt8, UInt8) {
             let y = 0.299 * r + 0.587 * g + 0.114 * b
-            let cb = (b - y) / 1.772 + 0.5
-            let cr = (r - y) / 1.402 + 0.5
-            return (UInt8((cb * 255).rounded()), UInt8((cr * 255).rounded()))
+            // Centred on 128; 224 codes wide in video range, 255 in full range.
+            let span = fullRange ? 255.0 : 224.0
+            func code(_ centred: Double) -> UInt8 {
+                UInt8(min(max((128 + centred * span).rounded(), 0), 255))
+            }
+            return (code((b - y) / 1.772), code((r - y) / 1.402))
         }
         let red = chroma(r: 1, g: 0, b: 0)
         let blue = chroma(r: 0, g: 0, b: 1)
@@ -631,6 +644,91 @@ final class VideoRendererTests: XCTestCase {
         let x = Int(CGFloat(CVPixelBufferGetWidth(buffer) - 1) * xFraction)
         let y = CVPixelBufferGetHeight(buffer) / 2
         return Int(base.advanced(by: y * stride + x).assumingMemoryBound(to: UInt8.self)[0])
+    }
+
+    /// Reads the raw Cb and Cr codes of the NV12 output.
+    private func chromaCodes(
+        of buffer: CVPixelBuffer,
+        atX xFraction: CGFloat
+    ) throws -> (cb: Int, cr: Int) {
+        CVPixelBufferLockBaseAddress(buffer, .readOnly)
+        defer { CVPixelBufferUnlockBaseAddress(buffer, .readOnly) }
+        let base = try XCTUnwrap(CVPixelBufferGetBaseAddressOfPlane(buffer, 1))
+        let stride = CVPixelBufferGetBytesPerRowOfPlane(buffer, 1)
+        let x = Int(CGFloat(CVPixelBufferGetWidth(buffer) - 1) * xFraction) / 2
+        let y = CVPixelBufferGetHeight(buffer) / 4
+        let pair = base.advanced(by: y * stride + x * 2).assumingMemoryBound(to: UInt8.self)
+        return (Int(pair[0]), Int(pair[1]))
+    }
+
+    // MARK: - Range conversion
+
+    /// BT.601 video-range references for pure red and pure blue, worked out by
+    /// hand: Cb = 128 + 224 (B - Y) / 1.772 and Cr = 128 + 224 (R - Y) / 1.402.
+    private let redCodes = (cb: 90, cr: 240)
+    private let blueCodes = (cb: 240, cr: 110)
+
+    private func assertLegalPrimaries(
+        _ output: CVPixelBuffer,
+        file: StaticString = #filePath,
+        line: UInt = #line
+    ) throws {
+        let red = try chromaCodes(of: output, atX: 0.1)
+        let blue = try chromaCodes(of: output, atX: 0.9)
+        XCTAssertEqual(red.cb, redCodes.cb, accuracy: 2, file: file, line: line)
+        XCTAssertEqual(red.cr, redCodes.cr, accuracy: 2, "pure red must not exceed 240", file: file, line: line)
+        XCTAssertEqual(blue.cb, blueCodes.cb, accuracy: 2, "pure blue must not exceed 240", file: file, line: line)
+        XCTAssertEqual(blue.cr, blueCodes.cr, accuracy: 2, file: file, line: line)
+        XCTAssertLessThanOrEqual(max(red.cb, red.cr, blue.cb, blue.cr), 240, file: file, line: line)
+    }
+
+    func testRGBSourceLandsOnVideoRangeChroma() throws {
+        let output = try render(fullFrame(try makeSourceBuffer(), .neutral))
+        try assertLegalPrimaries(output)
+    }
+
+    func testVideoRangeSourceKeepsItsChromaThroughThePass() throws {
+        let output = try render(fullFrame(try makeBiplanarSourceBuffer(), .neutral))
+        try assertLegalPrimaries(output)
+    }
+
+    func testFullRangeSourceIsRescaledIntoVideoRangeChroma() throws {
+        let output = try render(fullFrame(try makeBiplanarSourceBuffer(fullRange: true), .neutral))
+        try assertLegalPrimaries(output)
+        XCTAssertEqual(try luma(of: output, atX: 0.1), 81, accuracy: 2)
+    }
+
+    func testNeutralGreyStaysNeutralInChroma() throws {
+        let output = try render(fullFrame(try makeGreyRampSourceBuffer(), .neutral))
+        for fraction in [0.1, 0.5, 0.9] as [CGFloat] {
+            let codes = try chromaCodes(of: output, atX: fraction)
+            XCTAssertEqual(codes.cb, 128, accuracy: 1)
+            XCTAssertEqual(codes.cr, 128, accuracy: 1)
+        }
+    }
+
+    // MARK: - Overlay blending
+
+    func testBlackOverlayOverBlackKeepsVideoRangeBlackAtAnyOpacity() throws {
+        for opacity in [0.0, 0.25, 0.5, 1.0] {
+            var overlay = try makeOverlay(
+                rect: CGRect(x: 0, y: 0, width: 1, height: 1),
+                color: (0, 0, 0)
+            )
+            overlay.opacity = opacity
+            let output = try render(
+                VideoRenderer.Frame(
+                    pixelBuffer: try XCTUnwrap(VideoRenderer.makeBlackOutputBuffer()),
+                    crop: CGRect(x: 0, y: 0, width: 1, height: 1),
+                    mirror: false,
+                    overlay: overlay
+                )
+            )
+            XCTAssertEqual(try luma(of: output), 16, accuracy: 1, "opacity \(opacity)")
+            let codes = try chromaCodes(of: output, atX: 0.1)
+            XCTAssertEqual(codes.cb, 128, accuracy: 1, "opacity \(opacity)")
+            XCTAssertEqual(codes.cr, 128, accuracy: 1, "opacity \(opacity)")
+        }
     }
 
     // MARK: - Colour tagging
