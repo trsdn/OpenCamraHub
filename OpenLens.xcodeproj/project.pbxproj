@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		05473F0007687339BD26C455 /* GlobalHotKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15E7999D02609A191B8DD0DE /* GlobalHotKeys.swift */; };
 		0B1E81951B69DF54CA54514C /* GlobalHotKeysTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F0B397B21267AA552A530DB /* GlobalHotKeysTests.swift */; };
 		105D68634B9B9C84EEE6FB43 /* NumberFieldValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A65500763225FA2538E7BB /* NumberFieldValue.swift */; };
 		1932E665B0D00D53008B6800 /* VideoRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06EC23245E92E50968C3EFB /* VideoRendererTests.swift */; };
@@ -495,6 +496,7 @@
 				B85254E4793307C06DC8DC8E /* CropAnimator.swift in Sources */,
 				1B019E3355C1361A346445E0 /* CropGeometry.swift in Sources */,
 				42081375764B77215B2BE670 /* CropGeometryTests.swift in Sources */,
+				05473F0007687339BD26C455 /* GlobalHotKeys.swift in Sources */,
 				0B1E81951B69DF54CA54514C /* GlobalHotKeysTests.swift in Sources */,
 				BECB481E3D665D194711EAEB /* ImageAdjustments.swift in Sources */,
 				73571B6ECD55E087752BE4AC /* ImageAdjustmentsTests.swift in Sources */,

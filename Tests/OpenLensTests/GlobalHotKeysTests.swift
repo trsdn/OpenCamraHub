@@ -1,8 +1,6 @@
 import Carbon.HIToolbox
 import XCTest
 
-@testable import OpenLens
-
 final class GlobalHotKeysTests: XCTestCase {
     func testEveryDefaultCarriesControlAndOption() {
         for binding in HotKeyBinding.defaults {
