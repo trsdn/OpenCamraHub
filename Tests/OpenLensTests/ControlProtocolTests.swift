@@ -83,6 +83,18 @@ final class ControlProtocolTests: XCTestCase {
         XCTAssertEqual(request.param("paused")?.boolValue, true)
     }
 
+    /// `Int(_:)` traps on a value outside Int's range, so a number that big has
+    /// to read as "not an integer" rather than take the app down.
+    func testANumberBeyondIntRangeReadsAsNotAnIntegerRatherThanTrapping() throws {
+        let request = try ControlCodec.decode(
+            Data(#"{"command":"light.set","params":{"a":1e100,"b":-1e100,"c":"1e100","d":2.6}}"#.utf8)
+        )
+        XCTAssertNil(request.param("a")?.intValue)
+        XCTAssertNil(request.param("b")?.intValue)
+        XCTAssertNil(request.param("c")?.intValue)
+        XCTAssertEqual(request.param("d")?.intValue, 3)
+    }
+
     func testAWrongTypeReadsAsMissingRatherThanCrashing() throws {
         let request = try ControlCodec.decode(
             Data(#"{"command":"zoom.set","params":{"value":"wide"}}"#.utf8)

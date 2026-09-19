@@ -88,6 +88,10 @@ targets:
       # The wire format for the lights: the DTOs have to survive a firmware
       # that omits fields, and the partial PUT body has to stay partial.
       - path: Sources/OpenLens/Lighting/KeyLightClient.swift
+      # The controller's write path is tested against a stubbed URLSession: a
+      # write must carry only the fields that changed.
+      - path: Sources/OpenLens/Lighting/LightController.swift
+      - path: Sources/OpenLens/Lighting/KeyLightDiscovery.swift
       # The shortcut table, so no default can drift back to a modifier that
       # types characters on some keyboard layouts.
       - path: Sources/OpenLens/UI/GlobalHotKeys.swift
