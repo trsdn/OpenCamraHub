@@ -13,7 +13,7 @@ jobs:
     runs-on: macos-15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # Unsigned, so this needs no secrets and no certificate. Signing and
       # notarization happen in trsdn/macos-notarization-broker, never here.
@@ -30,7 +30,7 @@ jobs:
     runs-on: macos-15
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Install XcodeGen
         run: brew install xcodegen
