@@ -13,7 +13,7 @@ set -euo pipefail
 
 root="$(cd "$(dirname "$0")/.." && pwd)"
 out="${1:-$root/_site}"
-repository="${GITHUB_REPOSITORY:-trsdn/OpenLens}"
+repository="${GITHUB_REPOSITORY:-trsdn/OpenCamraHub}"
 # What conferencing apps list the virtual camera as.
 camera="${SITE_CAMERA:-OpenLens}"
 
