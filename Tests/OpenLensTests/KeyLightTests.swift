@@ -181,10 +181,10 @@ final class KeyLightTests: XCTestCase {
 
     func testTheManualFormIsReachableOnceALightExists() {
         // No lights: always shown, nothing to click.
-        XCTAssertTrue(LightingSection.showsManualEntry(hasLights: false, isAdding: false))
+        XCTAssertTrue(LightController.showsManualEntry(hasLights: false, isAdding: false))
         // Lights present: hidden until asked for, then shown.
-        XCTAssertFalse(LightingSection.showsManualEntry(hasLights: true, isAdding: false))
-        XCTAssertTrue(LightingSection.showsManualEntry(hasLights: true, isAdding: true))
+        XCTAssertFalse(LightController.showsManualEntry(hasLights: true, isAdding: false))
+        XCTAssertTrue(LightController.showsManualEntry(hasLights: true, isAdding: true))
     }
 
     // MARK: - Devices

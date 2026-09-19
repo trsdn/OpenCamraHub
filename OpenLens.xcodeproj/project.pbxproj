@@ -10,6 +10,7 @@
 		105D68634B9B9C84EEE6FB43 /* NumberFieldValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A65500763225FA2538E7BB /* NumberFieldValue.swift */; };
 		1932E665B0D00D53008B6800 /* VideoRendererTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F06EC23245E92E50968C3EFB /* VideoRendererTests.swift */; };
 		1B019E3355C1361A346445E0 /* CropGeometry.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5D26E52E7E9C0BB8BC98139A /* CropGeometry.swift */; };
+		1FBDF5908DF071EF6AF41478 /* LightController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 667AA8FD6A72DCB1208DDC49 /* LightController.swift */; };
 		20FA125BF615FC7056FC1A0E /* CaptureEngine.swift in Sources */ = {isa = PBXBuildFile; fileRef = F729F773B1999F34579614A3 /* CaptureEngine.swift */; };
 		234E4B8D4D6917E09EF3B2AD /* CropAnimator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3125184F5A723EC6EACCE60B /* CropAnimator.swift */; };
 		2704F400C0686F10F78F1AFA /* Shaders.metal in Sources */ = {isa = PBXBuildFile; fileRef = 9914A91AF9116A295A5793F5 /* Shaders.metal */; };
@@ -47,6 +48,7 @@
 		809FDC3E9563855CFABC6D34 /* IdleFrameRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = CD9BD26EEBF2199F156C0627 /* IdleFrameRenderer.swift */; };
 		82760871D4D7C7DD70C05C11 /* ImageAdjustments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7818105ABC0D7CC2C1C900CA /* ImageAdjustments.swift */; };
 		827FB9B33D13BFA42D2966AB /* KeyLightTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4E0806B525BADCD6CEC6C615 /* KeyLightTests.swift */; };
+		8570877C30F7529C5AF42924 /* KeyLightDiscovery.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1D1DACA6389A1261507C19E8 /* KeyLightDiscovery.swift */; };
 		85E7238B76BA0F2C67BA6DC9 /* ControlProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = 77F7BA1080DECE92DF49EDEF /* ControlProtocol.swift */; };
 		864D0726F9AA177345B22B73 /* OpenLensID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 985119351CBC81A7D1E111FC /* OpenLensID.swift */; };
 		896834F52E5E0DE36579AD8A /* KeyLightClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E7FE28AB2F7B1B01A51D48 /* KeyLightClient.swift */; };
@@ -496,7 +498,9 @@
 				73571B6ECD55E087752BE4AC /* ImageAdjustmentsTests.swift in Sources */,
 				C596EF94B6F985D20B6A3098 /* KeyLight.swift in Sources */,
 				896834F52E5E0DE36579AD8A /* KeyLightClient.swift in Sources */,
+				8570877C30F7529C5AF42924 /* KeyLightDiscovery.swift in Sources */,
 				827FB9B33D13BFA42D2966AB /* KeyLightTests.swift in Sources */,
+				1FBDF5908DF071EF6AF41478 /* LightController.swift in Sources */,
 				105D68634B9B9C84EEE6FB43 /* NumberFieldValue.swift in Sources */,
 				3985F8ED382BB990678671A8 /* NumberFieldValueTests.swift in Sources */,
 				5DB0A08B80B5403F5C467F3D /* OpenLensID.swift in Sources */,

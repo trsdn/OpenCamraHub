@@ -139,6 +139,14 @@ final class LightController: ObservableObject {
         saveKnown()
     }
 
+    /// The manual-entry form is always there while there are no lights, and
+    /// otherwise only once asked for. Without the second half it became
+    /// unreachable the moment the first light appeared, which is exactly when a
+    /// second, undiscoverable one is most likely to be wanted.
+    nonisolated static func showsManualEntry(hasLights: Bool, isAdding: Bool) -> Bool {
+        isAdding || !hasLights
+    }
+
     /// Adds a light the user typed in, for networks where Bonjour is blocked.
     /// Identity still comes from the lamp, so a manual entry and a discovered
     /// one for the same lamp collapse into a single row.
