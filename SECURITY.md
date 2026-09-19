@@ -75,6 +75,23 @@ shasum -a 256 -c OpenLens-*.dmg.sha256
 A build that Gatekeeper rejects, or whose digest does not match the release, did
 not come from the broker. Please report it.
 
+## Credentials
+
+This repository holds no credential and its workflows reference none. CI, the
+Pages deploy and the stats job use only the short-lived `GITHUB_TOKEN` GitHub
+issues to each run, which expires with the run and needs no rotation.
+
+The one class of credential behind a release, the Apple Developer ID
+certificate and notarization credentials, lives only in the notarization
+broker's protected signing environment. If it is ever exposed, the maintainer
+revokes it at Apple and replaces it there, following the
+[broker's security policy](https://github.com/trsdn/macos-notarization-broker/blob/main/SECURITY.md);
+nothing in this repository changes.
+
+If a secret is ever committed here by mistake, treat it as exposed: revoke it at
+its issuer first, then remove it from the history. Secret scanning with push
+protection is enabled to stop that before it lands.
+
 ## Supported versions
 
 The latest release is supported. Fixes go into the next release rather than

@@ -1,0 +1,24 @@
+# Repository-scoped configuration for GitHub Copilot agents.
+# Reference: https://docs.github.com/copilot/reference/github-copilot-app-reference/repository-configuration
+#
+# The authoritative instructions live in AGENTS.md at the repository root,
+# which is tool-neutral and read by every agent that works here. Nothing in
+# this file may restate a rule from AGENTS.md; it points at it instead, so the
+# two cannot drift apart.
+
+version: 1
+
+instructions:
+  - path: AGENTS.md
+
+setup:
+  # No dependencies to install: the app has no packages, the deck plugin and
+  # MCP server have none either, and the Xcode project is committed.
+  steps: []
+
+validate:
+  # The commands an agent runs before proposing a change.
+  - name: Build and test the app
+    run: xcodebuild test -project OpenLens.xcodeproj -scheme OpenLens -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
+  - name: Test the deck plugin
+    run: cd Tools/openlens-streamdeck && npm test

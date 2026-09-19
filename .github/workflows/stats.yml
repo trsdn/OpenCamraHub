@@ -1,25 +1,63 @@
 name: Repository stats
 
+# Renders the activity card and the license, platform and release badges into
+# the `repo-stats` branch. They used to be committed to master, which the
+# branch ruleset now refuses: master only changes through reviewed pull
+# requests. The README reads both from `repo-stats` on raw.githubusercontent.com.
+#
+# No secret is used: the job's own GITHUB_TOKEN can write to its own branch.
+
 on:
   workflow_dispatch:
   schedule:
     - cron: "23 5 * * *"
-  push:
-    branches:
-      - master
-    paths:
-      - .github/workflows/stats.yml
+  release:
+    types: [published]
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
   stats:
-    uses: trsdn/.github/.github/workflows/repo-stats.yml@main
+    permissions:
+      contents: write
+    uses: trsdn/.github/.github/workflows/repo-stats.yml@d99c090e092e4b4ef7f12fd58d191b3a33372860 # main after 1.13.0
     with:
+      branch: repo-stats
       output-dir: .github/stats
       theme: both
       cards: repo-card
-      commit-message: "chore(stats): update repository stats"
-    secrets:
-      STATS_TOKEN: ${{ secrets.STATS_TOKEN }}
+      generator-ref: d99c090e092e4b4ef7f12fd58d191b3a33372860
+
+  badges:
+    needs: stats
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Check out master, with every tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.0
+        with:
+          ref: master
+          fetch-depth: 0
+          fetch-tags: true
+          path: source
+      - name: Check out the generated branch
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.0
+        with:
+          ref: repo-stats
+          path: target
+      - name: Render badges from their sources
+        run: python3 source/scripts/badges.py --out target/.github/badges-generated
+      - name: Commit changed badges
+        run: |
+          cd target
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A -- .github/badges-generated
+          if git diff --cached --quiet -- .github/badges-generated; then
+            echo "No badge changes."
+            exit 0
+          fi
+          git commit -m "chore(badges): update generated badges"
+          git push origin HEAD:repo-stats

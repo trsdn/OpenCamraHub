@@ -6,6 +6,12 @@ All notable changes to OpenLens are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- **Help › OpenCamraHub on GitHub** and **Help › Report an Issue…** open the
+  project and its issue tracker. The app now carries its repository, issue
+  tracker, license and copyright in its bundle.
+
 ## [0.4.1] - 2026-09-19
 
 ### Changed
