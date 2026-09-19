@@ -1,4 +1,31 @@
-# Working on OpenLens
+# Working on OpenCamraHub (formerly OpenLens)
+
+## The name changed; the identity did not
+
+The app is called **OpenCamraHub** wherever a person reads it: the display and
+menu-bar name (`CFBundleDisplayName`, `CFBundleName`), the virtual camera that
+conferencing apps list (`OpenLensID.deviceName`), the window, banners and
+prompts, the deck plugin's name, and the docs.
+
+Everything that something else matches on keeps the old name, deliberately:
+
+| Keeps `OpenLens` | Because |
+| --- | --- |
+| `OpenLens.app`, executable `OpenLens` (`PRODUCT_NAME`) | The broker profile declares both, and AppUpdater only installs an update whose folder name matches the installed app |
+| `com.trsdn.openlens*` bundle ids, app group, `control.sock` | Scenes live in the sandbox container, and code signing, the extension and the deck plugin are keyed on them |
+| `AppUpdater(owner: "trsdn", repo: "OpenLens")` and `OpenLens-<version>.dmg` | Installed copies look for exactly that repo and asset name; changing either strands them on their current version |
+| The camera's device UID and stream names | Teams and Zoom remember the camera by UID; the app finds its extension's sink stream by name |
+| `OpenLens.xcodeproj`, scheme, targets, `Sources/OpenLens*` | The broker's `openlens-xcode` adapter builds that project and scheme |
+| Deck action UUIDs `com.trsdn.openlens.*`, MCP tool names `openlens_*` | Saved deck profiles and MCP configs reference them |
+
+Two rules follow:
+
+- **Never create a new repository called `trsdn/OpenLens`.** The GitHub
+  repository was renamed, and installed copies still ask the API for
+  `trsdn/OpenLens`; that works only through GitHub's rename redirect, which a
+  new repository of that name would take over.
+- The broker checks `CFBundleDisplayName` against the profile's
+  `bundle_display_name`. Change one only together with the other.
 
 ## Releases are notarized by the broker, never locally
 

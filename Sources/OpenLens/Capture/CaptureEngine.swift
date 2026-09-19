@@ -46,14 +46,14 @@ enum CaptureError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .permissionDenied:
-            return "OpenLens does not have permission to use the camera."
+            return "OpenCamraHub does not have permission to use the camera."
         case .deviceUnavailable(let name):
             return "\(name) is no longer connected."
         case .deviceInUse(let name):
             return "\(name) is already in use by another app. Quit OBS, Detail Studio, "
                 + "or your browser and try again."
         case .noUsableFormat(let name):
-            return "\(name) does not offer a video format OpenLens can use."
+            return "\(name) does not offer a video format OpenCamraHub can use."
         }
     }
 }

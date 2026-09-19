@@ -1,17 +1,22 @@
-# OpenLens
+# OpenCamraHub
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Latest release](https://img.shields.io/github/v/release/trsdn/OpenLens?label=release)](https://github.com/trsdn/OpenLens/releases/latest)
-[![macOS](https://img.shields.io/badge/macOS-14%2B-black?logo=apple)](https://github.com/trsdn/OpenLens)
+[![Latest release](https://img.shields.io/github/v/release/trsdn/OpenCamraHub?label=release)](https://github.com/trsdn/OpenCamraHub/releases/latest)
+[![macOS](https://img.shields.io/badge/macOS-14%2B-black?logo=apple)](https://github.com/trsdn/OpenCamraHub)
 [![Swift 6](https://img.shields.io/badge/Swift-6-F05138?logo=swift&logoColor=white)](https://swift.org)
-[![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-M1%2B-333?logo=apple)](https://github.com/trsdn/OpenLens)
+[![Apple Silicon](https://img.shields.io/badge/Apple%20Silicon-M1%2B-333?logo=apple)](https://github.com/trsdn/OpenCamraHub)
 
 A lightweight virtual camera for video calls. Point it at a camera, zoom into the
-part of the frame that matters, and pick **OpenLens** as your camera in Zoom,
+part of the frame that matters, and pick **OpenCamraHub** as your camera in Zoom,
 Teams or Meet.
 
 It does one job — framing a live camera — and deliberately does not record, does
 not touch audio, and has no timeline, no projects and no accounts.
+
+> **OpenCamraHub was called OpenLens until version 0.3.1.** Only the name changed. The
+> app still installs as `OpenLens.app`, downloads are still named `OpenLens-*.dmg`,
+> and the bundle identifiers are unchanged, so existing installs keep their scenes,
+> their camera selection in conferencing apps, and their updates.
 
 ---
 
@@ -90,12 +95,12 @@ not touch audio, and has no timeline, no projects and no accounts.
 ## Install
 
 Download the latest DMG from
-**[Releases](https://github.com/trsdn/OpenLens/releases/latest)**.
+**[Releases](https://github.com/trsdn/OpenCamraHub/releases/latest)**.
 
-1. Open the DMG and drag OpenLens to **Applications**.
+1. Open the DMG and drag the app to **Applications**.
 2. Launch it and approve the camera extension in
    **System Settings › General › Login Items & Extensions**.
-3. In your conferencing app, choose **OpenLens** as the camera. Conferencing
+3. In your conferencing app, choose **OpenCamraHub** as the camera. Conferencing
    apps enumerate cameras at launch, so quit and reopen Zoom, Teams or Meet
    after installing.
 
@@ -109,14 +114,14 @@ shasum -a 256 -c OpenLens-*.dmg.sha256
 
 ### Updates
 
-OpenLens checks GitHub Releases for a newer version once a day and downloads it
+OpenCamraHub checks GitHub Releases for a newer version once a day and downloads it
 in the background; a banner over the preview then offers **Install and
-Restart**. **OpenLens › Check for Updates…** checks right away, and
+Restart**. **OpenCamraHub › Check for Updates…** checks right away, and
 **Check for Updates Automatically** in the same menu turns the daily check off.
 
 An update is only installed if it is signed with the same Developer ID, signing
 identifier and bundle identifier as the installed app. It is handled by
-[AppUpdater](https://github.com/mxcl/AppUpdater). Installing restarts OpenLens
+[AppUpdater](https://github.com/mxcl/AppUpdater). Installing restarts OpenCamraHub
 and replaces the camera extension, so a call that is using the camera loses
 its picture for a few seconds.
 
@@ -129,7 +134,7 @@ OpenLens.app                          OpenLensCamera.systemextension
 │   ↓ CVPixelBuffer        │          │                              │
 │ Metal pass               │  sink    │  CMIOExtensionStream          │
 │   crop + mirror + overlay│ ──────►  │    ↓                          │
-│   ↓                      │  stream  │  "OpenLens" camera            │
+│   ↓                      │  stream  │  "OpenCamraHub" camera        │
 │ CAMetalLayer preview     │          │                              │
 └──────────────────────────┘          └──────────────────────────────┘
                                                     ↓
@@ -144,7 +149,7 @@ app is not running.
 
 ## Remote control
 
-OpenLens can be driven from outside its window — by a script, by a Stream Deck,
+OpenCamraHub can be driven from outside its window — by a script, by a Stream Deck,
 or by an AI agent — through a control socket the app opens while it runs:
 
 ```
@@ -373,7 +378,7 @@ repository's signing environment; nothing here holds them, and no step of a
 release runs locally.
 
 ```bash
-git tag -a vX.Y.Z -m "OpenLens vX.Y.Z" && git push origin vX.Y.Z
+git tag -a vX.Y.Z -m "OpenCamraHub vX.Y.Z" && git push origin vX.Y.Z
 # then, from a checkout of the broker:
 scripts/request.sh openlens vX.Y.Z --publish
 ```
@@ -406,7 +411,7 @@ Two consequences for this repository:
 | Symptom | Cause |
 | --- | --- |
 | The camera never appears in Zoom | The extension is not approved yet, or the app was launched from outside `/Applications`. Conferencing apps also enumerate cameras **at launch** — quit and reopen Zoom/Teams/Meet after installing OpenLens. |
-| Picked OpenLens, but the app shows no picture | Selecting a camera in a settings menu does not open it. Start a call or open the app's device preview and switch video on; the OpenLens banner turns green the moment a consumer attaches. |
+| Picked OpenCamraHub, but the app shows no picture | Selecting a camera in a settings menu does not open it. Start a call or open the app's device preview and switch video on; the OpenLens banner turns green the moment a consumer attaches. |
 | "Lost contact with the camera extension" | The extension was replaced while the app was running (an update does this). That kills the app's CoreMediaIO client state for good, so the banner offers a **Restart OpenLens** button; a fresh process reconnects instantly. |
 | "Camera is in use" | Some UVC devices (Cam Link 4K among them) refuse concurrent access. Quit OBS or any other app holding the camera. |
 | A static card instead of the picture | The app is not running. The extension keeps the device alive on its own so calls do not break. |

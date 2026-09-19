@@ -6,6 +6,14 @@ All notable changes to OpenLens are documented here. The format follows
 
 ## [Unreleased]
 
+### Changed
+
+- OpenLens is now called **OpenCamraHub**. The app, its menu, the camera that
+  Teams, Zoom and Meet list, and the Stream Deck plugin show the new name.
+  Nothing else changes: the app still installs as `OpenLens.app`, keeps its
+  scenes and settings, stays selected as the camera in conferencing apps, and
+  keeps updating itself.
+
 ### Added
 
 - Stream Deck and OpenDeck keys: every key's label can be switched off or set
@@ -55,5 +63,5 @@ All notable changes to OpenLens are documented here. The format follows
 - Colours are encoded in the correct video range, so saturated colours match
   between the preview and calls (#24).
 
-[Unreleased]: https://github.com/trsdn/OpenLens/compare/v0.3.1...HEAD
-[0.3.1]: https://github.com/trsdn/OpenLens/compare/v0.3.0...v0.3.1
+[Unreleased]: https://github.com/trsdn/OpenCamraHub/compare/v0.3.1...HEAD
+[0.3.1]: https://github.com/trsdn/OpenCamraHub/compare/v0.3.0...v0.3.1

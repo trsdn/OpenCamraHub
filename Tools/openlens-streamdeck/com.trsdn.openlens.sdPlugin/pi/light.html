@@ -20,7 +20,7 @@
             fillSelect(select, options.lights, settings.serialNumber, "The only one found");
             note.textContent = options.running
                 ? "The key shows the light's brightness and lights up while it is on."
-                : "OpenLens is not running, so there are no lights to list yet.";
+                : "OpenCamraHub is not running, so there are no lights to list yet.";
             note.className = options.running ? "note" : "note warning";
             select.onchange = () => OpenLensPI.save({ serialNumber: select.value });
         });

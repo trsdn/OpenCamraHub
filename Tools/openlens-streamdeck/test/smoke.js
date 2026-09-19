@@ -172,7 +172,7 @@ check("the plugin names its own version in the log when it starts", async () => 
         (m) => m.event === "logMessage" && m.payload.message.includes("started"),
         "the start-up log line"
     );
-    assert.equal(message.payload.message, `OpenLens: plugin ${manifest.Version} started`);
+    assert.equal(message.payload.message, `OpenCamraHub: plugin ${manifest.Version} started`);
 });
 
 check("a key that appears is painted from the state, not left blank", async () => {

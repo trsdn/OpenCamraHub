@@ -44,6 +44,7 @@ final class UpdateManager: ObservableObject {
     private static let automaticChecksKey = "updates.automaticChecks.v1"
     private static let automaticCheckInterval: TimeInterval = 24 * 60 * 60
 
+    // Not OpenCamraHub: installed copies match "openlens-<version>" assets and reach the renamed repository through GitHub's redirect.
     private let updater = AppUpdater(owner: "trsdn", repo: "OpenLens")
     private let log = Logger(subsystem: OpenLensID.appBundleID, category: "updates")
     private var preparedUpdate: PreparedUpdate?

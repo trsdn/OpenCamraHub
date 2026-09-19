@@ -98,7 +98,7 @@ final class LightController: ObservableObject {
             self.discoveryHint =
                 "No lights found. If they are powered on and on this network, check "
                 + "System Settings › Privacy & Security › Local Network and make sure "
-                + "OpenLens is allowed, or add one by address."
+                + "OpenCamraHub is allowed, or add one by address."
         }
     }
 
@@ -180,7 +180,7 @@ final class LightController: ObservableObject {
             // hunting for a network fault that isn't there.
             return "Nothing answered at \(trimmed):\(port). If the light is on and on this "
                 + "network, check System Settings › Privacy & Security › Local Network and "
-                + "make sure OpenLens is allowed."
+                + "make sure OpenCamraHub is allowed."
         }
     }
 

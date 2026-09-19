@@ -37,22 +37,22 @@ struct UpdateBanner: View {
             pill("Checking for updates…", icon: "hourglass", tint: .secondary)
         case .upToDate:
             HStack(spacing: 8) {
-                pill("OpenLens is up to date", icon: "checkmark.circle", tint: .secondary)
+                pill("OpenCamraHub is up to date", icon: "checkmark.circle", tint: .secondary)
                 dismissButton
             }
         case .downloading(let version):
-            pill("Downloading OpenLens \(version)…", icon: "arrow.down.circle", tint: .secondary)
+            pill("Downloading OpenCamraHub \(version)…", icon: "arrow.down.circle", tint: .secondary)
         case .readyToInstall(let version):
             HStack(spacing: 8) {
-                pill("OpenLens \(version) is ready to install", icon: "arrow.down.circle.fill", tint: .accentColor)
+                pill("OpenCamraHub \(version) is ready to install", icon: "arrow.down.circle.fill", tint: .accentColor)
                 Button("Install and Restart") {
                     Task { await updates.installAndRelaunch() }
                 }
                 .buttonStyle(.borderedProminent)
                 .help(
                     client.isStreaming
-                        ? "Your call will lose its picture for a few seconds while OpenLens restarts."
-                        : "OpenLens quits, updates itself and opens again."
+                        ? "Your call will lose its picture for a few seconds while OpenCamraHub restarts."
+                        :"OpenCamraHub quits, updates itself and opens again."
                 )
                 Button("Later") { Task { await updates.dismiss() } }
             }
@@ -66,7 +66,7 @@ struct UpdateBanner: View {
         case .installFailed(let message):
             HStack(spacing: 8) {
                 pill("Update failed: \(message)", icon: "exclamationmark.triangle.fill", tint: .red)
-                Button("Restart OpenLens") { ExtensionStatusBanner.relaunch() }
+                Button("Restart OpenCamraHub") { ExtensionStatusBanner.relaunch() }
                     .buttonStyle(.borderedProminent)
             }
         }

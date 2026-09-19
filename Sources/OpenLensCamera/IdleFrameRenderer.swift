@@ -57,7 +57,7 @@ enum IdleFrameRenderer {
         context.fill(CGRect(x: 0, y: 0, width: width, height: height))
 
         draw(
-            text: "OpenLens",
+            text: "OpenCamraHub",
             in: context,
             fontSize: 96,
             weight: 0.3,

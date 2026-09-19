@@ -1,6 +1,6 @@
 # Contributing
 
-Thanks for your interest in OpenLens. It is a small, deliberately narrow app —
+Thanks for your interest in OpenCamraHub. It is a small, deliberately narrow app —
 framing a live camera for video calls — and the quickest way to get a change
 merged is to keep it inside that scope.
 

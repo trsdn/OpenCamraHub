@@ -5,7 +5,7 @@
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleDisplayName</key>
-	<string>OpenLens Camera</string>
+	<string>OpenCamraHub Camera</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
@@ -23,7 +23,7 @@
 	<key>LSMinimumSystemVersion</key>
 	<string>14.0</string>
 	<key>NSSystemExtensionUsageDescription</key>
-	<string>OpenLens installs a camera extension so conferencing apps can use your processed video.</string>
+	<string>OpenCamraHub installs a camera extension so conferencing apps can use your processed video.</string>
 	<key>CMIOExtension</key>
 	<dict>
 		<!-- The team prefix is spelled out rather than taken from

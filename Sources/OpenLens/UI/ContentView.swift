@@ -124,7 +124,7 @@ struct SceneRecoveryBanner: View {
         if case let .unreadable(reason) = scenes.readability {
             HStack(spacing: 8) {
                 Label(
-                    "Your saved scenes could not be read, so OpenLens has not touched them",
+                    "Your saved scenes could not be read, so OpenCamraHub has not touched them",
                     systemImage: "exclamationmark.triangle.fill"
                 )
                 .font(.callout)
@@ -137,7 +137,7 @@ struct SceneRecoveryBanner: View {
             .help(
                 "Nothing has been overwritten — saving stays switched off until you "
                     + "choose. The original data is kept under the \"scenes.v1.unreadable\" "
-                    + "key in OpenLens's preferences. Reason: \(reason)"
+                    + "key in OpenCamraHub's preferences. Reason: \(reason)"
             )
         }
     }
@@ -274,7 +274,7 @@ struct ExtensionStatusBanner: View {
                     tint: .secondary
                 )
                 .help(
-                    "The camera is published and waiting. Choosing \"OpenLens\" in a "
+                    "The camera is published and waiting. Choosing \"OpenCamraHub\" in a "
                         + "settings menu is not enough — apps only open a camera once video "
                         + "is switched on, in a call or in their device preview. This turns "
                         + "green the moment that happens."
@@ -286,7 +286,7 @@ struct ExtensionStatusBanner: View {
                         icon: "exclamationmark.triangle.fill",
                         tint: .orange
                     )
-                    Button("Restart OpenLens") { Self.relaunch() }
+                    Button("Restart OpenCamraHub") { Self.relaunch() }
                         .buttonStyle(.borderedProminent)
                 }
             } else {
@@ -297,7 +297,7 @@ struct ExtensionStatusBanner: View {
         case .needsApproval:
             HStack(spacing: 8) {
                 pill(
-                    "Approve OpenLens in System Settings › General › Login Items & Extensions",
+                    "Approve OpenCamraHub in System Settings › General › Login Items & Extensions",
                     icon: "lock.shield",
                     tint: .orange
                 )
