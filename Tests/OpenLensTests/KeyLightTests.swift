@@ -207,3 +207,152 @@ final class KeyLightTests: XCTestCase {
         XCTAssertEqual(restored.first?.port, KeyLightDevice.defaultPort)
     }
 }
+
+// MARK: - Writes
+
+/// Answers a Key Light's endpoints in-process and records every `PUT`, so the
+/// controller's write path can be checked without a lamp.
+private final class KeyLightStubProtocol: URLProtocol {
+    final class Recorder: @unchecked Sendable {
+        private let lock = NSLock()
+        private var stored: [KeyLightClient.LightsPayload] = []
+
+        func record(_ payload: KeyLightClient.LightsPayload) {
+            lock.lock(); defer { lock.unlock() }
+            stored.append(payload)
+        }
+
+        func reset() {
+            lock.lock(); defer { lock.unlock() }
+            stored.removeAll()
+        }
+
+        var puts: [KeyLightClient.LightsPayload] {
+            lock.lock(); defer { lock.unlock() }
+            return stored
+        }
+    }
+
+    static let recorder = Recorder()
+
+    override class func canInit(with request: URLRequest) -> Bool { true }
+    override class func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override func stopLoading() {}
+
+    override func startLoading() {
+        let path = request.url?.path ?? ""
+        if request.httpMethod == "PUT", let payload = Self.decodeBody(of: request) {
+            Self.recorder.record(payload)
+        }
+        let body: String
+        if path.hasSuffix("accessory-info") {
+            body = #"{"productName":"Elgato Key Light","displayName":"Test","serialNumber":"SN1","firmwareVersion":"1"}"#
+        } else {
+            body = #"{"numberOfLights":1,"lights":[{"on":1,"brightness":30,"temperature":200}]}"#
+        }
+        let response = HTTPURLResponse(
+            url: request.url!, statusCode: 200, httpVersion: nil, headerFields: nil
+        )!
+        client?.urlProtocol(self, didReceive: response, cacheStoragePolicy: .notAllowed)
+        client?.urlProtocol(self, didLoad: Data(body.utf8))
+        client?.urlProtocolDidFinishLoading(self)
+    }
+
+    /// A body set on a `URLRequest` reaches a protocol as a stream, not as `httpBody`.
+    private static func decodeBody(of request: URLRequest) -> KeyLightClient.LightsPayload? {
+        var data = request.httpBody
+        if data == nil, let stream = request.httpBodyStream {
+            stream.open()
+            defer { stream.close() }
+            var collected = Data()
+            var buffer = [UInt8](repeating: 0, count: 1024)
+            while stream.hasBytesAvailable {
+                let count = stream.read(&buffer, maxLength: buffer.count)
+                if count <= 0 { break }
+                collected.append(buffer, count: count)
+            }
+            data = collected
+        }
+        return data.flatMap { try? JSONDecoder().decode(KeyLightClient.LightsPayload.self, from: $0) }
+    }
+}
+
+/// A write carries what was asked for and nothing else. The cached state can be
+/// twenty seconds old, and filling the other fields from it used to overwrite a
+/// change made at the lamp's own switch with a value the lamp no longer had.
+@MainActor
+final class KeyLightWriteTests: XCTestCase {
+    override func setUp() {
+        super.setUp()
+        KeyLightStubProtocol.recorder.reset()
+    }
+
+    private func makeController() async throws -> LightController {
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [KeyLightStubProtocol.self]
+        let suite = "KeyLightWriteTests.\(UUID().uuidString)"
+        let defaults = try XCTUnwrap(UserDefaults(suiteName: suite))
+        addTeardownBlock { defaults.removePersistentDomain(forName: suite) }
+
+        let controller = LightController(
+            client: KeyLightClient(session: URLSession(configuration: configuration)),
+            defaults: defaults,
+            debounce: .milliseconds(30)
+        )
+        let error = await controller.addManual(host: "192.0.2.1")
+        XCTAssertNil(error)
+        XCTAssertEqual(controller.lights.count, 1)
+        return controller
+    }
+
+    private func puts(count: Int) async throws -> [KeyLightClient.LightsPayload] {
+        for _ in 0..<100 {
+            if KeyLightStubProtocol.recorder.puts.count >= count { break }
+            try await Task.sleep(for: .milliseconds(20))
+        }
+        // Long enough for a second, unwanted write to arrive.
+        try await Task.sleep(for: .milliseconds(150))
+        return KeyLightStubProtocol.recorder.puts
+    }
+
+    func testChangingBrightnessSendsOnlyBrightness() async throws {
+        let controller = try await makeController()
+        controller.setBrightness(60, for: "SN1")
+
+        let sent = try await puts(count: 1)
+        XCTAssertEqual(sent.count, 1)
+        let light = try XCTUnwrap(sent.first?.lights.first)
+        XCTAssertEqual(light.brightness, 60)
+        XCTAssertNil(light.on)
+        XCTAssertNil(light.temperature)
+    }
+
+    func testChangesInsideTheDebounceWindowAreSentTogetherAndNothingElse() async throws {
+        let controller = try await makeController()
+        controller.setBrightness(60, for: "SN1")
+        controller.setOn(false, for: "SN1")
+
+        let sent = try await puts(count: 1)
+        XCTAssertEqual(sent.count, 1)
+        let light = try XCTUnwrap(sent.first?.lights.first)
+        XCTAssertEqual(light.brightness, 60)
+        XCTAssertEqual(light.on, 0)
+        XCTAssertNil(light.temperature)
+    }
+
+    /// The merged change has to be forgotten once it reaches the lamp, or the
+    /// next unrelated edit would resend a brightness nobody asked for.
+    func testAFinishedWriteIsNotResentWithTheNextOne() async throws {
+        let controller = try await makeController()
+        controller.setBrightness(60, for: "SN1")
+        _ = try await puts(count: 1)
+
+        controller.setOn(false, for: "SN1")
+        let sent = try await puts(count: 2)
+        XCTAssertEqual(sent.count, 2)
+        let light = try XCTUnwrap(sent.last?.lights.first)
+        XCTAssertEqual(light.on, 0)
+        XCTAssertNil(light.brightness)
+        XCTAssertNil(light.temperature)
+    }
+}

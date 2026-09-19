@@ -29,16 +29,28 @@ final class LightController: ObservableObject {
     @Published private(set) var discoveryHint: String?
 
     private let logger = Logger(subsystem: "com.trsdn.openlens", category: "lighting")
-    private let client = KeyLightClient()
+    private let client: KeyLightClient
     private let discovery = KeyLightDiscovery()
-    private let defaults = UserDefaults.standard
+    private let defaults: UserDefaults
+    private let debounce: Duration
     private let knownKey = "lights.known.v1"
 
     private var pendingWrites: [String: Task<Void, Never>] = [:]
+    /// What has been asked for since the last write reached the lamp, per
+    /// light. Merged rather than replaced so a debounced write sends everything
+    /// requested in the window and nothing else.
+    private var pendingChanges: [String: Change] = [:]
     private var refreshTask: Task<Void, Never>?
     private var hintTask: Task<Void, Never>?
 
-    init() {
+    init(
+        client: KeyLightClient = KeyLightClient(),
+        defaults: UserDefaults = .standard,
+        debounce: Duration = .milliseconds(120)
+    ) {
+        self.client = client
+        self.defaults = defaults
+        self.debounce = debounce
         loadKnown()
         discovery.onFound = { [weak self] device in self?.merge(device) }
         discovery.onStateChange = { [weak self] running in
@@ -74,6 +86,7 @@ final class LightController: ObservableObject {
         hintTask = nil
         pendingWrites.values.forEach { $0.cancel() }
         pendingWrites.removeAll()
+        pendingChanges.removeAll()
     }
 
     private func scheduleHint() {
@@ -166,6 +179,7 @@ final class LightController: ObservableObject {
     func forget(_ serialNumber: String) {
         pendingWrites[serialNumber]?.cancel()
         pendingWrites[serialNumber] = nil
+        pendingChanges[serialNumber] = nil
         lights.removeAll { $0.device.serialNumber == serialNumber }
         saveKnown()
     }
@@ -315,33 +329,37 @@ final class LightController: ObservableObject {
 
     /// Coalesces everything asked for within the debounce window into one PUT,
     /// so a drag that also flips the switch still costs a single request.
+    ///
+    /// Only the fields that were actually asked for are sent. Filling the rest
+    /// from the cached state would write values the lamp may no longer have —
+    /// the cache is refreshed every twenty seconds — and undo a change made at
+    /// the lamp's own switch or in another app.
     private func write(_ serialNumber: String, _ build: (inout Change) -> Void) {
         guard let entry = lights.first(where: { $0.device.serialNumber == serialNumber }) else { return }
 
         pendingWrites[serialNumber]?.cancel()
-        // The change is rebuilt from the entry's current state rather than
-        // accumulated, because `update` has already applied it there. This is
-        // what makes coalescing correct instead of last-write-wins.
-        var change = Change()
+        var change = pendingChanges[serialNumber] ?? Change()
         build(&change)
-        let target = entry.state
+        pendingChanges[serialNumber] = change
         let host = entry.device.host
         let port = entry.device.port
+        let debounce = self.debounce
 
         pendingWrites[serialNumber] = Task { [weak self] in
-            try? await Task.sleep(for: .milliseconds(120))
+            try? await Task.sleep(for: debounce)
             guard !Task.isCancelled else { return }
             guard let self else { return }
             do {
                 let echoed = try await self.client.apply(
                     host: host,
                     port: port,
-                    isOn: change.isOn ?? target.isOn,
-                    brightness: change.brightness ?? target.brightness,
-                    mired: change.mired ?? target.mired
+                    isOn: change.isOn,
+                    brightness: change.brightness,
+                    mired: change.mired
                 )
                 guard !Task.isCancelled else { return }
                 self.pendingWrites[serialNumber] = nil
+                self.pendingChanges[serialNumber] = nil
                 self.update(serialNumber) {
                     $0.state = echoed
                     $0.isReachable = true
@@ -350,6 +368,7 @@ final class LightController: ObservableObject {
             } catch {
                 guard !Task.isCancelled else { return }
                 self.pendingWrites[serialNumber] = nil
+                self.pendingChanges[serialNumber] = nil
                 self.logger.debug("Write to \(serialNumber, privacy: .public) failed: \(error.localizedDescription)")
                 self.update(serialNumber) {
                     $0.isReachable = false
