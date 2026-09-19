@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>OpenCamraHub: frame, correct and light your webcam on macOS</title>
+<meta name="description" content="OpenCamraHub is a virtual camera for macOS. Zoom into the part of the frame that matters, correct the picture, switch scenes and Elgato Key Lights with one key, and pick it as your camera in Teams, Zoom or Meet.">
+<meta name="color-scheme" content="dark light">
+<link rel="icon" href="assets/icon.png" type="image/png">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="top">
+  <a class="brand" href="./">
+    <img src="assets/icon.png" width="32" height="32" alt="">
+    <span>OpenCamraHub</span>
+  </a>
+  <a class="source" href="https://github.com/{{REPOSITORY}}">Source on GitHub</a>
+</header>
+
+<main>
+
+  <section class="hero" aria-labelledby="h-title">
+    <div class="hero-text">
+      <h1 id="h-title">Your camera, framed for the call.</h1>
+      <p class="lead">OpenCamraHub is a Mac app that turns the camera you already have into a better webcam. Zoom into the part of the frame that matters, fix the picture, and switch looks and lights with one key. Choose <strong>{{CAMERA}}</strong> as the camera in Teams, Zoom or Meet.</p>
+      <p class="actions">
+        <a class="button" href="https://github.com/{{REPOSITORY}}/releases/latest">Download OpenCamraHub {{VERSION}}</a>
+        <a class="quiet" href="#get">How to install</a>
+      </p>
+      <p class="status">Version {{VERSION}}, maintained. Needs macOS 14 or later on Apple silicon.</p>
+    </div>
+
+    <figure class="frame" role="img" aria-label="A wide camera picture with a highlighted crop around the person at the desk. Below it, three scene buttons for the keys Control-Option-1 to 3; the crop moves as the scene changes.">
+      <svg viewBox="0 0 640 400" aria-hidden="true" focusable="false">
+        <rect class="sensor" x="0" y="0" width="640" height="360" rx="14"/>
+        <g class="room">
+          <rect x="40" y="46" width="150" height="190" rx="6"/>
+          <rect x="455" y="60" width="140" height="120" rx="6"/>
+          <rect x="0" y="286" width="640" height="74"/>
+        </g>
+        <g class="person">
+          <circle cx="320" cy="170" r="42"/>
+          <path d="M238 300c0-58 36-84 82-84s82 26 82 84z"/>
+        </g>
+        <g class="light">
+          <rect x="560" y="200" width="46" height="30" rx="4"/>
+          <path d="M583 230v56"/>
+        </g>
+        <defs>
+          <mask id="crop-hole">
+            <rect x="0" y="0" width="640" height="360" fill="#fff"/>
+            <rect class="window" x="0" y="0" width="640" height="360" rx="14" fill="#000"/>
+          </mask>
+        </defs>
+        <g class="crop">
+          <rect class="shade" x="0" y="0" width="640" height="360" rx="14" mask="url(#crop-hole)"/>
+          <rect class="window edge" x="0" y="0" width="640" height="360" rx="14"/>
+          <g class="badges">
+            <text class="badge b1" x="12" y="30">1.5×</text>
+            <text class="badge b2" x="12" y="30">2.0×</text>
+            <text class="badge b3" x="12" y="30">1.0×</text>
+          </g>
+        </g>
+        <g class="chips">
+          <g class="chip c1"><rect x="0" y="372" width="200" height="28" rx="8"/><text x="14" y="391">⌃⌥1  Desk</text></g>
+          <g class="chip c2"><rect x="220" y="372" width="200" height="28" rx="8"/><text x="234" y="391">⌃⌥2  Close</text></g>
+          <g class="chip c3"><rect x="440" y="372" width="200" height="28" rx="8"/><text x="454" y="391">⌃⌥3  Wide</text></g>
+        </g>
+      </svg>
+      <figcaption>A crop of the real sensor, not an upscale: the same camera, three scenes. An illustration, not a screenshot.</figcaption>
+    </figure>
+  </section>
+
+  <section class="why" aria-labelledby="h-why">
+    <div class="why-text">
+      <h2 id="h-why">A 4K camera is a zoom lens in disguise</h2>
+      <p>A call only ever receives 1080p. A camera that captures more than that has pixels to spare, and OpenCamraHub spends them on zoom: the crop fills the picture with real detail instead of stretching a smaller one.</p>
+      <p>The app tells you how far that reaches. The inspector says <em>Stays sharp up to 2.0×</em> for a 4K source, and a small <em>soft</em> badge appears on the picture the moment you zoom past it.</p>
+    </div>
+    <dl class="numbers">
+      <div><dt>2.0×</dt><dd>sharp zoom from a 4K camera into a 1080p call</dd></div>
+      <div><dt>~17&thinsp;%</dt><dd>of one CPU core at 1080p30 while a call is using it</dd></div>
+      <div><dt>0</dt><dd>work done when no app is looking: the camera is not even opened</dd></div>
+    </dl>
+  </section>
+
+  <section class="features" aria-labelledby="h-what">
+    <h2 id="h-what">What you get</h2>
+    <dl>
+      <div>
+        <dt>Zoom and pan into any area</dt>
+        <dd>Scroll or pinch over the picture to zoom around the pointer, drag to pan, double-click to reset. Or type an exact value.</dd>
+      </div>
+      <div>
+        <dt>Scenes instead of settings</dt>
+        <dd>Camera, zoom, look and overlay save into the selected scene as you change them. <kbd>⌃⌥1</kbd> to <kbd>⌃⌥9</kbd> switch scenes from anywhere, mid-call.</dd>
+      </div>
+      <div>
+        <dt>Pause without leaving the call</dt>
+        <dd><kbd>⌃⌥P</kbd> blacks out the picture and hands the camera back, so its light goes out. The call never sees the camera disappear.</dd>
+      </div>
+      <div>
+        <dt>Elgato Key Lights built in</dt>
+        <dd>Found on your network automatically. Power, brightness and colour temperature from the app, and a scene can bring its own lighting.</dd>
+      </div>
+      <div>
+        <dt>Picture controls a capture card lacks</dt>
+        <dd>Exposure, black and white point, contrast, white balance, tints and saturation, for HDMI grabbers like a Cam Link that expose none.</dd>
+      </div>
+      <div>
+        <dt>A logo or lower third</dt>
+        <dd>A PNG overlay with transparency, dragged into place in the picture or snapped to one of nine positions.</dd>
+      </div>
+    </dl>
+    <p class="not">OpenCamraHub only frames a live camera. It does not record, does not touch audio, and has no accounts. It is an independent project and is not affiliated with Elgato or Corsair.</p>
+  </section>
+
+  <section class="deck" aria-labelledby="h-deck">
+    <div class="deck-text">
+      <h2 id="h-deck">Keys that know what is live</h2>
+      <p>A plugin for <a href="https://github.com/nekename/OpenDeck">OpenDeck</a> and the Elgato Stream Deck puts scenes, pause, zoom and your key lights on real keys. The keys follow the app: switch a scene with a hotkey or in the window, and the deck lights up the new one.</p>
+      <p>Press the live scene again to pause. Every key's label is yours to set, with placeholders for the scene, the light and the zoom.</p>
+    </div>
+    <ul class="keys" aria-label="Example Stream Deck keys: two scene keys with the first one live, pause, zoom, and two key lights with the left one on">
+      <li class="key"><img src="assets/scene-on.svg" alt="">Desk</li>
+      <li class="key"><img src="assets/scene.svg" alt="">Close</li>
+      <li class="key"><img src="assets/pause.svg" alt="">Pause</li>
+      <li class="key"><img src="assets/zoom-in.svg" alt="">1.5×</li>
+      <li class="key"><img src="assets/light-on.svg" alt="">Left</li>
+      <li class="key"><img src="assets/light.svg" alt="">Right</li>
+    </ul>
+  </section>
+
+  <section class="get" id="get" aria-labelledby="h-get">
+    <h2 id="h-get">Get it</h2>
+    <ol>
+      <li>Download the disk image and drag the app into your <strong>Applications</strong> folder. macOS only activates a camera extension from there.</li>
+      <li>Open it and approve the camera extension in <strong>System Settings › General › Login Items &amp; Extensions</strong>.</li>
+      <li>Quit and reopen Teams, Zoom or Meet, and choose <strong>{{CAMERA}}</strong> as the camera.</li>
+    </ol>
+    <p class="actions">
+      <a class="button" href="https://github.com/{{REPOSITORY}}/releases/latest">Download OpenCamraHub {{VERSION}}</a>
+    </p>
+    <p class="fine">Signed with a Developer ID and notarized by Apple. Needs an Apple silicon Mac running macOS 14 or later. Updates install from inside the app.</p>
+  </section>
+
+  <section class="privacy" aria-labelledby="h-privacy">
+    <h2 id="h-privacy">Privacy</h2>
+    <p>OpenCamraHub collects nothing. There is no account, no analytics and no telemetry, and the picture never leaves your Mac except through the call you put it in. The app checks GitHub once a day for a newer version, and talks to Elgato Key Lights on your local network if you have any. This page sets no cookies and loads nothing from other sites.</p>
+  </section>
+
+</main>
+
+<footer>
+  <nav aria-label="Project links">
+    <a href="https://github.com/{{REPOSITORY}}">Source code</a>
+    <a href="https://github.com/{{REPOSITORY}}/blob/master/LICENSE">MIT license</a>
+    <a href="https://github.com/{{REPOSITORY}}/blob/master/SECURITY.md">Security policy</a>
+    <a href="https://github.com/{{REPOSITORY}}/issues">Help and bug reports</a>
+  </nav>
+  <p>Elgato, Stream Deck and Key Light are trademarks of Corsair. Page last reviewed {{DATE}}.</p>
+</footer>
+
+</body>
+</html>
