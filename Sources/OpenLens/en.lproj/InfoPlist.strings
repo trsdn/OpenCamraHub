@@ -1,0 +1,5 @@
+/* The name Finder, Launchpad, Spotlight and the Dock show. Info.plist keeps
+   "OpenLens", the bundle folder name, or macOS treats the app as renamed by the
+   user and shows the folder name instead. */
+"CFBundleDisplayName" = "OpenCamraHub";
+"CFBundleName" = "OpenCamraHub";
