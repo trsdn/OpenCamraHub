@@ -12,6 +12,9 @@ struct RenderUniforms {
     // Luma offset/scale for video-range vs full-range YCbCr.
     float  lumaOffset;
     float  lumaScale;
+    // Chroma neutral point and scale for video-range vs full-range YCbCr.
+    float  chromaOffset;
+    float  chromaScale;
     // Colour correction. Neutral is 1, 0, 1, 1, 1, 0, 0, 0, 0, 0 — see
     // ImageAdjustments.swift, which precomputes these so the shader never
     // recomputes a value that only changes when a slider moves.
@@ -107,12 +110,29 @@ static inline float3 composite_overlay(float3 rgb,
 
 constant float kVideoLumaOffset = 16.0 / 255.0;
 constant float kVideoLumaScale  = 255.0 / 219.0;
+// Chroma is centred on code 128 and spans 224 codes (16...240) in video range.
+constant float kVideoChromaOffset = 128.0 / 255.0;
+constant float kVideoChromaScale  = 255.0 / 224.0;
 
 // Exact inverse of ycbcr_to_rgb's luma term, so a video-range source survives
 // the pass untouched.
 static inline float encode_luma(float y)
 {
     return y / kVideoLumaScale + kVideoLumaOffset;
+}
+
+// Sampled chroma to the full-range, 0.5-centred form that the grading and
+// rgb_to_chroma work in. Neutral is code 128 in both ranges; only the span differs.
+static inline float2 decode_chroma(float2 sampled, constant RenderUniforms &u)
+{
+    return (sampled - u.chromaOffset) * u.chromaScale + 0.5;
+}
+
+// Inverse of decode_chroma for a video-range plane. Affine, so it can be applied
+// after an alpha blend of two values in the working form.
+static inline float2 encode_chroma(float2 c)
+{
+    return (c - 0.5) / kVideoChromaScale + kVideoChromaOffset;
 }
 
 static inline float rgb_to_luma(float3 rgb)
@@ -224,7 +244,12 @@ fragment float openlens_fragment_luma_biplanar(VertexOut in [[stage_in]],
 
     float4 texel = overlay_texel(in.outputCoord, overlayTexture, u);
     if (texel.a <= 0.0) { return y; }
-    return y * (1.0 - texel.a) + encode_luma(rgb_to_luma(texel.rgb));
+    // The overlay is premultiplied, so its luma already carries the alpha weight.
+    // The video-range black offset has to be weighted the same way, or a black
+    // overlay over black lifts Y from 16 to 16 + 16a.
+    return y * (1.0 - texel.a)
+        + rgb_to_luma(texel.rgb) / kVideoLumaScale
+        + kVideoLumaOffset * texel.a;
 }
 
 fragment float2 openlens_fragment_chroma_biplanar(VertexOut in [[stage_in]],
@@ -239,14 +264,14 @@ fragment float2 openlens_fragment_chroma_biplanar(VertexOut in [[stage_in]],
     // second read is affordable.
     float luma = lumaTexture.sample(videoSampler, in.sourceCoord).r;
     float y = adjust_luma((luma - u.lumaOffset) * u.lumaScale, u);
-    float2 chroma = adjust_chroma(chromaTexture.sample(videoSampler, in.sourceCoord).rg, y, u);
+    float2 chroma = adjust_chroma(decode_chroma(chromaTexture.sample(videoSampler, in.sourceCoord).rg, u), y, u);
 
     float4 texel = overlay_texel(in.outputCoord, overlayTexture, u);
-    if (texel.a <= 0.0) { return chroma; }
+    if (texel.a <= 0.0) { return encode_chroma(chroma); }
     // Premultiplied RGB has to be un-premultiplied before the chroma difference
     // is meaningful; the alpha weight is reapplied by the blend below.
     float3 straight = texel.rgb / max(texel.a, 1e-4);
-    return chroma * (1.0 - texel.a) + rgb_to_chroma(straight) * texel.a;
+    return encode_chroma(chroma * (1.0 - texel.a) + rgb_to_chroma(straight) * texel.a);
 }
 
 fragment float openlens_fragment_luma_bgra(VertexOut in [[stage_in]],
@@ -268,7 +293,7 @@ fragment float2 openlens_fragment_chroma_bgra(VertexOut in [[stage_in]],
     constexpr sampler videoSampler(filter::linear, mip_filter::none, address::clamp_to_edge);
     float3 rgb = adjust_rgb(sourceTexture.sample(videoSampler, in.sourceCoord).rgb, u);
     rgb = composite_overlay(rgb, in.outputCoord, overlayTexture, u);
-    return rgb_to_chroma(saturate(rgb));
+    return encode_chroma(rgb_to_chroma(saturate(rgb)));
 }
 
 fragment float4 openlens_fragment_biplanar(VertexOut in [[stage_in]],
@@ -279,7 +304,7 @@ fragment float4 openlens_fragment_biplanar(VertexOut in [[stage_in]],
 {
     constexpr sampler videoSampler(filter::linear, mip_filter::none, address::clamp_to_edge);
     float luma = lumaTexture.sample(videoSampler, in.sourceCoord).r;
-    float2 chroma = chromaTexture.sample(videoSampler, in.sourceCoord).rg;
+    float2 chroma = decode_chroma(chromaTexture.sample(videoSampler, in.sourceCoord).rg, u);
     // Graded in YCbCr and only then converted, exactly as the NV12 path does,
     // so the preview is a faithful match for what the call actually receives.
     float y = adjust_luma((luma - u.lumaOffset) * u.lumaScale, u);
