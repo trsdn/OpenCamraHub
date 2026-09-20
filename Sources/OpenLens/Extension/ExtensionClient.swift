@@ -41,6 +41,10 @@ final class ExtensionClient: NSObject, ObservableObject {
     private var stateObserver: DarwinObserver?
     private var retryDelay: TimeInterval = 0.5
     private var lastFailureLog: CFTimeInterval = 0
+    /// Set once this launch replaced a running extension. What follows — the
+    /// device vanishing, the search stalling — is then the known consequence of
+    /// that, not a defect, and is logged as such (#43).
+    private var replacedRunningExtension = false
     private var searchStartedAt: CFTimeInterval?
     /// Whether anything actually wants frames right now. A started sink stream is
     /// not free: CoreMediaIO does per-second bookkeeping for every *running*
@@ -181,7 +185,7 @@ final class ExtensionClient: NSObject, ObservableObject {
         searchStartedAt = startedAt
         let stalled = now - startedAt >= Self.stallThreshold
         if stalled {
-            log.error("Virtual camera still not found after \(Int(now - startedAt))s")
+            logFailure("Virtual camera still not found after \(Int(now - startedAt))s")
         }
         DispatchQueue.main.async {
             self.isConnected = false
@@ -245,11 +249,30 @@ final class ExtensionClient: NSObject, ObservableObject {
 
     /// The send path runs at frame rate, so failures are logged at most once a
     /// second rather than thirty times.
+    /// The app replaced its own extension during this launch, so this process
+    /// can no longer reach it. Says so in one line, at notice rather than
+    /// error: an error here reads as a defect and gets reported as one.
+    static let replacedSuffix =
+        " — this launch replaced the extension, so only a restart reconnects"
+
     private func reportFailure(_ message: String) {
         let now = CACurrentMediaTime()
         guard now - lastFailureLog > 1 else { return }
         lastFailureLog = now
-        log.error("\(message, privacy: .public)")
+        logFailure(message)
+    }
+
+    private func logFailure(_ message: String) {
+        if replacedRunningExtension {
+            log.notice("\(message + Self.replacedSuffix, privacy: .public)")
+        } else {
+            log.error("\(message, privacy: .public)")
+        }
+    }
+
+    /// Called when the installer replaces a different version of the extension.
+    func noteReplacedRunningExtension() {
+        queue.async { [weak self] in self?.replacedRunningExtension = true }
     }
 
     private func stopSink() {

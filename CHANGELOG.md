@@ -8,6 +8,10 @@ All notable changes to OpenLens are documented here. The format follows
 
 ### Fixed
 
+- After the app replaces its own camera extension, losing contact with it is
+  logged as a known consequence with the restart named, instead of as an error
+  that reads like a defect (#43).
+
 - Key Light discovery recovers on its own after the network search fails.
   It used to stay dead until the app was restarted, so lights stayed missing
   (#38). The failure is also logged with its cause instead of `<private>`.

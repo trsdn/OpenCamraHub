@@ -129,6 +129,9 @@ final class AppModel: ObservableObject {
         hotKeys.onTogglePause = { [weak self] in self?.togglePause() }
         hotKeys.register()
         refreshDevices()
+        installer.onReplacedRunningExtension = { [weak self] in
+            self?.extensionClient.noteReplacedRunningExtension()
+        }
         installer.activate()
         extensionClient.connect()
         reloadOverlay()

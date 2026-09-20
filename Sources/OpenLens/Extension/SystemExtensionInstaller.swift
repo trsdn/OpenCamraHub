@@ -20,6 +20,10 @@ final class SystemExtensionInstaller: NSObject, ObservableObject {
 
     @Published private(set) var state: State = .unknown
 
+    /// Fires when this launch replaces a *different* version of the extension,
+    /// which is what costs the running app its CoreMediaIO client state.
+    var onReplacedRunningExtension: (() -> Void)?
+
     private let log = Logger(subsystem: OpenLensID.appBundleID, category: "sysext")
 
     func activate() {
@@ -61,6 +65,9 @@ extension SystemExtensionInstaller: OSSystemExtensionRequestDelegate {
             \(replacement.bundleVersion, privacy: .public)
             """
         )
+        if existing.bundleVersion != replacement.bundleVersion {
+            onReplacedRunningExtension?()
+        }
         return .replace
     }
 
