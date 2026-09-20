@@ -22,7 +22,7 @@ enum IdleFrameRenderer {
             kCVPixelBufferPixelFormatTypeKey: kCVPixelFormatType_32BGRA,
             kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary,
             kCVPixelBufferCGImageCompatibilityKey: true,
-            kCVPixelBufferCGBitmapContextCompatibilityKey: true
+            kCVPixelBufferCGBitmapContextCompatibilityKey: true,
         ]
 
         var pixelBuffer: CVPixelBuffer?
@@ -40,17 +40,17 @@ enum IdleFrameRenderer {
         defer { CVPixelBufferUnlockBaseAddress(pixelBuffer, []) }
 
         guard let baseAddress = CVPixelBufferGetBaseAddress(pixelBuffer),
-              let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
-              let context = CGContext(
-                  data: baseAddress,
-                  width: width,
-                  height: height,
-                  bitsPerComponent: 8,
-                  bytesPerRow: CVPixelBufferGetBytesPerRow(pixelBuffer),
-                  space: colorSpace,
-                  bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue
-                      | CGBitmapInfo.byteOrder32Little.rawValue
-              )
+            let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
+            let context = CGContext(
+                data: baseAddress,
+                width: width,
+                height: height,
+                bitsPerComponent: 8,
+                bytesPerRow: CVPixelBufferGetBytesPerRow(pixelBuffer),
+                space: colorSpace,
+                bitmapInfo: CGImageAlphaInfo.noneSkipFirst.rawValue
+                    | CGBitmapInfo.byteOrder32Little.rawValue
+            )
         else { return nil }
 
         context.setFillColor(red: 0.06, green: 0.06, blue: 0.08, alpha: 1)
@@ -90,17 +90,19 @@ enum IdleFrameRenderer {
 
         let attributes: [CFString: Any] = [
             kCVPixelBufferPixelFormatTypeKey: OpenLensOutput.pixelFormat,
-            kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary
+            kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary,
         ]
         var destination: CVPixelBuffer?
-        guard CVPixelBufferCreate(
-            kCFAllocatorDefault,
-            width,
-            height,
-            OpenLensOutput.pixelFormat,
-            attributes as CFDictionary,
-            &destination
-        ) == kCVReturnSuccess, let destination else { return nil }
+        guard
+            CVPixelBufferCreate(
+                kCFAllocatorDefault,
+                width,
+                height,
+                OpenLensOutput.pixelFormat,
+                attributes as CFDictionary,
+                &destination
+            ) == kCVReturnSuccess, let destination
+        else { return nil }
 
         CVPixelBufferLockBaseAddress(source, .readOnly)
         CVPixelBufferLockBaseAddress(destination, [])
@@ -110,10 +112,10 @@ enum IdleFrameRenderer {
         }
 
         guard let src = CVPixelBufferGetBaseAddress(source)?.assumingMemoryBound(to: UInt8.self),
-              let lumaPlane = CVPixelBufferGetBaseAddressOfPlane(destination, 0)?
-                  .assumingMemoryBound(to: UInt8.self),
-              let chromaPlane = CVPixelBufferGetBaseAddressOfPlane(destination, 1)?
-                  .assumingMemoryBound(to: UInt8.self)
+            let lumaPlane = CVPixelBufferGetBaseAddressOfPlane(destination, 0)?
+                .assumingMemoryBound(to: UInt8.self),
+            let chromaPlane = CVPixelBufferGetBaseAddressOfPlane(destination, 1)?
+                .assumingMemoryBound(to: UInt8.self)
         else { return nil }
 
         let srcStride = CVPixelBufferGetBytesPerRow(source)
@@ -175,20 +177,23 @@ enum IdleFrameRenderer {
         centerY: CGFloat,
         width: Int
     ) {
-        let font = CTFontCreateUIFontForLanguage(.system, fontSize, nil)
+        let font =
+            CTFontCreateUIFontForLanguage(.system, fontSize, nil)
             ?? CTFontCreateWithName("Helvetica" as CFString, fontSize, nil)
         // CoreText keys rather than AppKit's: the extension links neither AppKit
         // nor UIKit, so `NSAttributedString.Key.font` does not exist here.
         let attributes: [CFString: Any] = [
             kCTFontAttributeName: font,
             kCTForegroundColorAttributeName: CGColor(red: gray, green: gray, blue: gray, alpha: 1),
-            kCTKernAttributeName: fontSize * 0.01 * (1 + weight)
+            kCTKernAttributeName: fontSize * 0.01 * (1 + weight),
         ]
-        guard let attributed = CFAttributedStringCreate(
-            kCFAllocatorDefault,
-            text as CFString,
-            attributes as CFDictionary
-        ) else { return }
+        guard
+            let attributed = CFAttributedStringCreate(
+                kCFAllocatorDefault,
+                text as CFString,
+                attributes as CFDictionary
+            )
+        else { return }
 
         let line = CTLineCreateWithAttributedString(attributed)
         let bounds = CTLineGetBoundsWithOptions(line, .useOpticalBounds)

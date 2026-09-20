@@ -109,7 +109,9 @@ final class GlobalHotKeys {
             if registered == noErr, let ref {
                 refs.append(ref)
             } else {
-                log.error("Could not register hot key \(binding.id) (key code \(binding.keyCode)): OSStatus \(registered)")
+                log.error(
+                    "Could not register hot key \(binding.id) (key code \(binding.keyCode)): OSStatus \(registered)"
+                )
             }
         }
     }

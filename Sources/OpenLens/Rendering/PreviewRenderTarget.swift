@@ -42,7 +42,8 @@ final class PreviewRenderTarget: @unchecked Sendable {
         return CGSize(width: OpenLensOutput.width, height: OpenLensOutput.height)
     }
 
-    func setDrawableSize(_ size: CGSize) {        lock.lock()
+    func setDrawableSize(_ size: CGSize) {
+        lock.lock()
         defer { lock.unlock() }
         guard size.width > 0, size.height > 0 else { return }
         if layer.drawableSize != size { layer.drawableSize = size }

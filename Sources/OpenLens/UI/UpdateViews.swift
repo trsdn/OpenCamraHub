@@ -39,7 +39,9 @@ struct UpdateBanner: View {
         case .available(let update):
             VStack(alignment: .leading, spacing: 6) {
                 HStack(spacing: 8) {
-                    pill("OpenCamraHub \(update.version) is available", icon: "arrow.down.circle.fill", tint: .accentColor)
+                    pill(
+                        "OpenCamraHub \(update.version) is available", icon: "arrow.down.circle.fill",
+                        tint: .accentColor)
                     Button("Download") { updates.download() }
                         .buttonStyle(.borderedProminent)
                         .help("Saves the disk image to your Downloads folder.")

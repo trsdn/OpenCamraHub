@@ -133,7 +133,9 @@ final class LightController: ObservableObject {
             }
         } else {
             lights.append(KeyLightEntry(device: device, state: KeyLightState(), isReachable: nil))
-            lights.sort { $0.device.displayName.localizedStandardCompare($1.device.displayName) == .orderedAscending }
+            lights.sort {
+                $0.device.displayName.localizedStandardCompare($1.device.displayName) == .orderedAscending
+            }
             refresh(serialNumber: device.serialNumber)
         }
         saveKnown()
@@ -377,7 +379,8 @@ final class LightController: ObservableObject {
                 guard !Task.isCancelled else { return }
                 self.pendingWrites[serialNumber] = nil
                 self.pendingChanges[serialNumber] = nil
-                self.logger.debug("Write to \(serialNumber, privacy: .public) failed: \(error.localizedDescription)")
+                self.logger.debug(
+                    "Write to \(serialNumber, privacy: .public) failed: \(error.localizedDescription)")
                 self.update(serialNumber) {
                     $0.isReachable = false
                     $0.lastError = error.localizedDescription

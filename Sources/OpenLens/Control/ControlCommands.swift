@@ -174,7 +174,7 @@ struct ControlCommandHandler {
 
         case "quality.set":
             guard let raw = request.param("quality")?.stringValue,
-                  let quality = CaptureQuality(rawValue: raw)
+                let quality = CaptureQuality(rawValue: raw)
             else {
                 let allowed = CaptureQuality.allCases.map(\.rawValue).joined(separator: ", ")
                 throw ControlError("`quality` must be one of: \(allowed)")
@@ -352,9 +352,11 @@ struct ControlCommandHandler {
             return scene
         }
         if let name = request.param("name")?.stringValue {
-            guard let scene = scenes.first(where: {
-                $0.name.caseInsensitiveCompare(name) == .orderedSame
-            }) else {
+            guard
+                let scene = scenes.first(where: {
+                    $0.name.caseInsensitiveCompare(name) == .orderedSame
+                })
+            else {
                 throw ControlError("No scene named `\(name)`")
             }
             return scene
@@ -374,9 +376,11 @@ struct ControlCommandHandler {
             return device
         }
         if let name = request.param("name")?.stringValue {
-            guard let device = devices.first(where: {
-                $0.name.caseInsensitiveCompare(name) == .orderedSame
-            }) else {
+            guard
+                let device = devices.first(where: {
+                    $0.name.caseInsensitiveCompare(name) == .orderedSame
+                })
+            else {
                 throw ControlError("No camera named `\(name)`")
             }
             return device
@@ -395,9 +399,11 @@ struct ControlCommandHandler {
             return light
         }
         if let name = request.param("name")?.stringValue {
-            guard let light = lights.first(where: {
-                $0.device.displayName.caseInsensitiveCompare(name) == .orderedSame
-            }) else {
+            guard
+                let light = lights.first(where: {
+                    $0.device.displayName.caseInsensitiveCompare(name) == .orderedSame
+                })
+            else {
                 throw ControlError("No light named `\(name)`")
             }
             return light

@@ -143,11 +143,11 @@ final class MetalPreviewView: NSView {
     /// Nothing is grabbable unless the overlay is actually on screen.
     private func overlayHit(at point: CGPoint) -> OverlayHit {
         guard let model,
-              let scene = model.scenes.selectedScene,
-              scene.overlayEnabled,
-              model.scenes.overlayURL != nil,
-              scene.overlayOpacity > 0,
-              let coordinate = outputCoordinate(for: point)
+            let scene = model.scenes.selectedScene,
+            scene.overlayEnabled,
+            model.scenes.overlayURL != nil,
+            scene.overlayOpacity > 0,
+            let coordinate = outputCoordinate(for: point)
         else { return .none }
         let box = metalLayer.frame
         // A fixed grab radius in points, converted per axis because normalized
@@ -193,7 +193,9 @@ final class MetalPreviewView: NSView {
         // exponentiating keeps both feeling like the same gesture. The gains are
         // tuned so that one comfortable two-finger swipe, or four wheel clicks,
         // is roughly a doubling — anything gentler reads as "the zoom is broken".
-        let step = event.hasPreciseScrollingDeltas ? event.scrollingDeltaY * 0.006
+        let step =
+            event.hasPreciseScrollingDeltas
+            ? event.scrollingDeltaY * 0.006
             : event.scrollingDeltaY * 0.15
         model.zoomBy(factor: exp(step), anchor: anchor)
         model.schedulePersist()

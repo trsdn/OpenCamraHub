@@ -8,6 +8,8 @@ All notable changes to OpenLens are documented here. The format follows
 
 ### Fixed
 
+- The app bundle carries a description alongside its repository, issue
+  tracker, license and copyright entries.
 - The Key Light brightness and colour temperature sliders announce which light
   they belong to and their current value to VoiceOver, instead of reading as an
   unnamed "slider".

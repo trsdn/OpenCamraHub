@@ -60,7 +60,8 @@ final class KeyLightDiscovery {
                     // Public: an NWError names a network condition, not anything
                     // about this Mac or its user, and "<private>" in a log is
                     // exactly what makes such a report unactionable.
-                    self?.logger.error("Bonjour browse failed: \(error.localizedDescription, privacy: .public)")
+                    self?.logger.error(
+                        "Bonjour browse failed: \(error.localizedDescription, privacy: .public)")
                     self?.onStateChange?(false)
                     self?.scheduleRestart()
                 case .cancelled:

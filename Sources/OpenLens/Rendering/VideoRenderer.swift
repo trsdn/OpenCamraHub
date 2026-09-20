@@ -84,7 +84,8 @@ final class VideoRenderer {
         }
 
         func makePipeline(fragment: String, format: MTLPixelFormat = .bgra8Unorm) throws
-            -> MTLRenderPipelineState {
+            -> MTLRenderPipelineState
+        {
             let descriptor = MTLRenderPipelineDescriptor()
             descriptor.vertexFunction = library.makeFunction(name: "openlens_vertex")
             descriptor.fragmentFunction = library.makeFunction(name: fragment)
@@ -113,9 +114,10 @@ final class VideoRenderer {
         )
 
         var cache: CVMetalTextureCache?
-        guard CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, device, nil, &cache)
+        guard
+            CVMetalTextureCacheCreate(kCFAllocatorDefault, nil, device, nil, &cache)
                 == kCVReturnSuccess,
-              let cache
+            let cache
         else { throw RendererError.textureCacheCreationFailed }
         textureCache = cache
 
@@ -159,15 +161,16 @@ final class VideoRenderer {
         // extension ever stops draining, dropping this frame is the right answer;
         // queueing more of them only adds latency and memory.
         let auxAttributes: [CFString: Any] = [kCVPixelBufferPoolAllocationThresholdKey: 6]
-        guard CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(
+        guard
+            CVPixelBufferPoolCreatePixelBufferWithAuxAttributes(
                 kCFAllocatorDefault,
                 pool,
                 auxAttributes as CFDictionary,
                 &output
-              ) == kCVReturnSuccess,
-              let output,
-              let luma = makeTexture(from: output, plane: 0, format: .r8Unorm),
-              let chroma = makeTexture(from: output, plane: 1, format: .rg8Unorm)
+            ) == kCVReturnSuccess,
+            let output,
+            let luma = makeTexture(from: output, plane: 0, format: .r8Unorm),
+            let chroma = makeTexture(from: output, plane: 1, format: .rg8Unorm)
         else { return nil }
 
         let isBiplanar = Self.isBiplanar(frame.pixelBuffer)
@@ -176,7 +179,7 @@ final class VideoRenderer {
         // its own (quarter-size) fragment work.
         let passes = [
             Pass(pipeline: lumaPipelines.pipeline(isBiplanarSource: isBiplanar), texture: luma),
-            Pass(pipeline: chromaPipelines.pipeline(isBiplanarSource: isBiplanar), texture: chroma)
+            Pass(pipeline: chromaPipelines.pipeline(isBiplanarSource: isBiplanar), texture: chroma),
         ]
         guard encode(frame, passes: passes, present: nil) else { return nil }
 
@@ -207,16 +210,18 @@ final class VideoRenderer {
         var output: CVPixelBuffer?
         let attributes: [CFString: Any] = [
             kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary,
-            kCVPixelBufferMetalCompatibilityKey: true
+            kCVPixelBufferMetalCompatibilityKey: true,
         ]
-        guard CVPixelBufferCreate(
-            kCFAllocatorDefault,
-            OpenLensOutput.width,
-            OpenLensOutput.height,
-            OpenLensOutput.pixelFormat,
-            attributes as CFDictionary,
-            &output
-        ) == kCVReturnSuccess, let output else { return nil }
+        guard
+            CVPixelBufferCreate(
+                kCFAllocatorDefault,
+                OpenLensOutput.width,
+                OpenLensOutput.height,
+                OpenLensOutput.pixelFormat,
+                attributes as CFDictionary,
+                &output
+            ) == kCVReturnSuccess, let output
+        else { return nil }
 
         guard CVPixelBufferLockBaseAddress(output, []) == kCVReturnSuccess else { return nil }
         defer { CVPixelBufferUnlockBaseAddress(output, []) }
@@ -227,7 +232,8 @@ final class VideoRenderer {
         for fill in fills {
             guard let base = CVPixelBufferGetBaseAddressOfPlane(output, fill.plane)
             else { return nil }
-            let bytes = CVPixelBufferGetBytesPerRowOfPlane(output, fill.plane)
+            let bytes =
+                CVPixelBufferGetBytesPerRowOfPlane(output, fill.plane)
                 * CVPixelBufferGetHeightOfPlane(output, fill.plane)
             memset(base, fill.value, bytes)
         }
@@ -293,7 +299,7 @@ final class VideoRenderer {
         var sourceTextures: [MTLTexture] = []
         if isBiplanar {
             guard let luma = makeTexture(from: frame.pixelBuffer, plane: 0, format: .r8Unorm),
-                  let chroma = makeTexture(from: frame.pixelBuffer, plane: 1, format: .rg8Unorm)
+                let chroma = makeTexture(from: frame.pixelBuffer, plane: 1, format: .rg8Unorm)
             else { return false }
             sourceTextures = [luma, chroma]
         } else {
@@ -404,7 +410,7 @@ final class VideoRenderer {
             &textureRef
         )
         guard status == kCVReturnSuccess, let textureRef,
-              let texture = CVMetalTextureGetTexture(textureRef)
+            let texture = CVMetalTextureGetTexture(textureRef)
         else { return nil }
         inFlightTextures.append(textureRef)
         return texture
@@ -418,19 +424,21 @@ final class VideoRenderer {
             kCVPixelBufferWidthKey: Int(size.width),
             kCVPixelBufferHeightKey: Int(size.height),
             kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary,
-            kCVPixelBufferMetalCompatibilityKey: true
+            kCVPixelBufferMetalCompatibilityKey: true,
         ]
         // A shallow pool is deliberate: it bounds latency and memory, and the
         // extension is always a frame or two behind at most.
         let poolAttributes: [CFString: Any] = [kCVPixelBufferPoolMinimumBufferCountKey: 4]
 
         var pool: CVPixelBufferPool?
-        guard CVPixelBufferPoolCreate(
-            kCFAllocatorDefault,
-            poolAttributes as CFDictionary,
-            attributes as CFDictionary,
-            &pool
-        ) == kCVReturnSuccess else { return nil }
+        guard
+            CVPixelBufferPoolCreate(
+                kCFAllocatorDefault,
+                poolAttributes as CFDictionary,
+                attributes as CFDictionary,
+                &pool
+            ) == kCVReturnSuccess
+        else { return nil }
 
         outputPool = pool
         outputPoolSize = size

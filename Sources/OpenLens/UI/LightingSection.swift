@@ -33,7 +33,9 @@ struct LightingSection: View {
                 sceneControls
             }
 
-            if LightController.showsManualEntry(hasLights: !controller.lights.isEmpty, isAdding: isAddingManually) {
+            if LightController.showsManualEntry(
+                hasLights: !controller.lights.isEmpty, isAdding: isAddingManually)
+            {
                 manualEntry
             } else {
                 Button("Add light manually…") { isAddingManually = true }
@@ -107,8 +109,10 @@ struct LightingSection: View {
             // there as a button that appears to do nothing.
             if controller.lights.count > 1, !controller.lightsAgreeOnTemperature {
                 Button("Match colour temperature") {
-                    guard let first = controller.lights.first(where: { $0.isReachable == true })
-                        ?? controller.lights.first else { return }
+                    guard
+                        let first = controller.lights.first(where: { $0.isReachable == true })
+                            ?? controller.lights.first
+                    else { return }
                     controller.setAllKelvin(first.state.kelvin)
                 }
                 .help("Sets every light to the first light's temperature")

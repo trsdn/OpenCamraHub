@@ -25,7 +25,7 @@ enum OverlayLoader {
     /// than a divide per pixel, and it is the format `CGContext` produces anyway.
     static func load(url: URL, device: MTLDevice) throws -> (MTLTexture, CGSize) {
         guard let source = CGImageSourceCreateWithURL(url as CFURL, nil),
-              let image = CGImageSourceCreateImageAtIndex(source, 0, nil)
+            let image = CGImageSourceCreateImageAtIndex(source, 0, nil)
         else { throw LoadError.unreadable }
 
         let width = image.width
@@ -34,17 +34,17 @@ enum OverlayLoader {
         var data = [UInt8](repeating: 0, count: bytesPerRow * height)
 
         guard let colorSpace = CGColorSpace(name: CGColorSpace.sRGB),
-              let context = data.withUnsafeMutableBytes({ buffer -> CGContext? in
-                  CGContext(
-                      data: buffer.baseAddress,
-                      width: width,
-                      height: height,
-                      bitsPerComponent: 8,
-                      bytesPerRow: bytesPerRow,
-                      space: colorSpace,
-                      bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
-                  )
-              })
+            let context = data.withUnsafeMutableBytes({ buffer -> CGContext? in
+                CGContext(
+                    data: buffer.baseAddress,
+                    width: width,
+                    height: height,
+                    bitsPerComponent: 8,
+                    bytesPerRow: bytesPerRow,
+                    space: colorSpace,
+                    bitmapInfo: CGImageAlphaInfo.premultipliedLast.rawValue
+                )
+            })
         else { throw LoadError.unreadable }
 
         context.draw(image, in: CGRect(x: 0, y: 0, width: width, height: height))

@@ -108,7 +108,8 @@ final class CameraSceneCodingTests: XCTestCase {
             overlayRect: CGRect(x: 0.1, y: 0.2, width: 0.3, height: 0.4),
             overlayOpacity: 0.59,
             adjustments: ImageAdjustments(exposure: 0.5, contrast: 0.2),
-            lighting: SceneLighting(isEnabled: true, lights: ["ABC": KeyLightState(isOn: true, brightness: 25, mired: 178)])
+            lighting: SceneLighting(
+                isEnabled: true, lights: ["ABC": KeyLightState(isOn: true, brightness: 25, mired: 178)])
         )
         scene.id = UUID()
 

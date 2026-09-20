@@ -45,7 +45,8 @@ final class NumberFieldValueTests: XCTestCase {
     // MARK: - Clamping
 
     func testClampConvertsFromDisplayScale() {
-        XCTAssertEqual(NumberFieldValue.clamp(56, displayScale: displayScale, range: range), 0.56, accuracy: 1e-9)
+        XCTAssertEqual(
+            NumberFieldValue.clamp(56, displayScale: displayScale, range: range), 0.56, accuracy: 1e-9)
     }
 
     func testClampPinsAboveRangeToUpperBound() {

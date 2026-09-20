@@ -15,7 +15,8 @@ struct AvailableUpdate: Equatable {
 /// the disk image, which keeps every setting because those are keyed on the
 /// bundle identifier.
 enum ReleaseCheck {
-    static let latestReleaseURL = URL(string: "https://api.github.com/repos/trsdn/OpenCamraHub/releases/latest")!
+    static let latestReleaseURL = URL(
+        string: "https://api.github.com/repos/trsdn/OpenCamraHub/releases/latest")!
 
     static func update(fromLatestRelease data: Data, currentVersion: String) throws -> AvailableUpdate? {
         let release = try JSONDecoder().decode(Release.self, from: data)
@@ -24,7 +25,8 @@ enum ReleaseCheck {
         let version = release.tagName.hasPrefix("v") ? String(release.tagName.dropFirst()) : release.tagName
         guard isVersion(version, newerThan: currentVersion) else { return nil }
 
-        let diskImage = release.assets.first { $0.name == "OpenLens-v\(version)-macOS-arm64.dmg" }
+        let diskImage =
+            release.assets.first { $0.name == "OpenLens-v\(version)-macOS-arm64.dmg" }
             ?? release.assets.first { $0.name == "OpenLens-\(version).dmg" }
         return AvailableUpdate(
             version: version,

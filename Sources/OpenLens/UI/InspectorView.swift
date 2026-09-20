@@ -624,17 +624,21 @@ struct AdjustmentSlider: View {
                         .lineLimit(1)
                 }
                 TextField("", text: fieldBinding)
-                .id(fieldRevision)
-                .focused($isEditing)
-                .onSubmit { commitText(); isEditing = false }
-                .onChange(of: isEditing) { _, editing in
-                    if !editing { commitText() }
-                }
-                .onExitCommand { editingText = nil; isEditing = false }
-                .multilineTextAlignment(.trailing)
-                .monospacedDigit()
-                .frame(width: 40)
-                .accessibilityLabel("\(title) value")
+                    .id(fieldRevision)
+                    .focused($isEditing)
+                    .onSubmit {
+                        commitText(); isEditing = false
+                    }
+                    .onChange(of: isEditing) { _, editing in
+                        if !editing { commitText() }
+                    }
+                    .onExitCommand {
+                        editingText = nil; isEditing = false
+                    }
+                    .multilineTextAlignment(.trailing)
+                    .monospacedDigit()
+                    .frame(width: 40)
+                    .accessibilityLabel("\(title) value")
                 Text(scale.unit)
                     .foregroundStyle(.secondary)
                     .font(.caption)
@@ -711,7 +715,8 @@ struct OverlayPlacementControls: View {
             get: { Double(rect.origin[keyPath: axis]) * 100 },
             set: { newValue in
                 let target = CGFloat(newValue) / 100
-                let delta = axis == \.x
+                let delta =
+                    axis == \.x
                     ? CGSize(width: target - rect.minX, height: 0)
                     : CGSize(width: 0, height: target - rect.minY)
                 model.setOverlayRect(OverlayGeometry.moved(rect, by: delta))
@@ -806,7 +811,7 @@ struct OverlayPlacementControls: View {
         let names = [
             ["arrow.up.left", "arrow.up", "arrow.up.right"],
             ["arrow.left", "smallcircle.filled.circle", "arrow.right"],
-            ["arrow.down.left", "arrow.down", "arrow.down.right"]
+            ["arrow.down.left", "arrow.down", "arrow.down.right"],
         ]
         return names[row][column]
     }

@@ -54,7 +54,8 @@ struct KeyLightClient {
     // MARK: - Requests
 
     func accessoryInfo(host: String, port: Int) async throws -> AccessoryInfo {
-        try await get(AccessoryInfo.self, url: try Self.url(host: host, port: port, path: "/elgato/accessory-info"))
+        try await get(
+            AccessoryInfo.self, url: try Self.url(host: host, port: port, path: "/elgato/accessory-info"))
     }
 
     func state(host: String, port: Int) async throws -> KeyLightState {

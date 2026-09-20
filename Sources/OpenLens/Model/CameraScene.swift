@@ -213,8 +213,8 @@ final class SceneStore: ObservableObject {
     /// the selection moves on still lands on the scene it was typed for.
     func rename(id: UUID, to name: String) {
         guard !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty,
-              let index = scenes.firstIndex(where: { $0.id == id }),
-              scenes[index].name != name
+            let index = scenes.firstIndex(where: { $0.id == id }),
+            scenes[index].name != name
         else { return }
         scenes[index].name = name
         save()
@@ -224,7 +224,7 @@ final class SceneStore: ObservableObject {
     /// that change the crop continuously use this and save on gesture end.
     func mutateSelected(_ body: (inout CameraScene) -> Void) {
         guard let selectedSceneID,
-              let index = scenes.firstIndex(where: { $0.id == selectedSceneID })
+            let index = scenes.firstIndex(where: { $0.id == selectedSceneID })
         else { return }
         body(&scenes[index])
     }
@@ -293,12 +293,14 @@ final class SceneStore: ObservableObject {
     private func restoreOverlay() {
         guard let data = defaults.data(forKey: overlayBookmarkKey) else { return }
         var stale = false
-        guard let url = try? URL(
-            resolvingBookmarkData: data,
-            options: .withSecurityScope,
-            relativeTo: nil,
-            bookmarkDataIsStale: &stale
-        ) else { return }
+        guard
+            let url = try? URL(
+                resolvingBookmarkData: data,
+                options: .withSecurityScope,
+                relativeTo: nil,
+                bookmarkDataIsStale: &stale
+            )
+        else { return }
         guard url.startAccessingSecurityScopedResource() else { return }
         overlayAccessURL = url
         overlayURL = url

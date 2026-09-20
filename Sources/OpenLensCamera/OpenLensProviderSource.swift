@@ -204,8 +204,10 @@ final class OpenLensSinkStreamSource: NSObject, CMIOExtensionStreamSource {
     var activeFormatIndex: Int = 0
 
     var availableProperties: Set<CMIOExtensionProperty> {
-        [.streamActiveFormatIndex, .streamFrameDuration, .streamSinkBufferQueueSize,
-         .streamSinkBuffersRequiredForStartup, .streamSinkEndOfData]
+        [
+            .streamActiveFormatIndex, .streamFrameDuration, .streamSinkBufferQueueSize,
+            .streamSinkBuffersRequiredForStartup, .streamSinkEndOfData,
+        ]
     }
 
     func streamProperties(

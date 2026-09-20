@@ -46,8 +46,14 @@ final class AppDisplayNameTests: XCTestCase {
         XCTAssertEqual(info["OCHRepositoryURL"] as? String, "https://github.com/trsdn/OpenCamraHub")
         XCTAssertEqual(info["OCHIssueTrackerURL"] as? String, "https://github.com/trsdn/OpenCamraHub/issues")
         XCTAssertEqual(info["OCHLicenseIdentifier"] as? String, "MIT")
+        let description = try XCTUnwrap(info["OCHDescription"] as? String)
+        XCTAssertTrue(
+            description.hasPrefix("A virtual camera for video calls"),
+            "The bundle's description should match the one the README and the repository carry."
+        )
         let copyright = try XCTUnwrap(info["NSHumanReadableCopyright"] as? String)
-        XCTAssertTrue(copyright.contains("MIT"), "The copyright line should name the license the badge shows.")
+        XCTAssertTrue(
+            copyright.contains("MIT"), "The copyright line should name the license the badge shows.")
         let license = try String(contentsOf: root.appendingPathComponent("LICENSE"), encoding: .utf8)
         XCTAssertTrue(license.hasPrefix("MIT License"), "OCHLicenseIdentifier must match the LICENSE file.")
     }

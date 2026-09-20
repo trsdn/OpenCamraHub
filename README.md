@@ -37,6 +37,7 @@ want the product rather than the source. See
 - [Performance](#performance)
 - [Build from source](#build-from-source)
 - [Releasing](#releasing)
+- [Metadata: what lives where](#metadata-what-lives-where)
 - [Troubleshooting](#troubleshooting)
 - [Privacy and your data](#privacy-and-your-data)
 - [Language](#language)
@@ -393,45 +394,32 @@ Releases are built, signed, notarized and stapled by
 **[trsdn/macos-notarization-broker](https://github.com/trsdn/macos-notarization-broker)**,
 a manual GitHub Actions workflow. Apple credentials live only in that
 repository's signing environment; nothing here holds them, and no step of a
-release runs locally.
+release runs locally. The release notes are the `CHANGELOG.md` entry for the
+version, and the broker refuses to publish without one.
 
-```bash
-git tag -a vX.Y.Z -m "OpenCamraHub vX.Y.Z" && git push origin vX.Y.Z
-# then, from a checkout of the broker:
-scripts/request.sh openlens vX.Y.Z --publish
-```
-
-The broker resolves the tag to a commit, builds it in a job that holds no
-secrets, validates the bundle in a second secretless job, and only then signs
-what that validation described. The signing job waits for a human approval.
-`--publish` then uploads the verified files to the GitHub release for the tag,
-creating the release from the tag message if it does not exist yet:
-
-- the ZIP and the DMG, each with a `.sha256` file;
-- `OpenLens-X.Y.Z.dmg`, a byte-identical copy of the DMG, kept for copies up
-  to 0.4.0 whose built-in updater looks for exactly that name;
-- `provenance.json` and `preflight-manifest.json`.
-
-Two consequences for this repository:
-
-- `OpenLens.xcodeproj` is committed, because the broker's build job uses only
-  the preinstalled runner toolchain and cannot fetch XcodeGen. Regenerate **and
-  commit** it after changing `project.yml`.
-- Changing the bundle identifier, the layout, the architecture, the entitlements
-  or the minimum macOS version needs a reviewed change to the broker profile
-  first, or the preflight rejects the build.
-
-The release notes are the `CHANGELOG.md` entry for the version, never
-freestanding text. The broker refuses to publish when that entry is missing or
-empty, or when anything is still listed under **Unreleased**, so promote the
-entries into the new version's heading before tagging.
-
-Every release is installed from its published artifact and launched before it
-counts as done; the dated results are in
+The procedure, the artifact names and the constraints they put on this
+repository — why `OpenLens.xcodeproj` is committed, and what needs a broker
+change first — are in
+**[AGENTS.md](AGENTS.md#releases-are-notarized-by-the-broker-never-locally)**,
+so there is one description rather than two that drift. Each release is
+installed from its published artifact and launched; the dated results are in
 [docs/release-smoke-tests.md](docs/release-smoke-tests.md).
 
-`scripts/release.sh` predates the broker and is kept only for reference. See
-[AGENTS.md](AGENTS.md).
+## Metadata: what lives where
+
+| Property | Authority | Also appears in |
+| --- | --- | --- |
+| Version | `project.yml` (`MARKETING_VERSION`) | The bundle, the release tag, the release badge |
+| Minimum macOS | `project.yml` (`deploymentTarget`) | The bundle, the platform badge, Requirements above |
+| Bundle name and identifiers | `Sources/OpenLens/Info.plist`, `project.yml` | The broker profile, which must agree |
+| Display name | `en.lproj/InfoPlist.strings` (see [AGENTS.md](AGENTS.md)) | Finder, the Dock, the menu bar |
+| Description | `Info.plist` (`OCHDescription`) | This README, the repository description, the project page |
+| License | `LICENSE`, mirrored in `Info.plist` (`OCHLicenseIdentifier`, `NSHumanReadableCopyright`) | The license badge |
+| Repository and issue tracker | `Info.plist` (`OCHRepositoryURL`, `OCHIssueTrackerURL`) | The Help menu |
+
+`scripts/badges.py` renders the license, platform and release badges from
+those authorities, and `AppDisplayNameTests` fails when the bundle's copies
+drift from them.
 
 ## Troubleshooting
 

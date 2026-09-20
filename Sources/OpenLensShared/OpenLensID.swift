@@ -12,7 +12,6 @@ public enum OpenLensID {
     /// Consumed by the CoreMediaIO DAL assistant, declared in the extension's Info.plist.
     public static let cmioMachServiceName = "\(teamID).\(extensionBundleID)"
 
-
     /// Stable identity of the published virtual camera device.
     public static let deviceName = "OpenCamraHub"
     public static let deviceModel = "OpenCamraHub Virtual Camera"

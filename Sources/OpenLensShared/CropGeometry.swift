@@ -130,7 +130,8 @@ public enum CropGeometry {
         outputPixelSize: CGSize
     ) -> CGFloat {
         guard sourcePixelSize.width > 0, sourcePixelSize.height > 0,
-              outputPixelSize.width > 0, outputPixelSize.height > 0 else { return 1.0 }
+            outputPixelSize.width > 0, outputPixelSize.height > 0
+        else { return 1.0 }
         let sourceAspect = sourcePixelSize.width / sourcePixelSize.height
         let outputAspect = outputPixelSize.width / outputPixelSize.height
         let base = baseSize(sourceAspect: sourceAspect, outputAspect: outputAspect)

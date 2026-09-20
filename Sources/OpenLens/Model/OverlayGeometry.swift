@@ -34,7 +34,8 @@ enum OverlayGeometry {
         for corner in OverlayCorner.allCases {
             let anchor = position(of: corner, in: rect)
             if abs(point.x - anchor.x) <= cornerRadius.width,
-               abs(point.y - anchor.y) <= cornerRadius.height {
+                abs(point.y - anchor.y) <= cornerRadius.height
+            {
                 return .corner(corner)
             }
         }
