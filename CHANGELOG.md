@@ -6,27 +6,25 @@ All notable changes to OpenLens are documented here. The format follows
 
 ## [Unreleased]
 
-### Fixed
-
-- The app bundle carries a description alongside its repository, issue
-  tracker, license and copyright entries.
-- The Key Light brightness and colour temperature sliders announce which light
-  they belong to and their current value to VoiceOver, instead of reading as an
-  unnamed "slider".
-
-- After the app replaces its own camera extension, losing contact with it is
-  logged as a known consequence with the restart named, instead of as an error
-  that reads like a defect (#43).
-
-- Key Light discovery recovers on its own after the network search fails.
-  It used to stay dead until the app was restarted, so lights stayed missing
-  (#38). The failure is also logged with its cause instead of `<private>`.
+## [0.4.2] - 2026-09-20
 
 ### Added
 
 - **Help › OpenCamraHub on GitHub** and **Help › Report an Issue…** open the
-  project and its issue tracker. The app now carries its repository, issue
-  tracker, license and copyright in its bundle.
+  project and its issue tracker. The app carries its repository, issue tracker,
+  description, license and copyright in its bundle.
+
+### Fixed
+
+- Key Light discovery recovers on its own after the network search fails. It
+  used to stay dead until the app was restarted, so lights stayed missing
+  (#38). The failure is also logged with its cause instead of `<private>`.
+- The Key Light brightness and colour temperature sliders announce which light
+  they belong to and their current value to VoiceOver, instead of reading as an
+  unnamed "slider".
+- After the app replaces its own camera extension, losing contact with it is
+  logged as a known consequence naming the restart that fixes it, instead of as
+  an error that reads like a defect (#43).
 
 ## [0.4.1] - 2026-09-19
 
@@ -99,7 +97,8 @@ All notable changes to OpenLens are documented here. The format follows
 - Colours are encoded in the correct video range, so saturated colours match
   between the preview and calls (#24).
 
-[Unreleased]: https://github.com/trsdn/OpenCamraHub/compare/v0.4.1...HEAD
+[Unreleased]: https://github.com/trsdn/OpenCamraHub/compare/v0.4.2...HEAD
+[0.4.2]: https://github.com/trsdn/OpenCamraHub/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/trsdn/OpenCamraHub/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/trsdn/OpenCamraHub/compare/v0.3.1...v0.4.0
 [0.3.1]: https://github.com/trsdn/OpenCamraHub/compare/v0.3.0...v0.3.1
