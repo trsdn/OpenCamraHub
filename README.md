@@ -493,19 +493,21 @@ What works:
   commands are menu items, so they are reachable from the keyboard like any
   menu. Tone, colour and zoom values each have a number field you can type an
   exact value into.
-- **Most controls carry names.** The inspector's tone and colour fields and
-  sliders expose their names to VoiceOver ("Exposure value", "Exposure"), and
-  the collapsible sections can be opened through accessibility.
+- **Controls carry names.** The inspector's fields and sliders expose their
+  names to VoiceOver ("Exposure value", "Exposure", "Studio links brightness"),
+  the light sliders also speak their value, and the collapsible sections can be
+  opened through accessibility.
 
 Known limitations, stated rather than left implicit:
 
 - **Placing the zoom and the overlay by dragging is pointer-only.** The keyboard
   equivalents are the zoom shortcuts and the overlay's percentage fields and
   nine snap positions, which reach every placement the pointer can.
-- **The Key Light brightness and temperature sliders have no name** for
-  VoiceOver (they read as "slider") and no number field.
-- **No systematic keyboard or VoiceOver audit has been recorded yet.** Focus
-  order and the focus indicator have not been checked end to end.
+- **The Key Light brightness and temperature sliders have no number field**, so
+  an exact value is set by dragging or with the arrow keys rather than typed.
+- **No systematic keyboard or VoiceOver audit on a running build has been
+  recorded.** The keyboard routes above were reviewed in the source and spot
+  checked; focus order and the focus indicator have not been walked end to end.
 
 ## Support and maintenance
 

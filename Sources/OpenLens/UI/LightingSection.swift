@@ -260,6 +260,10 @@ private struct LightRow: View {
                         ),
                         in: LightRow.brightnessBounds
                     )
+                    // LabeledContent's label does not reach the slider, so
+                    // VoiceOver announced an unnamed "slider" for each of them.
+                    .accessibilityLabel("\(entry.device.displayName) brightness")
+                    .accessibilityValue("\(entry.state.brightness)%")
                     Text("\(entry.state.brightness)%")
                         .monospacedDigit()
                         .font(.caption)
@@ -283,6 +287,8 @@ private struct LightRow: View {
                         ),
                         in: 0...LightRow.miredSpan
                     )
+                    .accessibilityLabel("\(entry.device.displayName) colour temperature")
+                    .accessibilityValue("\(entry.state.kelvin) kelvin")
                     // Formatted without grouping: in a German locale the plain
                     // interpolation renders 6494 as "6.494", which reads as a
                     // decimal rather than as a temperature.
