@@ -8,6 +8,10 @@ All notable changes to OpenLens are documented here. The format follows
 
 ### Fixed
 
+- The Key Light brightness and colour temperature sliders announce which light
+  they belong to and their current value to VoiceOver, instead of reading as an
+  unnamed "slider".
+
 - After the app replaces its own camera extension, losing contact with it is
   logged as a known consequence with the restart named, instead of as an error
   that reads like a defect (#43).

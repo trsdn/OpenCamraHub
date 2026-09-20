@@ -5,9 +5,9 @@
 #
 # Evidence for every result below is in the document named by `evidence`.
 
-standard_version: "1.13.0"
-assessed_on: "2026-09-19"
-state: "Needs work"
+standard_version: "1.15.0"
+assessed_on: "2026-09-20"
+state: "Healthy"
 evidence: "docs/self-assessment.md"
 
 criteria:
@@ -61,7 +61,7 @@ criteria:
   R02: pass
   R03: pass
   R04: pass
-  R05: partial
+  R05: pass
   R06: pass
   R07: pass
   R08: pass
@@ -100,7 +100,7 @@ criteria:
   L05: pass
   L06: na
   L07: pass
-  X01: fail
+  X01: pass
   X02: pass
   X03: pass
   X04: pass
