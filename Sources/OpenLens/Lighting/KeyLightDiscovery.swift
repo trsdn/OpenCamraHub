@@ -19,6 +19,19 @@ final class KeyLightDiscovery {
     private var browser: NWBrowser?
     private var resolvers: [String: Task<Void, Never>] = [:]
     private let client = KeyLightClient()
+    private var restart: Task<Void, Never>?
+    private var retryDelay = KeyLightDiscovery.firstRetryDelay
+
+    /// A failed browser never recovers on its own, so it is replaced rather
+    /// than waited on. The delay grows because the usual causes — no network,
+    /// a sleeping interface, mDNSResponder restarting — last longer than one
+    /// retry, and a light is never urgent enough to justify a spin.
+    static let firstRetryDelay: TimeInterval = 2
+    static let maximumRetryDelay: TimeInterval = 60
+
+    static func nextRetryDelay(after delay: TimeInterval) -> TimeInterval {
+        min(delay * 2, maximumRetryDelay)
+    }
 
     /// Called with each light identified, possibly more than once for the same
     /// serial number as addresses change.
@@ -41,10 +54,15 @@ final class KeyLightDiscovery {
             Task { @MainActor [weak self] in
                 switch state {
                 case .ready:
+                    self?.retryDelay = Self.firstRetryDelay
                     self?.onStateChange?(true)
                 case .failed(let error):
-                    self?.logger.error("Bonjour browse failed: \(error.localizedDescription)")
+                    // Public: an NWError names a network condition, not anything
+                    // about this Mac or its user, and "<private>" in a log is
+                    // exactly what makes such a report unactionable.
+                    self?.logger.error("Bonjour browse failed: \(error.localizedDescription, privacy: .public)")
                     self?.onStateChange?(false)
+                    self?.scheduleRestart()
                 case .cancelled:
                     self?.onStateChange?(false)
                 default:
@@ -63,7 +81,27 @@ final class KeyLightDiscovery {
         browser.start(queue: .main)
     }
 
+    /// Drops the failed browser and starts a fresh one. Without this, lights
+    /// stay missing until the app is relaunched: `start()` returns early while
+    /// the old browser is still held, and a failed one never becomes ready.
+    private func scheduleRestart() {
+        guard restart == nil else { return }
+        let delay = retryDelay
+        retryDelay = Self.nextRetryDelay(after: delay)
+        browser?.cancel()
+        browser = nil
+        restart = Task { @MainActor [weak self] in
+            try? await Task.sleep(for: .seconds(delay))
+            guard let self, !Task.isCancelled else { return }
+            self.restart = nil
+            self.start()
+        }
+    }
+
     func stop() {
+        restart?.cancel()
+        restart = nil
+        retryDelay = Self.firstRetryDelay
         browser?.cancel()
         browser = nil
         resolvers.values.forEach { $0.cancel() }
