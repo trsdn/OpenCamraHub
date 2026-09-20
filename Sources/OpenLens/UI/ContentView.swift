@@ -83,9 +83,12 @@ struct ContentView: View {
                         banner(message, systemImage: "exclamationmark.triangle.fill", tint: .orange)
                         if !model.cameraAuthorized {
                             Button("Open Privacy Settings") {
-                                guard let url = URL(
-                                    string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera"
-                                ) else { return }
+                                guard
+                                    let url = URL(
+                                        string:
+                                            "x-apple.systempreferences:com.apple.preference.security?Privacy_Camera"
+                                    )
+                                else { return }
                                 NSWorkspace.shared.open(url)
                             }
                         }
@@ -313,9 +316,12 @@ struct ExtensionStatusBanner: View {
 
     /// Deep link straight to the pane that lists system extensions; hunting for
     /// it manually is the single most common place first-run gets stuck.
-    static func openLoginItemsSettings() {        guard let url = URL(
-            string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension"
-        ) else { return }
+    static func openLoginItemsSettings() {
+        guard
+            let url = URL(
+                string: "x-apple.systempreferences:com.apple.LoginItems-Settings.extension"
+            )
+        else { return }
         NSWorkspace.shared.open(url)
     }
 

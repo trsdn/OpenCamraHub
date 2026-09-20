@@ -162,8 +162,10 @@ final class KeyLightTests: XCTestCase {
     }
 
     func testAddressesThatCannotBeHostsAreRefused() {
-        for bad in ["", "   ", "not a host", "192.168.1.2 extra", "http://", "[fd00::1",
-                    "host\u{7}name", "höst.local", ":9123"] {
+        for bad in [
+            "", "   ", "not a host", "192.168.1.2 extra", "http://", "[fd00::1",
+            "host\u{7}name", "höst.local", ":9123",
+        ] {
             XCTAssertNil(KeyLightAddress.normalized(bad), "\(bad.debugDescription) should be refused")
         }
     }
@@ -171,7 +173,9 @@ final class KeyLightTests: XCTestCase {
     /// Whatever normalisation lets through must be buildable into a URL, since
     /// that is the step that used to trap.
     func testEveryAcceptedAddressBuildsAURL() throws {
-        for input in ["192.168.1.2", "http://192.168.1.2:9123/", "fd00::1", "fe80::1%en0", "key-light_1.local"] {
+        for input in [
+            "192.168.1.2", "http://192.168.1.2:9123/", "fd00::1", "fe80::1%en0", "key-light_1.local",
+        ] {
             let host = try XCTUnwrap(KeyLightAddress.normalized(input))
             XCTAssertNoThrow(try KeyLightClient.lightsURL(host: host, port: 9123), input)
         }
@@ -246,7 +250,8 @@ private final class KeyLightStubProtocol: URLProtocol {
         }
         let body: String
         if path.hasSuffix("accessory-info") {
-            body = #"{"productName":"Elgato Key Light","displayName":"Test","serialNumber":"SN1","firmwareVersion":"1"}"#
+            body =
+                #"{"productName":"Elgato Key Light","displayName":"Test","serialNumber":"SN1","firmwareVersion":"1"}"#
         } else {
             body = #"{"numberOfLights":1,"lights":[{"on":1,"brightness":30,"temperature":200}]}"#
         }

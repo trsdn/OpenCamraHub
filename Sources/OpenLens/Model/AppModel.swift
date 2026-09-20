@@ -100,9 +100,11 @@ final class AppModel: ObservableObject {
 
         NotificationCenter.default
             .publisher(for: AVCaptureDevice.wasConnectedNotification)
-            .merge(with: NotificationCenter.default.publisher(
-                for: AVCaptureDevice.wasDisconnectedNotification
-            ))
+            .merge(
+                with: NotificationCenter.default.publisher(
+                    for: AVCaptureDevice.wasDisconnectedNotification
+                )
+            )
             .sink { [weak self] _ in
                 self?.refreshDevices()
                 self?.extensionClient.rediscover()
@@ -389,7 +391,8 @@ final class AppModel: ObservableObject {
         let index = current / Self.zoomStep
         // The nudge absorbs binary-float error: 1.2 / 0.1 is 11.999…, which would
         // otherwise round down to 11 and make "zoom in" a no-op.
-        let rounded = direction > 0
+        let rounded =
+            direction > 0
             ? (index + 1e-6).rounded(.down) + 1
             : (index - 1e-6).rounded(.up) - 1
         setZoom(rounded * Self.zoomStep)
@@ -423,7 +426,9 @@ final class AppModel: ObservableObject {
     }
 
     var currentCropRect: CGRect {
-        guard let settings = pipeline?.currentSettings() else { return CGRect(x: 0, y: 0, width: 1, height: 1) }
+        guard let settings = pipeline?.currentSettings() else {
+            return CGRect(x: 0, y: 0, width: 1, height: 1)
+        }
         return CropGeometry.rect(
             for: settings.target,
             sourceAspect: settings.sourceAspect,
@@ -531,7 +536,8 @@ final class AppModel: ObservableObject {
     /// widen what the scene controls.
     func captureLightingIntoScene() {
         let chosen = Set(sceneLighting.lights.keys)
-        let snapshot = chosen.isEmpty
+        let snapshot =
+            chosen.isEmpty
             ? lights.snapshot()
             : SceneLighting(isEnabled: true, lights: lights.currentState(of: chosen))
         scenes.mutateSelected { $0.lighting = snapshot }
@@ -727,7 +733,8 @@ final class AppModel: ObservableObject {
             return
         }
         let rate = capture.sourceFrameRate
-        let summary = rate > 0
+        let summary =
+            rate > 0
             ? String(format: "%d × %d · %.0f fps", Int(size.width), Int(size.height), rate)
             : String(format: "%d × %d", Int(size.width), Int(size.height))
         if summary != sourceSummary { sourceSummary = summary }

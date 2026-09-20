@@ -125,7 +125,8 @@ final class ImageAdjustmentsTests: XCTestCase {
         // never overlap, so the worst case is the global shift plus whichever
         // of the two is larger.
         let stacked = ImageAdjustments(temperature: 1, tint: 1, shadowWarmth: 1, highlightWarmth: 1)
-        let worstCase = abs(stacked.temperatureShift)
+        let worstCase =
+            abs(stacked.temperatureShift)
             + abs(stacked.tintShift)
             + max(abs(stacked.shadowShift), abs(stacked.highlightShift))
         XCTAssertLessThan(worstCase, 0.25)

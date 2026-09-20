@@ -37,7 +37,8 @@ final class UpdateManager: ObservableObject {
     private var automaticCheckTask: Task<Void, Never>?
 
     init() {
-        automaticChecksEnabled = UserDefaults.standard.object(forKey: Self.automaticChecksKey) as? Bool ?? true
+        automaticChecksEnabled =
+            UserDefaults.standard.object(forKey: Self.automaticChecksKey) as? Bool ?? true
     }
 
     var isBusy: Bool { state == .checking }

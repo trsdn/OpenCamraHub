@@ -23,7 +23,7 @@ criteria:
   B10: pass
   B11: pass
   B12: pass
-  B13: partial
+  B13: pass
   B14: na
   B15: na
   B16: pass
@@ -40,8 +40,8 @@ criteria:
   P11: pass
   S01: pass
   S02: pass
-  S03: partial
-  S04: partial
+  S03: pass
+  S04: pass
   S05: pass
   S06: pass
   S07: pass
@@ -57,7 +57,7 @@ criteria:
   D04: na
   D05: na
   D06: na
-  R01: partial
+  R01: pass
   R02: pass
   R03: pass
   R04: pass

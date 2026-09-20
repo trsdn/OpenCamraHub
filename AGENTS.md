@@ -24,7 +24,11 @@ Authoritative commands:
 xcodebuild test -project OpenLens.xcodeproj -scheme OpenLens -destination 'platform=macOS' CODE_SIGNING_ALLOWED=NO
 (cd Tools/openlens-streamdeck && npm test)
 xcodegen generate   # after changing project.yml; commit the result
+xcrun swift-format lint --strict --parallel --configuration .swift-format --recursive Sources Tests
 ```
+
+`swift-format` ships with Xcode and its configuration is committed, so CI and
+a local run agree. `xcrun swift-format format -i` applies it.
 
 ## Forbidden and high-risk operations
 

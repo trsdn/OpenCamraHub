@@ -31,22 +31,30 @@ final class ReleaseCheckTests: XCTestCase {
         )
         XCTAssertEqual(update?.version, "0.5.0")
         XCTAssertEqual(update?.downloadURL.lastPathComponent, "OpenLens-v0.5.0-macOS-arm64.dmg")
-        XCTAssertEqual(update?.releaseURL.absoluteString, "https://github.com/trsdn/OpenCamraHub/releases/tag/v0.5.0")
+        XCTAssertEqual(
+            update?.releaseURL.absoluteString, "https://github.com/trsdn/OpenCamraHub/releases/tag/v0.5.0")
     }
 
     func testTheInstalledVersionIsNotAnUpdate() throws {
-        XCTAssertNil(try ReleaseCheck.update(fromLatestRelease: release(tag: "v0.4.0"), currentVersion: "0.4.0"))
-        XCTAssertNil(try ReleaseCheck.update(fromLatestRelease: release(tag: "v0.3.1"), currentVersion: "0.4.0"))
+        XCTAssertNil(
+            try ReleaseCheck.update(fromLatestRelease: release(tag: "v0.4.0"), currentVersion: "0.4.0"))
+        XCTAssertNil(
+            try ReleaseCheck.update(fromLatestRelease: release(tag: "v0.3.1"), currentVersion: "0.4.0"))
     }
 
     func testAReleaseWithoutTheDiskImageStillPointsSomewhereUseful() throws {
-        let update = try ReleaseCheck.update(fromLatestRelease: release(tag: "v0.5.0"), currentVersion: "0.4.0")
+        let update = try ReleaseCheck.update(
+            fromLatestRelease: release(tag: "v0.5.0"), currentVersion: "0.4.0")
         XCTAssertEqual(update?.downloadURL, update?.releaseURL)
     }
 
     func testDraftsAndPrereleasesAreIgnored() throws {
-        XCTAssertNil(try ReleaseCheck.update(fromLatestRelease: release(tag: "v0.5.0", draft: true), currentVersion: "0.4.0"))
-        XCTAssertNil(try ReleaseCheck.update(fromLatestRelease: release(tag: "v0.5.0", prerelease: true), currentVersion: "0.4.0"))
+        XCTAssertNil(
+            try ReleaseCheck.update(
+                fromLatestRelease: release(tag: "v0.5.0", draft: true), currentVersion: "0.4.0"))
+        XCTAssertNil(
+            try ReleaseCheck.update(
+                fromLatestRelease: release(tag: "v0.5.0", prerelease: true), currentVersion: "0.4.0"))
     }
 
     func testVersionsCompareNumericallyNotAlphabetically() {
@@ -57,6 +65,7 @@ final class ReleaseCheckTests: XCTestCase {
     }
 
     func testAnUnreadableResponseIsAnError() {
-        XCTAssertThrowsError(try ReleaseCheck.update(fromLatestRelease: Data("{}".utf8), currentVersion: "0.4.0"))
+        XCTAssertThrowsError(
+            try ReleaseCheck.update(fromLatestRelease: Data("{}".utf8), currentVersion: "0.4.0"))
     }
 }

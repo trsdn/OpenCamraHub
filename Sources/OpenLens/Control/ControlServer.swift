@@ -143,9 +143,11 @@ final class ControlServer {
     /// Nil when there is nowhere usable to put the socket, which is not fatal:
     /// the app runs perfectly well without remote control.
     private static func preferredSocketURL(logger: Logger) -> URL? {
-        guard let container = FileManager.default.containerURL(
-            forSecurityApplicationGroupIdentifier: OpenLensID.appGroup
-        ) else {
+        guard
+            let container = FileManager.default.containerURL(
+                forSecurityApplicationGroupIdentifier: OpenLensID.appGroup
+            )
+        else {
             logger.error("No app group container, so no control socket")
             return nil
         }
@@ -213,7 +215,8 @@ final class ControlServer {
             let response: ControlResponse
             do {
                 let request = try ControlCodec.decode(line)
-                response = subscription(request, from: client)
+                response =
+                    subscription(request, from: client)
                     ?? handler?(request)
                     ?? .failure(id: request.id, "The control server is shutting down")
             } catch {

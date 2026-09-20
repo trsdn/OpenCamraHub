@@ -10,6 +10,8 @@
 	<true/>
 	<key>NSHumanReadableCopyright</key>
 	<string>Copyright © 2026 Torsten Mahr. Released under the MIT License.</string>
+	<key>OCHDescription</key>
+	<string>A virtual camera for video calls: zoom into the part of the frame that matters, correct the picture, and switch scenes and Elgato Key Lights with one key.</string>
 	<key>OCHLicenseIdentifier</key>
 	<string>MIT</string>
 	<key>OCHRepositoryURL</key>

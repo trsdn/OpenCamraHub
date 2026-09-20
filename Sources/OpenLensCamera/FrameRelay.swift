@@ -131,7 +131,8 @@ final class FrameRelay {
         let height = Int32(CVPixelBufferGetHeight(pixelBuffer))
         if formatDescription == nil
             || formatDimensions.width != width
-            || formatDimensions.height != height {
+            || formatDimensions.height != height
+        {
             var description: CMFormatDescription?
             let status = CMVideoFormatDescriptionCreateForImageBuffer(
                 allocator: kCFAllocatorDefault,

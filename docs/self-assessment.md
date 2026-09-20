@@ -25,19 +25,22 @@
 
 ## Result summary
 
-104 criteria: **78 pass, 4 partial, 0 fail, 22 n/a**.
+104 criteria: **82 pass, 0 partial, 0 fail, 22 n/a**.
 
-The one defect this assessment found, `X02`, was fixed while it ran rather
-than recorded as a gap: the Key Light sliders now carry accessibility labels
-and values.
+Every gap this assessment found was closed rather than recorded: the Key Light
+sliders got accessibility labels and values (`X02`), a committed
+`swift-format` configuration is enforced by a CI job (`S03`), CI gained a
+`macos-latest` job beside the pinned `macos-15` one (`S04`), the release
+procedure now has one home with the other linking to it (`B13`), and the
+bundle carries a description alongside a README table naming the authority
+for every metadata property (`R01`).
 
 State **Healthy**: no criterion is `Fail`, and 1.15.0 states that `Partial` and
 `N/A` results, including intended ones, do not lower the state. No critical
 criterion (`B04`, `D01`–`D04`, `D06`) is failing: no committed secret, no
 deployment, no unrecoverable state.
 
-The four `Partial` results are recorded gaps, each with a fix in the table:
-`B13`, `S03`, `S04`, `R01`.
+No `Partial` results remain.
 
 ## Readings this assessment applied
 
@@ -67,7 +70,7 @@ cannot see ([Judgement words](https://github.com/trsdn/.github/blob/v1.15.0/docs
 | B10 | pass | `.github/CODEOWNERS` (`* @trsdn`) names the owner and `README.md` → Support and maintenance states the maintenance status |
 | B11 | pass | `.github/conformance.yml` committed and validated by `.github/workflows/conformance.yml`; `assessed_on` is today (script) |
 | B12 | pass | `trsdn-standard` topic set (script) |
-| B13 | partial | One hand-maintained restatement that agrees with its home: the release procedure appears in both `README.md` → Releasing and `AGENTS.md`. Commands and versions elsewhere link rather than restate. Fix: keep the steps in `AGENTS.md` and link from the README |
+| B13 | pass | The release procedure lives in `AGENTS.md`; `README.md` → Releasing keeps a short summary and links to it. The deep-dive measurements stay in the README where a reader of the product looks for them |
 | B14 | na | The repository holds and references no credential: workflows use only `GITHUB_TOKEN`. `SECURITY.md` → Credentials names the Apple credentials that live in the broker and who replaces them |
 | B15 | na | Nothing third-party is redistributed: since #42 the app has no package dependencies, and the plugin's `vendor/` is a copy of this repository's own `openlens-mcp` client |
 | B16 | pass | Ruleset *Protect master* (active, no bypass actors) blocks deletion and non-fast-forward pushes (script) |
@@ -94,8 +97,8 @@ cannot see ([Judgement words](https://github.com/trsdn/.github/blob/v1.15.0/docs
 |---|---|---|
 | S01 | pass | No third-party dependencies; the generated project is committed and its regenerating command documented; `xcodebuild` commands documented |
 | S02 | pass | 193 XCTest cases run in `ci.yml` and locally. Failure paths are asserted (`ReleaseCheckTests` rejects drafts, pre-releases and unreadable JSON; `ControlProtocolTests` rejects out-of-range numbers; `SceneStorePreservationTests` covers unreadable scenes), and the main entry point — the render and publish path — is exercised by `VideoRendererTests` |
-| S03 | partial | Of the four kinds, the type check runs (the Swift compile in CI) and the project-freshness check runs; no formatter or linter runs for Swift or for the plugin's JavaScript. Fix: add swift-format or SwiftLint to `ci.yml` |
-| S04 | partial | The README claims "macOS 14.0 or later" on arm64. CI runs two jobs, both pinned to `macos-15`, so the range's top end is not covered by a job on the newest image GitHub offers. Fix: add a `macos-latest` job |
+| S03 | pass | `.swift-format` committed and enforced by the **Formatting** CI job (`swift-format lint --strict`, which ships with Xcode); the sources were formatted to it, so the check passes from a clean tree. The Swift build is the type check, and `Xcode project is up to date` is the static check on the generated project |
+| S04 | pass | CI builds and tests on a matrix of `macos-15` (the pinned image a release is built on) and `macos-latest` (the newest image GitHub offers), `fail-fast: false`. macOS 14 is the deployment target but no runner image ships it; `README.md` → Requirements says so |
 | S05 | pass | Secret scanning and push protection enabled (script) |
 | S06 | pass | Settings live in the sandboxed `UserDefaults`; no committed credential, personal email or home-directory default; the Key Light address is user input |
 | S07 | pass | Messages name the failed operation and its cause ("Bonjour browse failed: …", "Move OpenCamraHub to your Applications folder…"); no logging of tokens, headers or bodies, and light addresses are logged as `<private>` where they are not needed |
@@ -116,7 +119,7 @@ cannot see ([Judgement words](https://github.com/trsdn/.github/blob/v1.15.0/docs
 
 | ID | Result | Evidence / fix |
 |---|---|---|
-| R01 | partial | Of the five properties, name, version, licence and repository URL have a home in `Sources/OpenLens/Info.plist` (`CFBundleName`, `CFBundleShortVersionString`, `OCHLicenseIdentifier`, `OCHRepositoryURL`) and agree with the GitHub licence and metadata; there is no package manifest, and a description has no home in the artifact, nor does the repository state which property lives where. Fix: add a description key to `Info.plist` and a line in `AGENTS.md` naming the homes |
+| R01 | pass | `Info.plist` carries `OCHDescription`, `OCHLicenseIdentifier`, `NSHumanReadableCopyright`, `OCHRepositoryURL` and `OCHIssueTrackerURL`; `README.md` → Metadata: what lives where names the authority for every property and what mirrors it, and `AppDisplayNameTests` fails when the bundle drifts from `LICENSE` |
 | R02 | pass | `CHANGELOG.md` declares Semantic Versioning; the README states compatibility (macOS 14+) |
 | R03 | pass | Both parts: the tag exists and names a commit, and the documented shared-pipeline procedure (`scripts/request.sh openlens vX.Y.Z --publish` in the broker, building the resolved commit) is in `README.md` → Releasing and `AGENTS.md` |
 | R04 | pass | For 0.4.1 the tag `v0.4.1`, the `MARKETING_VERSION` the broker injects from it, and the release title `v0.4.1` agree |

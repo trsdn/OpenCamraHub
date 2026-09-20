@@ -17,7 +17,8 @@ final class CameraExtensionInfoPlistTests: XCTestCase {
             .deletingLastPathComponent()
             .deletingLastPathComponent()
             .deletingLastPathComponent()
-        let url = root
+        let url =
+            root
             .appendingPathComponent("Sources/OpenLensCamera/Info.plist")
         let data = try Data(contentsOf: url)
         let plist = try PropertyListSerialization.propertyList(

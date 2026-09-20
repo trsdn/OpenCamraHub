@@ -305,10 +305,12 @@ final class ExtensionClient: NSObject, ObservableObject {
                 self.reportFailure("Sink queue full, dropping frame")
                 return
             }
-            guard let sampleBuffer = self.makeSampleBuffer(
-                pixelBuffer: pixelBuffer,
-                hostTimeNanos: hostTimeNanos
-            ) else { return }
+            guard
+                let sampleBuffer = self.makeSampleBuffer(
+                    pixelBuffer: pixelBuffer,
+                    hostTimeNanos: hostTimeNanos
+                )
+            else { return }
 
             let status = CMSimpleQueueEnqueue(
                 bufferQueue,
@@ -337,27 +339,32 @@ final class ExtensionClient: NSObject, ObservableObject {
         )
 
         var sampleBuffer: CMSampleBuffer?
-        guard CMSampleBufferCreateReadyWithImageBuffer(
-            allocator: kCFAllocatorDefault,
-            imageBuffer: pixelBuffer,
-            formatDescription: formatDescription,
-            sampleTiming: &timing,
-            sampleBufferOut: &sampleBuffer
-        ) == noErr else { return nil }
+        guard
+            CMSampleBufferCreateReadyWithImageBuffer(
+                allocator: kCFAllocatorDefault,
+                imageBuffer: pixelBuffer,
+                formatDescription: formatDescription,
+                sampleTiming: &timing,
+                sampleBufferOut: &sampleBuffer
+            ) == noErr
+        else { return nil }
         return sampleBuffer
     }
 
     private func formatDescription(for pixelBuffer: CVPixelBuffer) -> CMFormatDescription? {
         if let outputFormat,
-           CMVideoFormatDescriptionMatchesImageBuffer(outputFormat, imageBuffer: pixelBuffer) {
+            CMVideoFormatDescriptionMatchesImageBuffer(outputFormat, imageBuffer: pixelBuffer)
+        {
             return outputFormat
         }
         var created: CMFormatDescription?
-        guard CMVideoFormatDescriptionCreateForImageBuffer(
-            allocator: kCFAllocatorDefault,
-            imageBuffer: pixelBuffer,
-            formatDescriptionOut: &created
-        ) == noErr else { return nil }
+        guard
+            CMVideoFormatDescriptionCreateForImageBuffer(
+                allocator: kCFAllocatorDefault,
+                imageBuffer: pixelBuffer,
+                formatDescriptionOut: &created
+            ) == noErr
+        else { return nil }
         outputFormat = created
         return created
     }
@@ -366,16 +373,23 @@ final class ExtensionClient: NSObject, ObservableObject {
 
     private static func findOpenLensDevice() -> (device: CMIOObjectID, sink: CMIOObjectID)? {
         let system = CMIOObjectID(kCMIOObjectSystemObject)
-        for device in objectIDs(of: system, selector: CMIOObjectPropertySelector(kCMIOHardwarePropertyDevices)) {
-            guard string(of: device, selector: CMIOObjectPropertySelector(kCMIODevicePropertyDeviceUID))
-                == OpenLensID.deviceUUID.uuidString else { continue }
+        for device in objectIDs(
+            of: system, selector: CMIOObjectPropertySelector(kCMIOHardwarePropertyDevices))
+        {
+            guard
+                string(of: device, selector: CMIOObjectPropertySelector(kCMIODevicePropertyDeviceUID))
+                    == OpenLensID.deviceUUID.uuidString
+            else { continue }
 
-            let streams = objectIDs(of: device, selector: CMIOObjectPropertySelector(kCMIODevicePropertyStreams))
+            let streams = objectIDs(
+                of: device, selector: CMIOObjectPropertySelector(kCMIODevicePropertyStreams))
             // Streams are added source-first, but match on the name so a future
             // reordering cannot silently start feeding the wrong stream.
-            let sink = streams.first {
-                string(of: $0, selector: CMIOObjectPropertySelector(kCMIOObjectPropertyName)) == OpenLensID.sinkStreamName
-            } ?? (streams.count > 1 ? streams[1] : nil)
+            let sink =
+                streams.first {
+                    string(of: $0, selector: CMIOObjectPropertySelector(kCMIOObjectPropertyName))
+                        == OpenLensID.sinkStreamName
+                } ?? (streams.count > 1 ? streams[1] : nil)
 
             if let sink { return (device, sink) }
         }
@@ -394,7 +408,8 @@ final class ExtensionClient: NSObject, ObservableObject {
         var dataSize: UInt32 = 0
         var dataUsed: UInt32 = 0
         guard CMIOObjectGetPropertyDataSize(object, &address, 0, nil, &dataSize) == noErr,
-              dataSize > 0 else { return [] }
+            dataSize > 0
+        else { return [] }
 
         let count = Int(dataSize) / MemoryLayout<CMIOObjectID>.size
         var ids = [CMIOObjectID](repeating: 0, count: count)

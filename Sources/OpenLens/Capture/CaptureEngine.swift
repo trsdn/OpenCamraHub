@@ -227,7 +227,8 @@ final class CaptureEngine: NSObject {
         // renegotiate and quietly drop back to 1080p.
         let formatDimensions = CMVideoFormatDescriptionGetDimensions(format.formatDescription)
         if let preset = Self.preset(matching: formatDimensions),
-           session.canSetSessionPreset(preset) {
+            session.canSetSessionPreset(preset)
+        {
             session.sessionPreset = preset
         }
 
@@ -288,7 +289,8 @@ final class CaptureEngine: NSObject {
     static func pinFrameRate(of device: AVCaptureDevice, using format: AVCaptureDevice.Format) {
         let target = Double(OpenLensOutput.frameRate)
         let ranges = format.videoSupportedFrameRateRanges
-        let range = ranges.filter { $0.minFrameRate <= target + 0.01 }
+        let range =
+            ranges.filter { $0.minFrameRate <= target + 0.01 }
             .max { $0.maxFrameRate < $1.maxFrameRate }
             ?? ranges.min { $0.maxFrameRate < $1.maxFrameRate }
         guard let range else { return }
@@ -324,7 +326,7 @@ final class CaptureEngine: NSObject {
             let subTypeRank: Int
             switch subType {
             case kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
-                 kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
+                kCVPixelFormatType_420YpCbCr8BiPlanarFullRange:
                 subTypeRank = 3
             case kCVPixelFormatType_32BGRA:
                 subTypeRank = 2
@@ -364,7 +366,7 @@ final class CaptureEngine: NSObject {
         var preference: [OSType] = [
             kCVPixelFormatType_420YpCbCr8BiPlanarFullRange,
             kCVPixelFormatType_420YpCbCr8BiPlanarVideoRange,
-            kCVPixelFormatType_32BGRA
+            kCVPixelFormatType_32BGRA,
         ]
         // Asking for exactly what the device already produces skips the conversion
         // AVFoundation would otherwise run on the CPU for every single frame.
@@ -372,12 +374,13 @@ final class CaptureEngine: NSObject {
             preference.removeAll { $0 == sourceSubType }
             preference.insert(sourceSubType, at: 0)
         }
-        let chosen = preference.first(where: { available.contains($0) })
+        let chosen =
+            preference.first(where: { available.contains($0) })
             ?? kCVPixelFormatType_32BGRA
         return [
             kCVPixelBufferPixelFormatTypeKey as String: chosen,
             kCVPixelBufferWidthKey as String: Int(dimensions.width),
-            kCVPixelBufferHeightKey as String: Int(dimensions.height)
+            kCVPixelBufferHeightKey as String: Int(dimensions.height),
         ]
     }
 }

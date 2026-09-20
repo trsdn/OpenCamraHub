@@ -25,7 +25,7 @@ final class VideoRendererTests: XCTestCase {
         var buffer: CVPixelBuffer?
         let attributes: [CFString: Any] = [
             kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary,
-            kCVPixelBufferMetalCompatibilityKey: true
+            kCVPixelBufferMetalCompatibilityKey: true,
         ]
         XCTAssertEqual(
             CVPixelBufferCreate(
@@ -49,9 +49,9 @@ final class VideoRendererTests: XCTestCase {
             for x in 0..<width {
                 let pixel = row.advanced(by: x * 4)
                 let isLeft = x < width / 2
-                pixel[0] = isLeft ? 0 : 255   // B
-                pixel[1] = 0                  // G
-                pixel[2] = isLeft ? 255 : 0   // R
+                pixel[0] = isLeft ? 0 : 255  // B
+                pixel[1] = 0  // G
+                pixel[2] = isLeft ? 255 : 0  // R
                 pixel[3] = 255
             }
         }
@@ -312,7 +312,7 @@ final class VideoRendererTests: XCTestCase {
         var buffer: CVPixelBuffer?
         let attributes: [CFString: Any] = [
             kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary,
-            kCVPixelBufferMetalCompatibilityKey: true
+            kCVPixelBufferMetalCompatibilityKey: true,
         ]
         XCTAssertEqual(
             CVPixelBufferCreate(
@@ -387,7 +387,7 @@ final class VideoRendererTests: XCTestCase {
         var buffer: CVPixelBuffer?
         let attributes: [CFString: Any] = [
             kCVPixelBufferIOSurfacePropertiesKey: [:] as CFDictionary,
-            kCVPixelBufferMetalCompatibilityKey: true
+            kCVPixelBufferMetalCompatibilityKey: true,
         ]
         XCTAssertEqual(
             CVPixelBufferCreate(
@@ -455,12 +455,16 @@ final class VideoRendererTests: XCTestCase {
     func testExposureBrightensAndDarkensTheBiplanarPath() throws {
         let neutral = try luma(of: try render(fullFrame(try makeBiplanarSourceBuffer(), .neutral)))
         let brighter = try luma(
-            of: try render(fullFrame(try makeBiplanarSourceBuffer(),
-                                     ImageAdjustments(exposure: 1)))
+            of: try render(
+                fullFrame(
+                    try makeBiplanarSourceBuffer(),
+                    ImageAdjustments(exposure: 1)))
         )
         let darker = try luma(
-            of: try render(fullFrame(try makeBiplanarSourceBuffer(),
-                                     ImageAdjustments(exposure: -1)))
+            of: try render(
+                fullFrame(
+                    try makeBiplanarSourceBuffer(),
+                    ImageAdjustments(exposure: -1)))
         )
         XCTAssertGreaterThan(brighter, neutral + 10)
         XCTAssertLessThan(darker, neutral - 10)
@@ -472,20 +476,25 @@ final class VideoRendererTests: XCTestCase {
         )
         // The red half must come back as a neutral grey of the same brightness.
         let pixel = try sample(output, atX: 0.1, y: 0.5)
-        let spread = Int(max(pixel.r, max(pixel.g, pixel.b)))
+        let spread =
+            Int(max(pixel.r, max(pixel.g, pixel.b)))
             - Int(min(pixel.r, min(pixel.g, pixel.b)))
         XCTAssertLessThan(spread, 12, "expected a grey pixel, got \(pixel)")
     }
 
     func testWhiteBalanceShiftsTowardsRedAndBlue() throws {
         let warm = try sample(
-            try render(fullFrame(try makeBiplanarSourceBuffer(),
-                                 ImageAdjustments(saturation: -1, temperature: 1))),
+            try render(
+                fullFrame(
+                    try makeBiplanarSourceBuffer(),
+                    ImageAdjustments(saturation: -1, temperature: 1))),
             atX: 0.1, y: 0.5
         )
         let cool = try sample(
-            try render(fullFrame(try makeBiplanarSourceBuffer(),
-                                 ImageAdjustments(saturation: -1, temperature: -1))),
+            try render(
+                fullFrame(
+                    try makeBiplanarSourceBuffer(),
+                    ImageAdjustments(saturation: -1, temperature: -1))),
             atX: 0.1, y: 0.5
         )
         // Starting from grey, warm must land on the red side and cool on the blue.
@@ -536,9 +545,11 @@ final class VideoRendererTests: XCTestCase {
     /// linear light, which leaves black alone because black carries no light to
     /// re-balance.
     func testGlobalWhiteBalanceLeavesBlackAloneButStillCorrectsHighlights() throws {
-        for adjustments in [ImageAdjustments(temperature: 1),
-                            ImageAdjustments(tint: -1),
-                            ImageAdjustments(temperature: 1, tint: -1)] {
+        for adjustments in [
+            ImageAdjustments(temperature: 1),
+            ImageAdjustments(tint: -1),
+            ImageAdjustments(temperature: 1, tint: -1),
+        ] {
             let output = try render(fullFrame(try makeGreyRampSourceBuffer(), adjustments))
             func spread(atX x: CGFloat) throws -> Int {
                 let pixel = try sample(output, atX: x, y: 0.5)
@@ -572,7 +583,8 @@ final class VideoRendererTests: XCTestCase {
         XCTAssertGreaterThan(Int(dark.r), Int(dark.b) + 20)
     }
 
-    func testAdjustmentsAlsoApplyToBGRASources() throws {        let neutral = try luma(of: try render(fullFrame(try makeSourceBuffer(), .neutral)))
+    func testAdjustmentsAlsoApplyToBGRASources() throws {
+        let neutral = try luma(of: try render(fullFrame(try makeSourceBuffer(), .neutral)))
         let brighter = try luma(
             of: try render(fullFrame(try makeSourceBuffer(), ImageAdjustments(exposure: 1)))
         )
@@ -676,8 +688,10 @@ final class VideoRendererTests: XCTestCase {
         let red = try chromaCodes(of: output, atX: 0.1)
         let blue = try chromaCodes(of: output, atX: 0.9)
         XCTAssertEqual(red.cb, redCodes.cb, accuracy: 2, file: file, line: line)
-        XCTAssertEqual(red.cr, redCodes.cr, accuracy: 2, "pure red must not exceed 240", file: file, line: line)
-        XCTAssertEqual(blue.cb, blueCodes.cb, accuracy: 2, "pure blue must not exceed 240", file: file, line: line)
+        XCTAssertEqual(
+            red.cr, redCodes.cr, accuracy: 2, "pure red must not exceed 240", file: file, line: line)
+        XCTAssertEqual(
+            blue.cb, blueCodes.cb, accuracy: 2, "pure blue must not exceed 240", file: file, line: line)
         XCTAssertEqual(blue.cr, blueCodes.cr, accuracy: 2, file: file, line: line)
         XCTAssertLessThanOrEqual(max(red.cb, red.cr, blue.cb, blue.cr), 240, file: file, line: line)
     }
@@ -746,7 +760,7 @@ final class VideoRendererTests: XCTestCase {
         kCVImageBufferCGColorSpaceKey as String,
         kCVImageBufferColorPrimariesKey as String,
         kCVImageBufferTransferFunctionKey as String,
-        kCVImageBufferGammaLevelKey as String
+        kCVImageBufferGammaLevelKey as String,
     ]
 
     /// The matrix is the one tag a consumer genuinely needs: without it the two

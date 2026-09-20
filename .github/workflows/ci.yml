@@ -9,8 +9,16 @@ permissions:
 
 jobs:
   test:
+    # macOS 14 is the deployment target, but no runner image ships it any more.
+    # The pinned image is what a release is built on; macos-latest is what the
+    # next Xcode lands on first, so a break shows up here rather than in a
+    # release.
     name: Build and test
-    runs-on: macos-15
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [macos-15, macos-latest]
+    runs-on: ${{ matrix.runner }}
     steps:
       - name: Checkout
         uses: actions/checkout@v7
@@ -24,6 +32,18 @@ jobs:
             -scheme OpenLens \
             -destination 'platform=macOS' \
             CODE_SIGNING_ALLOWED=NO
+
+  format:
+    name: Formatting
+    runs-on: macos-15
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      # swift-format ships with Xcode, so this needs nothing installed. The
+      # configuration is committed, so the check and a local run agree.
+      - name: Check formatting
+        run: xcrun swift-format lint --strict --parallel --configuration .swift-format --recursive Sources Tests
 
   project-file:
     name: Xcode project is up to date
