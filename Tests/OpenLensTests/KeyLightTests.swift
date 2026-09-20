@@ -356,3 +356,24 @@ final class KeyLightWriteTests: XCTestCase {
         XCTAssertNil(light.temperature)
     }
 }
+
+/// A failed `NWBrowser` never becomes ready again, so discovery replaces it.
+/// Without a ceiling the retry would turn a flaky network into a spin, and
+/// without a reset a late failure would inherit a long delay for good.
+@MainActor
+final class KeyLightDiscoveryRetryTests: XCTestCase {
+    func testTheRetryDelayDoublesUpToItsCeiling() {
+        var delay = KeyLightDiscovery.firstRetryDelay
+        var seen = [delay]
+        for _ in 0..<8 {
+            delay = KeyLightDiscovery.nextRetryDelay(after: delay)
+            seen.append(delay)
+        }
+        XCTAssertEqual(Array(seen.prefix(4)), [2, 4, 8, 16])
+        XCTAssertEqual(seen.last, KeyLightDiscovery.maximumRetryDelay)
+        XCTAssertTrue(
+            zip(seen, seen.dropFirst()).allSatisfy { $0 <= $1 },
+            "The delay must never shrink on its own; only a ready browser resets it."
+        )
+    }
+}

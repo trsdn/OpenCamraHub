@@ -6,6 +6,12 @@ All notable changes to OpenLens are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- Key Light discovery recovers on its own after the network search fails.
+  It used to stay dead until the app was restarted, so lights stayed missing
+  (#38). The failure is also logged with its cause instead of `<private>`.
+
 ### Added
 
 - **Help › OpenCamraHub on GitHub** and **Help › Report an Issue…** open the
