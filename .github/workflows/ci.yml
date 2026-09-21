@@ -1,8 +1,21 @@
 name: CI
 
 on:
+  # A branch push and its pull request are the same commit, and a bare `push:`
+  # ran the whole matrix for both. The required checks are matched by name, so
+  # the merge waited for two "Build and test (macos-15)" jobs that could only
+  # ever agree — on a queue where that image is the scarce one. Pushes are
+  # therefore only interesting once they reach master.
   push:
+    branches: [master]
   pull_request:
+
+# A new push to a pull request makes the run for the previous commit pointless.
+# On master every commit keeps its own run, because the badge and the
+# conformance record refer to it.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/master' }}
 
 permissions:
   contents: read
