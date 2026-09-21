@@ -19,8 +19,6 @@ All notable changes to OpenLens are documented here. The format follows
   They were a picture beside two labels that happened to react to a click.
 - Deleting a scene asks first and is marked as destructive. It takes the
   framing, corrections, overlay and lighting with it, and cannot be undone.
-- The floating pills and the pause card are Liquid Glass on macOS 26, and keep
-  their material on older systems.
 
 ### Fixed
 

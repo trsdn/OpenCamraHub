@@ -57,7 +57,7 @@ struct UpdateBanner: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
-                .floatingSurface(in: RoundedRectangle(cornerRadius: 8))
+                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
             }
         case .failed(let message):
             HStack(spacing: 8) {
@@ -77,6 +77,6 @@ struct UpdateBanner: View {
             .foregroundStyle(tint)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .floatingSurface(in: Capsule())
+            .background(.ultraThinMaterial, in: Capsule())
     }
 }
