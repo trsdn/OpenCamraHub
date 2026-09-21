@@ -9,10 +9,10 @@ struct OpenLensApp: App {
     }
 
     var body: some Scene {
-        Settings {
-            SettingsView(updates: model.updates)
-        }
-
+        // The main window comes first, and has to: the first scene in the body
+        // is the one the app opens at launch. With Settings first, 0.4.3 opened
+        // the settings window and nothing else, leaving the app running with no
+        // picture, no control socket and no way back to its own window.
         Window("OpenCamraHub", id: "main") {
             ContentView(model: model)
                 .frame(minWidth: 960, minHeight: 560)
@@ -79,6 +79,10 @@ struct OpenLensApp: App {
                     Link("Report an Issue…", destination: url)
                 }
             }
+        }
+
+        Settings {
+            SettingsView(updates: model.updates)
         }
     }
 }
