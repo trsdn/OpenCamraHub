@@ -9,9 +9,16 @@ struct OpenLensApp: App {
     }
 
     var body: some Scene {
+        Settings {
+            SettingsView(updates: model.updates)
+        }
+
         Window("OpenCamraHub", id: "main") {
             ContentView(model: model)
                 .frame(minWidth: 960, minHeight: 560)
+                // The window and the Window menu name the live scene, so two
+                // windows of two Macs are told apart by what they show.
+                .navigationSubtitle(model.scenes.selectedScene?.name ?? "")
         }
         .defaultSize(width: 1120, height: 700)
         .commands {

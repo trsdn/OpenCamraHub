@@ -10,7 +10,8 @@ struct UpdateCommands: View {
             Task { await updates.check(userInitiated: true) }
         }
         .disabled(updates.isBusy)
-        Toggle("Check for Updates Automatically", isOn: $updates.automaticChecksEnabled)
+        // Whether to check daily is a preference, so it lives in Settings (⌘,)
+        // rather than in a menu.
     }
 }
 
@@ -56,7 +57,7 @@ struct UpdateBanner: View {
                 .foregroundStyle(.secondary)
                 .padding(.horizontal, 12)
                 .padding(.vertical, 6)
-                .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 8))
+                .floatingSurface(in: RoundedRectangle(cornerRadius: 8))
             }
         case .failed(let message):
             HStack(spacing: 8) {
@@ -76,6 +77,6 @@ struct UpdateBanner: View {
             .foregroundStyle(tint)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(.ultraThinMaterial, in: Capsule())
+            .floatingSurface(in: Capsule())
     }
 }

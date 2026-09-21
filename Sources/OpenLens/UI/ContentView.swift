@@ -109,7 +109,7 @@ struct ContentView: View {
             .font(.callout)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
+            .floatingSurface(in: RoundedRectangle(cornerRadius: 10))
             .foregroundStyle(tint)
     }
 }
@@ -136,7 +136,7 @@ struct SceneRecoveryBanner: View {
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 10))
+            .floatingSurface(in: RoundedRectangle(cornerRadius: 10))
             .help(
                 "Nothing has been overwritten — saving stays switched off until you "
                     + "choose. The original data is kept under the \"scenes.v1.unreadable\" "
@@ -206,7 +206,7 @@ struct PausedOverlay: View {
             }
             .foregroundStyle(.white)
             .padding(24)
-            .background(.ultraThinMaterial, in: RoundedRectangle(cornerRadius: 16))
+            .floatingSurface(in: RoundedRectangle(cornerRadius: 16))
         }
         .allowsHitTesting(true)
         .transition(.opacity)
@@ -238,7 +238,7 @@ struct ZoomBadge: View {
         .font(.system(size: 13, weight: .semibold))
         .padding(.horizontal, 12)
         .padding(.vertical, 8)
-        .background(.ultraThinMaterial, in: Capsule())
+        .floatingSurface(in: Capsule())
         .help(
             isUpscaling
                 ? "Past \(String(format: "%.1f×", model.losslessZoomLimit)) the picture is "
@@ -349,6 +349,6 @@ struct ExtensionStatusBanner: View {
             .foregroundStyle(tint)
             .padding(.horizontal, 12)
             .padding(.vertical, 8)
-            .background(.ultraThinMaterial, in: Capsule())
+            .floatingSurface(in: Capsule())
     }
 }

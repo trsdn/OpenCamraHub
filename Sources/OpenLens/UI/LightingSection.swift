@@ -103,6 +103,7 @@ struct LightingSection: View {
                 }
                 .buttonStyle(.borderless)
                 .help("Re-read the lights")
+                .accessibilityLabel("Re-read the lights")
             }
 
             // Only offered when it would change something, so it does not sit
@@ -253,6 +254,7 @@ private struct LightRow: View {
                 .menuStyle(.borderlessButton)
                 .menuIndicator(.hidden)
                 .fixedSize()
+                .accessibilityLabel("\(entry.device.displayName) options")
             }
 
             LabeledContent("Brightness") {
@@ -328,6 +330,11 @@ private struct SceneMembershipButton: View {
         }
         .buttonStyle(.borderless)
         .disabled(entry.isReachable == false)
+        // Without this the button is announced as "theatermasks", the symbol's
+        // name, because its label is an image and nothing else.
+        .accessibilityLabel("\(entry.device.displayName) belongs to this scene")
+        .accessibilityValue(isInScene ? "on" : "off")
+        .accessibilityAddTraits(isInScene ? .isSelected : [])
         .help(
             isInScene
                 ? "This scene sets this light, and pausing switches it off. "

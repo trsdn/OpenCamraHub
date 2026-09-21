@@ -28,6 +28,19 @@ struct SceneStrip: View {
         .background(Color(nsColor: .underPageBackgroundColor))
     }
 
+    /// What VoiceOver reads for a tile: the scene, its camera and its zoom in
+    /// one phrase, because three separate labels read as three unrelated items.
+    static func tileLabel(for scene: CameraScene, index: Int) -> String {
+        let shortcut = index < 9 ? ", Control Option \(index + 1)" : ""
+        // A scene called "Scene 2" must not read as "Scene Scene 2".
+        let named =
+            scene.name.lowercased().hasPrefix("scene") ? scene.name : "Scene \(scene.name)"
+        return String(
+            format: "%@, %@, zoom %.1f×%@",
+            named, scene.deviceName, scene.crop.zoom, shortcut
+        )
+    }
+
     /// The pause and preview controls sit outside the scroll view: they must
     /// never scroll out of reach mid-call, which is exactly when they are
     /// needed.
@@ -35,12 +48,28 @@ struct SceneStrip: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
                 ForEach(Array(scenes.scenes.enumerated()), id: \.element.id) { index, scene in
-                    SceneCard(
-                        scene: scene,
-                        index: index,
-                        isSelected: scene.id == scenes.selectedSceneID
+                    // A Button rather than a tap gesture: a tile has to be
+                    // focusable, activatable from the keyboard, and a button to
+                    // VoiceOver rather than a picture beside two labels.
+                    Button {
+                        model.select(scene)
+                    } label: {
+                        SceneCard(
+                            scene: scene,
+                            index: index,
+                            isSelected: scene.id == scenes.selectedSceneID
+                        )
+                        // On the label, not on the Button: a Button with a
+                        // composite label reports no name at all when the
+                        // label is set outside it.
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel(Self.tileLabel(for: scene, index: index))
+                    }
+                    .buttonStyle(.plain)
+                    .accessibilityAddTraits(
+                        scene.id == scenes.selectedSceneID ? [.isButton, .isSelected] : .isButton
                     )
-                    .onTapGesture { model.select(scene) }
+                    .help("Switch to \(scene.name)\(index < 9 ? " (⌃⌥\(index + 1))" : "").")
                     .contextMenu {
                         Button("Duplicate") {
                             model.select(scene)
