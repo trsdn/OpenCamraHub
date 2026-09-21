@@ -6,6 +6,26 @@ All notable changes to OpenLens are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- A **Settings** window (⌘,) holding the update preference, which used to be a
+  menu item.
+- The window title names the live scene, in the title bar and the Window menu.
+
+### Changed
+
+- Scene tiles are buttons: focusable, activatable from the keyboard, and
+  announced by VoiceOver with the scene, its camera, its zoom and its shortcut.
+  They were a picture beside two labels that happened to react to a click.
+- Deleting a scene asks first and is marked as destructive. It takes the
+  framing, corrections, overlay and lighting with it, and cannot be undone.
+
+### Fixed
+
+- Icon-only controls carry names for VoiceOver: the scene-lighting toggle used
+  to be announced as "theatermasks", and the light menu, the refresh button and
+  the zoom stepper had no name at all.
+
 ## [0.4.2] - 2026-09-20
 
 ### Added

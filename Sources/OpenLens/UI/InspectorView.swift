@@ -9,6 +9,7 @@ struct InspectorView: View {
     /// a draft that merely went stale must not overwrite a rename made elsewhere.
     @State private var loadedSceneName = ""
     @FocusState private var nameFieldFocused: Bool
+    @State private var confirmingDelete = false
 
     // Which sections are open, remembered across launches.
     //
@@ -75,8 +76,20 @@ struct InspectorView: View {
 
                 HStack {
                     Button("Duplicate") { model.duplicateSelectedScene() }
-                    Button("Delete") { model.removeSelectedScene() }
+                    // A scene carries the crop, ten corrections, the overlay and
+                    // its lighting, and there is no undo, so it asks first.
+                    Button("Delete", role: .destructive) { confirmingDelete = true }
                         .disabled(scenes.scenes.count <= 1)
+                }
+                .confirmationDialog(
+                    "Delete “\(scenes.selectedScene?.name ?? "this scene")”?",
+                    isPresented: $confirmingDelete,
+                    titleVisibility: .visible
+                ) {
+                    Button("Delete Scene", role: .destructive) { model.removeSelectedScene() }
+                    Button("Cancel", role: .cancel) {}
+                } message: {
+                    Text("Its framing, corrections, overlay and lighting go with it. This cannot be undone.")
                 }
             } header: {
                 SectionHeader(
@@ -112,6 +125,7 @@ struct InspectorView: View {
                             model.zoomOut()
                         }
                         .labelsHidden()
+                        .accessibilityLabel("Zoom")
                     }
                 }
 

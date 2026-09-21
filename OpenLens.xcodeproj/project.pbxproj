@@ -38,6 +38,7 @@
 		5DB0A08B80B5403F5C467F3D /* OpenLensID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 985119351CBC81A7D1E111FC /* OpenLensID.swift */; };
 		5DFC8268068087A7F998F9C7 /* CameraExtensionInfoPlistTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CFCB38E0749C92F7B26DB51 /* CameraExtensionInfoPlistTests.swift */; };
 		5F17F4805EAAB9FDA66288ED /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = CED523290195CF5A090FD290 /* ContentView.swift */; };
+		5FB4887FFD0CE86CF06B691E /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7A13FFB6C7767F9161255C30 /* SettingsView.swift */; };
 		63660F8242CF780ACA9234D6 /* OpenLensID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 985119351CBC81A7D1E111FC /* OpenLensID.swift */; };
 		672641135A9A73557A6049DE /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 5E7E875105575F53CFCCCB21 /* InfoPlist.strings */; };
 		6B726FFF5CAF09E198E9301F /* ControlProtocolTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2867A497B00835AEF6AC70E8 /* ControlProtocolTests.swift */; };
@@ -154,6 +155,7 @@
 		71D8B1A1327C651755E4A421 /* AppDisplayNameTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDisplayNameTests.swift; sourceTree = "<group>"; };
 		77F7BA1080DECE92DF49EDEF /* ControlProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlProtocol.swift; sourceTree = "<group>"; };
 		7818105ABC0D7CC2C1C900CA /* ImageAdjustments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAdjustments.swift; sourceTree = "<group>"; };
+		7A13FFB6C7767F9161255C30 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		7B3739C2CD613CD7673966AD /* SceneStrip.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneStrip.swift; sourceTree = "<group>"; };
 		7FE19205BEB26A6E17615832 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		80339F3F63C92BAA7E918C05 /* CropGeometryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CropGeometryTests.swift; sourceTree = "<group>"; };
@@ -273,6 +275,7 @@
 				05AFF07073004751EDC8BCC0 /* LightingSection.swift */,
 				9D6FE6CD627E70D7F37E2BD0 /* PreviewView.swift */,
 				7B3739C2CD613CD7673966AD /* SceneStrip.swift */,
+				7A13FFB6C7767F9161255C30 /* SettingsView.swift */,
 				CF5491EAAA9D44AC6692CE84 /* UpdateViews.swift */,
 			);
 			path = UI;
@@ -569,6 +572,7 @@
 				47255C531D0F067F8C71E220 /* PreviewView.swift in Sources */,
 				8DD04CFCED2E6F273584E280 /* ReleaseCheck.swift in Sources */,
 				2A5F797FEDE1D624037B1FEE /* SceneStrip.swift in Sources */,
+				5FB4887FFD0CE86CF06B691E /* SettingsView.swift in Sources */,
 				C655714963BA9D823C3EF925 /* Shaders.metal in Sources */,
 				2A2415705A97347D139F3056 /* StreamingStateChannel.swift in Sources */,
 				8D4A36761C212C893E92A4CC /* SystemExtensionInstaller.swift in Sources */,

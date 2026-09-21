@@ -10,7 +10,8 @@ struct UpdateCommands: View {
             Task { await updates.check(userInitiated: true) }
         }
         .disabled(updates.isBusy)
-        Toggle("Check for Updates Automatically", isOn: $updates.automaticChecksEnabled)
+        // Whether to check daily is a preference, so it lives in Settings (⌘,)
+        // rather than in a menu.
     }
 }
 
