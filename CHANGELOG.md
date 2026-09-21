@@ -6,6 +6,13 @@ All notable changes to OpenLens are documented here. The format follows
 
 ## [Unreleased]
 
+### Fixed
+
+- 0.4.3 opened only its settings window: the `Settings` scene was declared
+  before the main window, and SwiftUI opens the first scene it finds. The app
+  ran with no picture and no way back to its own window. Install 0.4.4; no
+  settings are lost.
+
 ## [0.4.3] - 2026-09-21
 
 ### Added
