@@ -6,6 +6,8 @@ All notable changes to OpenLens are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.4.3] - 2026-09-21
+
 ### Added
 
 - A **Settings** window (⌘,) holding the update preference, which used to be a
@@ -117,7 +119,8 @@ All notable changes to OpenLens are documented here. The format follows
 - Colours are encoded in the correct video range, so saturated colours match
   between the preview and calls (#24).
 
-[Unreleased]: https://github.com/trsdn/OpenCamraHub/compare/v0.4.2...HEAD
+[Unreleased]: https://github.com/trsdn/OpenCamraHub/compare/v0.4.3...HEAD
+[0.4.3]: https://github.com/trsdn/OpenCamraHub/compare/v0.4.2...v0.4.3
 [0.4.2]: https://github.com/trsdn/OpenCamraHub/compare/v0.4.1...v0.4.2
 [0.4.1]: https://github.com/trsdn/OpenCamraHub/compare/v0.4.0...v0.4.1
 [0.4.0]: https://github.com/trsdn/OpenCamraHub/compare/v0.3.1...v0.4.0
