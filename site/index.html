@@ -23,8 +23,8 @@
 
   <section class="hero" aria-labelledby="h-title">
     <div class="hero-text">
-      <h1 id="h-title">Your camera, framed for the call.</h1>
-      <p class="lead">OpenCamraHub is a Mac app that turns the camera you already have into a better webcam. Zoom into the part of the frame that matters, fix the picture, and switch looks and lights with one key. Choose <strong>{{CAMERA}}</strong> as the camera in Teams, Zoom or Meet.</p>
+      <h1 id="h-title">Your camera, at its best in every call.</h1>
+      <p class="lead">OpenCamraHub is a Mac app that turns the camera you already have into a webcam you are happy to be seen on: the right part of the frame, a corrected picture, your Key Lights and your logo — all saved into scenes you switch with one key. Choose <strong>{{CAMERA}}</strong> as the camera in Teams, Zoom or Meet.</p>
       <p class="actions">
         <a class="button" href="https://github.com/{{REPOSITORY}}/releases/latest">Download OpenCamraHub {{VERSION}}</a>
         <a class="quiet" href="#get">How to install</a>
@@ -32,7 +32,7 @@
       <p class="status">Version {{VERSION}}, maintained. Needs macOS 14 or later on Apple silicon.</p>
     </div>
 
-    <figure class="frame" role="img" aria-label="A wide camera picture with a highlighted crop around the person at the desk. Below it, three scene buttons for the keys Control-Option-1 to 3; the crop moves as the scene changes.">
+    <figure class="frame" role="img" aria-label="A wide camera picture with a highlighted crop around the person at the desk. Below it, three scene buttons for the keys Control-Option-1 to 3. As the scene changes, the crop moves, the picture's look changes and the key light switches.">
       <svg viewBox="0 0 640 400" aria-hidden="true" focusable="false">
         <rect class="sensor" x="0" y="0" width="640" height="360" rx="14"/>
         <g class="room">
@@ -48,6 +48,7 @@
           <rect x="560" y="200" width="46" height="30" rx="4"/>
           <path d="M583 230v56"/>
         </g>
+        <rect class="grade" x="0" y="0" width="640" height="360" rx="14"/>
         <defs>
           <mask id="crop-hole">
             <rect x="0" y="0" width="640" height="360" fill="#fff"/>
@@ -69,14 +70,73 @@
           <g class="chip c3"><rect x="440" y="372" width="200" height="28" rx="8"/><text x="454" y="391">⌃⌥3  Wide</text></g>
         </g>
       </svg>
-      <figcaption>A crop of the real sensor, not an upscale: the same camera, three scenes. An illustration, not a screenshot.</figcaption>
+      <figcaption>One key, three scenes: the crop, the look and the lights change together. An illustration, not a screenshot.</figcaption>
     </figure>
+  </section>
+
+  <section class="holds" aria-labelledby="h-holds">
+    <h2 id="h-holds">A scene is the whole look, not just the crop</h2>
+    <p class="holds-lead">Everything below is saved into the selected scene as you change it — there is no save button — and comes back together when you switch to it.</p>
+
+    <div class="cards">
+      <article class="card">
+        <svg viewBox="0 0 220 120" role="img" aria-label="A wide frame with a smaller crop rectangle inside it.">
+          <rect class="card-bg" x="0" y="0" width="220" height="120" rx="10"/>
+          <rect class="card-line" x="18" y="18" width="184" height="84" rx="6"/>
+          <rect class="card-accent" x="86" y="36" width="96" height="54" rx="4"/>
+          <circle class="card-fill" cx="134" cy="56" r="11"/>
+          <path class="card-fill" d="M112 90c0-14 10-22 22-22s22 8 22 22z"/>
+        </svg>
+        <h3>Framing</h3>
+        <p>Zoom and pan to the part of the frame that matters, by scrolling and dragging or by typing an exact value. Mirror it if you read your own picture the other way round.</p>
+      </article>
+
+      <article class="card">
+        <svg viewBox="0 0 220 120" role="img" aria-label="The same picture twice, flat on the left and corrected on the right.">
+          <rect class="card-bg" x="0" y="0" width="220" height="120" rx="10"/>
+          <rect class="tone-flat" x="18" y="18" width="88" height="84" rx="6"/>
+          <rect class="tone-fixed" x="114" y="18" width="88" height="84" rx="6"/>
+          <circle class="tone-face-flat" cx="62" cy="52" r="13"/>
+          <path class="tone-face-flat" d="M38 92c0-15 11-24 24-24s24 9 24 24z"/>
+          <circle class="tone-face-fixed" cx="158" cy="52" r="13"/>
+          <path class="tone-face-fixed" d="M134 92c0-15 11-24 24-24s24 9 24 24z"/>
+        </svg>
+        <h3>Tone and colour</h3>
+        <p>Exposure, black and white point, midtones and contrast, white balance on both axes, separate shadow and highlight tints, saturation. Ten sliders for cameras that offer none of their own — an HDMI grabber like a Cam Link exposes nothing, and macOS offers no manual values either.</p>
+      </article>
+
+      <article class="card">
+        <svg viewBox="0 0 220 120" role="img" aria-label="Two key lights above a desk, one bright and one dim.">
+          <rect class="card-bg" x="0" y="0" width="220" height="120" rx="10"/>
+          <path class="lamp-beam" d="M40 34h56l26 54H14z"/>
+          <path class="lamp-beam dim" d="M124 34h56l26 54h-108z"/>
+          <rect class="lamp-on" x="38" y="22" width="60" height="14" rx="3"/>
+          <rect class="lamp-off" x="122" y="22" width="60" height="14" rx="3"/>
+          <rect class="card-line" x="14" y="92" width="192" height="12" rx="4"/>
+        </svg>
+        <h3>Key Lights</h3>
+        <p>Elgato Key Lights are found on your network and driven from the app: on and off, brightness, colour temperature. A scene can own its lights, so they follow the scene and go dark when you pause. A lamp lighting the rest of the room is left alone.</p>
+      </article>
+
+      <article class="card">
+        <svg viewBox="0 0 220 120" role="img" aria-label="A frame with a small logo badge in its lower right corner.">
+          <rect class="card-bg" x="0" y="0" width="220" height="120" rx="10"/>
+          <rect class="card-line" x="18" y="18" width="184" height="84" rx="6"/>
+          <rect class="card-accent-fill" x="132" y="64" width="56" height="26" rx="5"/>
+          <circle class="card-bg-dot" cx="146" cy="77" r="6"/>
+          <rect class="card-bg-dot" x="156" y="72" width="24" height="4" rx="2"/>
+          <rect class="card-bg-dot" x="156" y="80" width="16" height="4" rx="2"/>
+        </svg>
+        <h3>Overlay</h3>
+        <p>A PNG with transparency — a logo, a lower third, a handle. Drag it in the picture or type exact percentages, and snap it to any of nine positions. It is composited in the same GPU pass as everything else.</p>
+      </article>
+    </div>
   </section>
 
   <section class="why" aria-labelledby="h-why">
     <div class="why-text">
-      <h2 id="h-why">A 4K camera is a zoom lens in disguise</h2>
-      <p>A call only ever receives 1080p. A camera that captures more than that has pixels to spare, and OpenCamraHub spends them on zoom: the crop fills the picture with real detail instead of stretching a smaller one.</p>
+      <h2 id="h-why">And it costs the machine almost nothing</h2>
+      <p>Crop, mirror, the ten corrections and the overlay are one Metal pass, so the look costs no more than the picture did. A call only ever receives 1080p, and a camera that captures more has pixels to spare: the crop fills the picture with real detail instead of stretching a smaller one.</p>
       <p>The app tells you how far that reaches. The inspector says <em>Stays sharp up to 2.0×</em> for a 4K source, and a small <em>soft</em> badge appears on the picture the moment you zoom past it.</p>
     </div>
     <dl class="numbers">
@@ -87,31 +147,23 @@
   </section>
 
   <section class="features" aria-labelledby="h-what">
-    <h2 id="h-what">What you get</h2>
+    <h2 id="h-what">And the rest of it</h2>
     <dl>
       <div>
-        <dt>Zoom and pan into any area</dt>
-        <dd>Scroll or pinch over the picture to zoom around the pointer, drag to pan, double-click to reset. Or type an exact value.</dd>
-      </div>
-      <div>
-        <dt>Scenes instead of settings</dt>
-        <dd>Camera, zoom, look and overlay save into the selected scene as you change them. <kbd>⌃⌥1</kbd> to <kbd>⌃⌥9</kbd> switch scenes from anywhere, mid-call.</dd>
-      </div>
-      <div>
         <dt>Pause without leaving the call</dt>
-        <dd><kbd>⌃⌥P</kbd> blacks out the picture and hands the camera back, so its light goes out. The call never sees the camera disappear.</dd>
+        <dd><kbd>⌃⌥P</kbd> blacks out the picture and hands the physical camera back, so its light goes out and the scene's key lights go dark with it. The call never sees the camera disappear, and the preview holds the last frame so you can see what you will resume into.</dd>
       </div>
       <div>
-        <dt>Elgato Key Lights built in</dt>
-        <dd>Found on your network automatically. Power, brightness and colour temperature from the app, and a scene can bring its own lighting.</dd>
+        <dt>Scenes switch system-wide</dt>
+        <dd><kbd>⌃⌥1</kbd> to <kbd>⌃⌥9</kbd> work from any app, so you change how you look without leaving the meeting you are in.</dd>
       </div>
       <div>
-        <dt>Picture controls a capture card lacks</dt>
-        <dd>Exposure, black and white point, contrast, white balance, tints and saturation, for HDMI grabbers like a Cam Link that expose none.</dd>
+        <dt>Sharp zoom, and it says when it stops</dt>
+        <dd>Capture above 1080p and the crop still fills the call with real pixels. The inspector says how far that reaches — <em>Stays sharp up to 2.0×</em> — and a <em>soft</em> badge appears on the picture once you pass it.</dd>
       </div>
       <div>
-        <dt>A logo or lower third</dt>
-        <dd>A PNG overlay with transparency, dragged into place in the picture or snapped to one of nine positions.</dd>
+        <dt>Driven from outside the window</dt>
+        <dd>A local socket, an MCP server and a plugin for Stream Deck and OpenDeck, so a script, an agent or a key can switch scenes, pause, zoom and set your lights.</dd>
       </div>
     </dl>
     <p class="not">OpenCamraHub only frames a live camera. It does not record, does not touch audio, and has no accounts. It is an independent project and is not affiliated with Elgato or Corsair.</p>

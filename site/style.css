@@ -170,7 +170,11 @@ main > section + section { border-top: 1px solid var(--line); }
 .room rect { fill: none; stroke: var(--room-line); stroke-width: 3; }
 .room rect:last-child { fill: var(--room-line); stroke: none; opacity: 0.5; }
 .person { fill: var(--person); }
-.light rect { fill: var(--live); }
+.light rect { fill: var(--live); animation: lamp 12s step-end infinite; }
+/* A wash over the sensor, so a scene change reads as a different look and not
+   only as a different crop. Kept faint: it stands for grading, it is not a
+   claim about any particular correction. */
+.grade { animation: grade 12s ease-in-out infinite; }
 .light path { stroke: var(--room-line); stroke-width: 4; }
 .shade { fill: var(--shade); }
 .edge {
@@ -214,14 +218,70 @@ main > section + section { border-top: 1px solid var(--line); }
 @keyframes chip-1 { 0% { stroke: var(--button); stroke-width: 3; } 33% { stroke: var(--line); stroke-width: 1.5; } }
 @keyframes chip-2 { 0% { stroke: var(--line); } 33% { stroke: var(--button); stroke-width: 3; } 66% { stroke: var(--line); stroke-width: 1.5; } }
 @keyframes chip-3 { 0% { stroke: var(--line); } 66% { stroke: var(--button); stroke-width: 3; } }
+@keyframes lamp {
+  0% { fill: var(--live); }
+  33% { fill: var(--room-line); }
+  66% { fill: var(--live); }
+}
+@keyframes grade {
+  0%, 30% { fill: #f7b26b; opacity: 0.10; }
+  36%, 63% { fill: #8fd2ff; opacity: 0.12; }
+  69%, 96% { fill: #f7b26b; opacity: 0.05; }
+  100% { fill: #f7b26b; opacity: 0.10; }
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .window, .badges, .badge, .chip rect { animation: none; }
+  .window, .badges, .badge, .chip rect, .light rect, .grade { animation: none; }
+  .grade { opacity: 0.1; fill: #f7b26b; }
   .window { transform: translate(107px, 60px) scale(0.667); }
   .badges { transform: translate(107px, 60px); }
   .b1 { opacity: 1; }
   .c1 rect { stroke: var(--button); stroke-width: 3; }
 }
+
+/* What a scene holds */
+.holds h2 { max-width: 34rem; }
+.holds-lead {
+  margin-top: 1.1rem;
+  max-width: 44rem;
+  color: var(--muted);
+}
+.cards {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 2rem 3rem;
+  margin-top: 2.75rem;
+}
+.card { margin: 0; }
+.card svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  outline: 1px solid var(--line);
+}
+.card h3 {
+  margin: 1rem 0 0;
+  font: 700 1.125rem/1.3 system-ui, -apple-system, sans-serif;
+}
+.card p {
+  margin-top: 0.45rem;
+  color: var(--muted);
+}
+.card-bg { fill: var(--panel); }
+.card-line { fill: none; stroke: var(--room-line); stroke-width: 3; }
+.card-fill { fill: var(--person); }
+.card-accent { fill: none; stroke: var(--button); stroke-width: 3; }
+.card-accent-fill { fill: var(--button); }
+.card-bg-dot { fill: var(--panel); }
+.tone-flat { fill: #55555f; }
+.tone-fixed { fill: #6f7a86; }
+.tone-face-flat { fill: #6b6b72; }
+.tone-face-fixed { fill: #b6a394; }
+.lamp-beam { fill: var(--live); opacity: 0.22; }
+.lamp-beam.dim { opacity: 0.05; }
+.lamp-on { fill: var(--live); }
+.lamp-off { fill: var(--room-line); }
 
 /* Why */
 .why {
@@ -349,6 +409,7 @@ footer p { margin-top: 1.25rem; }
 
 @media (max-width: 52rem) {
   .hero, .why, .deck { grid-template-columns: minmax(0, 1fr); }
+  .cards { grid-template-columns: minmax(0, 1fr); gap: 2rem; }
   .features dl { grid-template-columns: minmax(0, 1fr); }
   .keys { justify-self: start; }
 }
