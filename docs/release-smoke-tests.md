@@ -31,12 +31,28 @@ from the rolled-back 0.4.2:
   `com.trsdn.openlens.camera (0.4.4/75)` *activated enabled*, its process is
   running, and `sysextd` logged nothing about it.
 
-Not exercised: a live picture. `receivingFrames` stayed false for the whole
-check, because the Cam Link 4K had no HDMI source attached at the time, and the
-two Key Lights answered "the Internet connection appears to be offline" — the
-desk was powered down. Neither says anything about this build; both need a
-second look with the camera on. Frames in a consuming app are still unverified,
-as in 0.4.1.
+Completed the next evening, with the camera on and the lights on the network
+again — the first release where the published camera was actually consumed:
+
+- The app receives frames from the Cam Link 4K, and both Key Lights report
+  `reachable`. The previous evening's `receivingFrames: false` and "the
+  Internet connection appears to be offline" were the desk being powered down.
+- A test process opened **OpenCamraHub** through `AVCaptureDeviceInput` and got
+  100–121 frames in four seconds (~25–30 fps) at 1920×1080, `2vuy`. This is
+  what 0.4.1 could not check for want of camera permission.
+- The picture is real and stable: mean luma 52 on every frame, spread 0.1. The
+  physical source measures 70 over the same scene, and the gap is the selected
+  scene's grading and its 1.43 crop, so the render path is doing its work
+  rather than passing the input through.
+
+Two traps this probe walked into, worth avoiding next time:
+
+- `2vuy` is *packed*, so `CVPixelBufferGetPlaneCount` is 0 and reading plane 0
+  returns nothing. That reports mean luma 0.0 — indistinguishable from a black
+  picture. Luma lives on the odd bytes of the single plane.
+- A single run measured a frame-to-frame spread of 21 because it caught the
+  session's first frames. Judge stability from a warm pipeline, or from the
+  sequence rather than from min and max.
 
 A verification note, because it cost time here: `osascript` reported zero
 windows for the app, which looks exactly like the 0.4.3 failure. It was
