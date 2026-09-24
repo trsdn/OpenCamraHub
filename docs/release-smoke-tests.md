@@ -7,6 +7,34 @@ be started at all (see AGENTS.md).
 
 Each entry names the version, the date, what was exercised, and what was not.
 
+## 0.4.5 (2026-09-24)
+
+Scene reordering (Move Left/Right, drag and drop) and the pause/idle-card
+changes from #66, #67, #69 and #70. Exercised on an Apple silicon Mac with a
+Cam Link 4K, upgrading from 0.4.4:
+
+- `gh release download v0.4.5`; the DMG matches its `.sha256`, and
+  `provenance.json`'s recorded commit is the merged `Release 0.4.5` PR (#71).
+- `Contents/embedded.provisionprofile` present, `spctl -a -vvv -t exec`
+  *accepted, source=Notarized Developer ID*, both on the mounted DMG and again
+  after installing.
+- Quit the running 0.4.4, replaced `/Applications/OpenLens.app`, launched.
+  The window title bar reads *OpenCamraHub*, matching the localized display
+  name.
+- The extension was replaced: `systemextensionsctl list` shows
+  `com.trsdn.openlens.camera (0.4.5/82)` *activated enabled*, and `sysextd`
+  logged nothing about it in the five minutes around the launch.
+- The app receives frames from the Cam Link 4K: the Scene panel reports
+  *Receiving 1920 x 1080 · 30 fps*, and the picture is live in the preview.
+- All previously saved scenes survived the install (they live in the sandbox
+  container, keyed by bundle identifier, untouched by replacing the app
+  bundle).
+
+Not exercised: the drag gesture itself, or Move Left/Right, against a mouse —
+this pass confirmed the release starts and streams, not the reordering
+feature's own behaviour, which has unit coverage instead (`SceneSelectionTests`)
+and no UI test harness in this project to drive a real drag.
+
 ## 0.4.4 (2026-09-21)
 
 The release that undoes 0.4.3, which opened its settings window and nothing
