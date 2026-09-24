@@ -259,11 +259,12 @@ final class VideoRendererTests: XCTestCase {
         )
     }
 
-    /// Pause sends this frame, so "black" has to mean black in the format the
-    /// call actually decodes. Zeroing both NV12 planes is the obvious way to
-    /// write it and produces a saturated green frame instead, which nobody would
-    /// notice until it is on someone else's screen.
-    func testThePauseFrameDecodesToBlackRatherThanZeroedPlanes() throws {
+    /// A compositing test below layers this under a black overlay, so "black"
+    /// has to mean black in the format the call actually decodes. Zeroing both
+    /// NV12 planes is the obvious way to write it and produces a saturated
+    /// green frame instead, which nobody would notice until it is on someone
+    /// else's screen.
+    func testTheBlackBufferDecodesToBlackRatherThanZeroedPlanes() throws {
         let black = try XCTUnwrap(VideoRenderer.makeBlackOutputBuffer())
 
         XCTAssertEqual(CVPixelBufferGetWidth(black), OpenLensOutput.width)
@@ -276,6 +277,40 @@ final class VideoRendererTests: XCTestCase {
             XCTAssertEqual(pixel.g, 0)
             XCTAssertEqual(pixel.b, 0)
         }
+    }
+
+    /// Pause sends this frame: the same card the camera extension falls back
+    /// to on its own, so the format, the dark background and the bright title
+    /// have to survive the same BT.601 NV12 round trip as live video.
+    func testThePauseFrameIsTheIdleCardNotABlankBuffer() throws {
+        let card = try XCTUnwrap(IdleFrameRenderer.makePlaceholder())
+
+        XCTAssertEqual(CVPixelBufferGetWidth(card), OpenLensOutput.width)
+        XCTAssertEqual(CVPixelBufferGetHeight(card), OpenLensOutput.height)
+        XCTAssertEqual(CVPixelBufferGetPixelFormatType(card), OpenLensOutput.pixelFormat)
+
+        // Every corner sits on the plain, dark-but-not-black fill — distinct
+        // from both white text and the pure video-black `makeBlackOutputBuffer`
+        // sends, so this alone tells the card apart from a blanked frame.
+        for point in [(0.0, 0.0), (1.0, 0.0), (0.0, 1.0), (1.0, 1.0)] as [(CGFloat, CGFloat)] {
+            let corner = try sample(card, atX: point.0, y: point.1)
+            XCTAssertGreaterThan(corner.r, 5)
+            XCTAssertLessThan(corner.r, 40)
+        }
+
+        // A grid over the title's band finds a bright pixel somewhere in it.
+        // CoreText's own layout, not this file, decides exactly which glyph
+        // lands where, so pinning one exact point would be pinning font
+        // metrics rather than the thing this test cares about: that the band
+        // is lit at all.
+        var brightest: UInt8 = 0
+        for yFraction in stride(from: 0.35, through: 0.65, by: 0.03) {
+            for xFraction in stride(from: 0.2, through: 0.8, by: 0.03) {
+                let pixel = try sample(card, atX: xFraction, y: yFraction)
+                brightest = max(brightest, pixel.r)
+            }
+        }
+        XCTAssertGreaterThan(brightest, 150)
     }
 
     func testPreviewNeverRendersMorePixelsThanAreTransmitted() {
@@ -812,5 +847,9 @@ final class VideoRendererTests: XCTestCase {
 
     func testBlackOutputTagsOnlyTheMatrix() throws {
         try assertOnlyTheMatrixIsTagged(try XCTUnwrap(VideoRenderer.makeBlackOutputBuffer()))
+    }
+
+    func testIdleCardTagsOnlyTheMatrix() throws {
+        try assertOnlyTheMatrixIsTagged(try XCTUnwrap(IdleFrameRenderer.makePlaceholder()))
     }
 }

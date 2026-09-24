@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		05473F0007687339BD26C455 /* GlobalHotKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15E7999D02609A191B8DD0DE /* GlobalHotKeys.swift */; };
+		084088AD334A0DEB3C57560F /* IdleFrameRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 594DD97D211CBE96D7D4BE1C /* IdleFrameRenderer.swift */; };
 		0B1E81951B69DF54CA54514C /* GlobalHotKeysTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8F0B397B21267AA552A530DB /* GlobalHotKeysTests.swift */; };
 		105D68634B9B9C84EEE6FB43 /* NumberFieldValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = E6A65500763225FA2538E7BB /* NumberFieldValue.swift */; };
 		11D8759DC3FAB649D38B2B73 /* PipelineGating.swift in Sources */ = {isa = PBXBuildFile; fileRef = AFD7C1F89D1E092145DC5273 /* PipelineGating.swift */; };
@@ -61,6 +62,7 @@
 		864D0726F9AA177345B22B73 /* OpenLensID.swift in Sources */ = {isa = PBXBuildFile; fileRef = 985119351CBC81A7D1E111FC /* OpenLensID.swift */; };
 		896834F52E5E0DE36579AD8A /* KeyLightClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 45E7FE28AB2F7B1B01A51D48 /* KeyLightClient.swift */; };
 		8D4A36761C212C893E92A4CC /* SystemExtensionInstaller.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49A60DCC4FAEA82D918B27F8 /* SystemExtensionInstaller.swift */; };
+		8D863334C3296931C8B4E522 /* IdleFrameRenderer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 594DD97D211CBE96D7D4BE1C /* IdleFrameRenderer.swift */; };
 		8DD04CFCED2E6F273584E280 /* ReleaseCheck.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9A3CB263F7B771EAD8A1C5DD /* ReleaseCheck.swift */; };
 		8F56034686F4B5141AC304DB /* AppDisplayNameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71D8B1A1327C651755E4A421 /* AppDisplayNameTests.swift */; };
 		8F79F982FD0FB87CBD27D87B /* PreviewRenderTarget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 97AB1A0194CAD05C753F36A6 /* PreviewRenderTarget.swift */; };
@@ -146,6 +148,7 @@
 		5131B11E4F08880775B8DC53 /* ControlCommands.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlCommands.swift; sourceTree = "<group>"; };
 		55CE1959F2AF39BECC4F107D /* FrameRelay.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrameRelay.swift; sourceTree = "<group>"; };
 		5733E20ABD169ED31005BB11 /* OpenLens.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OpenLens.entitlements; sourceTree = "<group>"; };
+		594DD97D211CBE96D7D4BE1C /* IdleFrameRenderer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = IdleFrameRenderer.swift; sourceTree = "<group>"; };
 		5C0DD70DDD2FA0C470301D99 /* ImageAdjustmentsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageAdjustmentsTests.swift; sourceTree = "<group>"; };
 		5D26E52E7E9C0BB8BC98139A /* CropGeometry.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CropGeometry.swift; sourceTree = "<group>"; };
 		63D9760F758F6766A10E0702 /* ControlServer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ControlServer.swift; sourceTree = "<group>"; };
@@ -195,6 +198,7 @@
 		03AD2C2DA8D0DF423EE2591D /* Rendering */ = {
 			isa = PBXGroup;
 			children = (
+				594DD97D211CBE96D7D4BE1C /* IdleFrameRenderer.swift */,
 				1C8AD987FB525C94E02964E0 /* OverlayTexture.swift */,
 				97AB1A0194CAD05C753F36A6 /* PreviewRenderTarget.swift */,
 				9914A91AF9116A295A5793F5 /* Shaders.metal */,
@@ -515,6 +519,7 @@
 				42081375764B77215B2BE670 /* CropGeometryTests.swift in Sources */,
 				05473F0007687339BD26C455 /* GlobalHotKeys.swift in Sources */,
 				0B1E81951B69DF54CA54514C /* GlobalHotKeysTests.swift in Sources */,
+				8D863334C3296931C8B4E522 /* IdleFrameRenderer.swift in Sources */,
 				BECB481E3D665D194711EAEB /* ImageAdjustments.swift in Sources */,
 				73571B6ECD55E087752BE4AC /* ImageAdjustmentsTests.swift in Sources */,
 				C596EF94B6F985D20B6A3098 /* KeyLight.swift in Sources */,
@@ -558,6 +563,7 @@
 				A3B314A10CFEDB0BD7EA5C89 /* ExtensionClient.swift in Sources */,
 				9A172686D79B2FCC232BA9E7 /* FramePipeline.swift in Sources */,
 				EF1F8A6858E115DAB09F261E /* GlobalHotKeys.swift in Sources */,
+				084088AD334A0DEB3C57560F /* IdleFrameRenderer.swift in Sources */,
 				7BF83981DC00200F3E5D7D03 /* ImageAdjustments.swift in Sources */,
 				D857D815B1C351194FF0E154 /* InfoButton.swift in Sources */,
 				44B75B4C22DB6DB52F8FBF89 /* InspectorView.swift in Sources */,
