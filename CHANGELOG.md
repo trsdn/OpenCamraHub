@@ -6,6 +6,17 @@ All notable changes to OpenLens are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.4.6] - 2026-09-24
+
+### Fixed
+
+- Dragging a scene tile to reorder it, added in 0.4.5, never actually started a
+  drag in the notarized build: a `Button`'s own click gesture and `.onDrag`'s
+  drag-start gesture compete for the same mouse-down on macOS, and the Button
+  always won. Tiles are no longer `Button`s — they behave like one for click,
+  keyboard and VoiceOver, but no longer block the drag. Move Left/Right in the
+  context menu was unaffected and worked all along.
+
 ## [0.4.5] - 2026-09-24
 
 ### Added
