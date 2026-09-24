@@ -74,6 +74,15 @@ enum IdleFrameRenderer {
             centerY: CGFloat(height) / 2 - 70,
             width: width
         )
+        draw(
+            text: "trsdn.github.io/OpenCamraHub",
+            in: context,
+            fontSize: 22,
+            weight: 0,
+            gray: 0.3,
+            centerY: CGFloat(height) / 2 - 130,
+            width: width
+        )
 
         return pixelBuffer
     }
