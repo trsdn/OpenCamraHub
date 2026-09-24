@@ -54,27 +54,38 @@ struct SceneStrip: View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 10) {
                 ForEach(Array(scenes.scenes.enumerated()), id: \.element.id) { index, scene in
-                    // A Button rather than a tap gesture: a tile has to be
-                    // focusable, activatable from the keyboard, and a button to
-                    // VoiceOver rather than a picture beside two labels.
-                    Button {
+                    // Not a Button: on macOS, a Button's own click gesture and
+                    // .onDrag's drag-start gesture both want the same
+                    // mouse-down, and the Button wins every time — the tile
+                    // just gets selected and no drag ever begins. Keyboard and
+                    // VoiceOver activation are rebuilt by hand below instead
+                    // of coming for free from Button.
+                    SceneCard(
+                        scene: scene,
+                        index: index,
+                        isSelected: scene.id == scenes.selectedSceneID
+                    )
+                    .contentShape(Rectangle())
+                    .onTapGesture {
                         model.select(scene)
-                    } label: {
-                        SceneCard(
-                            scene: scene,
-                            index: index,
-                            isSelected: scene.id == scenes.selectedSceneID
-                        )
-                        // On the label, not on the Button: a Button with a
-                        // composite label reports no name at all when the
-                        // label is set outside it.
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityLabel(Self.tileLabel(for: scene, index: index))
                     }
-                    .buttonStyle(.plain)
+                    .focusable()
+                    .onKeyPress(.return) {
+                        model.select(scene)
+                        return .handled
+                    }
+                    .onKeyPress(.space) {
+                        model.select(scene)
+                        return .handled
+                    }
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel(Self.tileLabel(for: scene, index: index))
                     .accessibilityAddTraits(
                         scene.id == scenes.selectedSceneID ? [.isButton, .isSelected] : .isButton
                     )
+                    .accessibilityAction {
+                        model.select(scene)
+                    }
                     .help("Switch to \(scene.name)\(index < 9 ? " (⌃⌥\(index + 1))" : "").")
                     // The item provider's payload is never read back: this is
                     // an in-process drag, so `draggedSceneID` is what every
