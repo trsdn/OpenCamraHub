@@ -7,6 +7,26 @@ be started at all (see AGENTS.md).
 
 Each entry names the version, the date, what was exercised, and what was not.
 
+## 0.4.6 (2026-09-24)
+
+Patches 0.4.5, whose drag-to-reorder never actually started a drag in the
+notarized build (#73). Exercised on an Apple silicon Mac, upgrading from
+0.4.5:
+
+- `gh release download v0.4.6`; the DMG matches its `.sha256`, and
+  `provenance.json`'s recorded commit is the merged `Release 0.4.6` PR (#74).
+- `spctl -a -vvv -t exec` *accepted, source=Notarized Developer ID*, both on
+  the mounted DMG and again after installing.
+- Quit the running 0.4.5, replaced `/Applications/OpenLens.app`, launched.
+  The extension was replaced: `systemextensionsctl list` shows
+  `com.trsdn.openlens.camera (0.4.6/83)` *activated enabled*, and `sysextd`
+  logged nothing about it.
+
+Not exercised: the drag gesture itself. 0.4.5's smoke test also didn't cover
+it, which is exactly how a drag that never worked in the shipped build reached
+users in the first place — this needs a manual check against the actual
+release, not another local build, before it can be marked exercised here.
+
 ## 0.4.5 (2026-09-24)
 
 Scene reordering (Move Left/Right, drag and drop) and the pause/idle-card
