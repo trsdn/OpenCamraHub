@@ -299,6 +299,13 @@ final class AppModel: ObservableObject {
         applySelectedScene(animated: false)
     }
 
+    /// Reorders the strip. Not tied to the selection, unlike duplicate and
+    /// remove: the context menu's Move Left/Right act on the tile they were
+    /// opened from, which is not always the selected one.
+    func moveScene(_ scene: CameraScene, by offset: Int) {
+        scenes.move(scene, by: offset)
+    }
+
     func renameSelectedScene(_ name: String) {
         scenes.mutateSelected { $0.name = name }
         scenes.save()

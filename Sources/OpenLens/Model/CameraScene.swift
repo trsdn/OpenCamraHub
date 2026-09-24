@@ -257,6 +257,20 @@ final class SceneStore: ObservableObject {
         save()
     }
 
+    /// Swaps a scene with its neighbour `offset` positions away. Looked up by
+    /// ID rather than taking an index, matching `rename` and `update`: the
+    /// caller only ever has the scene a menu was opened on. An offset that
+    /// would move it out of the array is silently ignored, so "Move Left" at
+    /// the first tile can just always be wired up rather than checked first —
+    /// `.disabled` on the button is the only place that boundary is decided.
+    func move(_ scene: CameraScene, by offset: Int) {
+        guard let index = scenes.firstIndex(where: { $0.id == scene.id }) else { return }
+        let destination = index + offset
+        guard scenes.indices.contains(destination) else { return }
+        scenes.swapAt(index, destination)
+        save()
+    }
+
     func select(_ scene: CameraScene) {
         selectedSceneID = scene.id
         defaults.set(scene.id.uuidString, forKey: selectionKey)
