@@ -1,4 +1,5 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 /// The row of scenes along the bottom, mirroring how Detail lays them out.
 ///
@@ -8,6 +9,11 @@ import SwiftUI
 struct SceneStrip: View {
     @ObservedObject var model: AppModel
     @ObservedObject private var scenes: SceneStore
+
+    /// The scene currently being dragged, if any. Read by every tile's drop
+    /// delegate to tell a reorder in progress from a drag arriving from
+    /// outside the app, which this strip has no business acting on.
+    @State private var draggedSceneID: UUID?
 
     init(model: AppModel) {
         self.model = model
@@ -70,6 +76,22 @@ struct SceneStrip: View {
                         scene.id == scenes.selectedSceneID ? [.isButton, .isSelected] : .isButton
                     )
                     .help("Switch to \(scene.name)\(index < 9 ? " (⌃⌥\(index + 1))" : "").")
+                    // The item provider's payload is never read back: this is
+                    // an in-process drag, so `draggedSceneID` is what every
+                    // tile's drop delegate actually reorders by. A provider is
+                    // still required to make SwiftUI start the drag at all.
+                    .onDrag {
+                        draggedSceneID = scene.id
+                        return NSItemProvider(object: scene.id.uuidString as NSString)
+                    }
+                    .onDrop(
+                        of: [.text],
+                        delegate: SceneDropDelegate(
+                            targetIndex: index,
+                            model: model,
+                            draggedSceneID: $draggedSceneID
+                        )
+                    )
                     .contextMenu {
                         // The keyboard/VoiceOver-reachable way to reorder scenes:
                         // a context menu is already accessible, unlike a drag.
@@ -103,6 +125,29 @@ struct SceneStrip: View {
             }
             .padding(12)
         }
+    }
+}
+
+/// Reorders live as the drag crosses into another tile, the way Safari's tab
+/// strip does — not just on release.
+///
+/// `performDrop` never inspects the transferred payload; the move already
+/// happened in `dropEntered`, so it only has to say whether this drop was
+/// ours to handle.
+private struct SceneDropDelegate: DropDelegate {
+    let targetIndex: Int
+    let model: AppModel
+    @Binding var draggedSceneID: UUID?
+
+    func dropEntered(info: DropInfo) {
+        guard let draggedSceneID, let dragged = model.scenes.scene(for: draggedSceneID)
+        else { return }
+        model.moveScene(dragged, toIndex: targetIndex)
+    }
+
+    func performDrop(info: DropInfo) -> Bool {
+        defer { draggedSceneID = nil }
+        return draggedSceneID != nil
     }
 }
 

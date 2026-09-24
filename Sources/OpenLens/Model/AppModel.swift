@@ -306,6 +306,12 @@ final class AppModel: ObservableObject {
         scenes.move(scene, by: offset)
     }
 
+    /// The drag-and-drop counterpart to `moveScene(_:by:)`: a drop can land
+    /// several tiles away rather than swapping with a neighbour.
+    func moveScene(_ scene: CameraScene, toIndex index: Int) {
+        scenes.move(scene, toIndex: index)
+    }
+
     func renameSelectedScene(_ name: String) {
         scenes.mutateSelected { $0.name = name }
         scenes.save()

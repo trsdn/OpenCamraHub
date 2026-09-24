@@ -224,4 +224,79 @@ final class SceneSelectionTests: XCTestCase {
 
         XCTAssertEqual(reloaded.scenes.map(\.name), ["B", "A"])
     }
+
+    // MARK: - Reordering to an arbitrary index (drag and drop)
+
+    /// A three-scene store, "A", "B" and "C", with A selected.
+    private func storeWithThreeScenes() -> SceneStore {
+        let store = SceneStore(defaults: defaults)
+        store.addScene(device: device)
+        store.addScene(device: device)
+        store.addScene(device: device)
+        store.rename(id: store.scenes[0].id, to: "A")
+        store.rename(id: store.scenes[1].id, to: "B")
+        store.rename(id: store.scenes[2].id, to: "C")
+        store.select(store.scenes[0])
+        return store
+    }
+
+    func testMovingToAnIndexPastItPushesTheOthersLeft() {
+        let store = storeWithThreeScenes()
+
+        store.move(store.scenes[0], toIndex: 2)
+
+        XCTAssertEqual(store.scenes.map(\.name), ["B", "C", "A"])
+    }
+
+    func testMovingToAnIndexBeforeItPushesTheOthersRight() {
+        let store = storeWithThreeScenes()
+
+        store.move(store.scenes[2], toIndex: 0)
+
+        XCTAssertEqual(store.scenes.map(\.name), ["C", "A", "B"])
+    }
+
+    func testMovingToItsOwnIndexChangesNothing() {
+        let store = storeWithThreeScenes()
+
+        store.move(store.scenes[1], toIndex: 1)
+
+        XCTAssertEqual(store.scenes.map(\.name), ["A", "B", "C"])
+    }
+
+    func testMovingToAnOutOfRangeIndexChangesNothing() {
+        let store = storeWithThreeScenes()
+
+        store.move(store.scenes[0], toIndex: 3)
+        store.move(store.scenes[0], toIndex: -1)
+
+        XCTAssertEqual(store.scenes.map(\.name), ["A", "B", "C"])
+    }
+
+    func testMovingAnUnknownSceneToAnIndexChangesNothing() {
+        let store = storeWithThreeScenes()
+        let ghost = CameraScene(name: "Ghost", deviceID: device.id, deviceName: device.name)
+
+        store.move(ghost, toIndex: 1)
+
+        XCTAssertEqual(store.scenes.map(\.name), ["A", "B", "C"])
+    }
+
+    func testMovingTheSelectedSceneToAnIndexLeavesItSelected() {
+        let store = storeWithThreeScenes()
+        store.select(store.scenes[0])
+
+        store.move(store.scenes[0], toIndex: 2)
+
+        XCTAssertEqual(store.selectedScene?.name, "A")
+    }
+
+    func testAMoveToAnIndexIsWrittenToDisk() {
+        let store = storeWithThreeScenes()
+        store.move(store.scenes[0], toIndex: 2)
+
+        let reloaded = SceneStore(defaults: defaults)
+
+        XCTAssertEqual(reloaded.scenes.map(\.name), ["B", "C", "A"])
+    }
 }

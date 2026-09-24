@@ -271,6 +271,25 @@ final class SceneStore: ObservableObject {
         save()
     }
 
+    /// Moves a scene so it occupies `destinationIndex` in the resulting array,
+    /// for a drag-and-drop that can land several tiles away rather than just
+    /// swapping with a neighbour like `move(_:by:)`. Removing the scene first
+    /// and then inserting it is what makes `destinationIndex` describe the
+    /// final position rather than an insertion point in the pre-move array —
+    /// the two only agree when moving by exactly one place.
+    ///
+    /// An unknown scene or an out-of-range index is silently ignored, which
+    /// only matters if a scene is deleted out from under an in-flight drag.
+    func move(_ scene: CameraScene, toIndex destinationIndex: Int) {
+        guard let index = scenes.firstIndex(where: { $0.id == scene.id }),
+            scenes.indices.contains(destinationIndex),
+            destinationIndex != index
+        else { return }
+        let moved = scenes.remove(at: index)
+        scenes.insert(moved, at: destinationIndex)
+        save()
+    }
+
     func select(_ scene: CameraScene) {
         selectedSceneID = scene.id
         defaults.set(scene.id.uuidString, forKey: selectionKey)
