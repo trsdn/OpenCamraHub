@@ -6,6 +6,22 @@ All notable changes to OpenLens are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.4.5] - 2026-09-24
+
+### Added
+
+- Scene tiles can be dragged to reorder them, live as the drag crosses into
+  another tile. The context menu also gained **Move Left**/**Move Right**,
+  reachable from the keyboard and VoiceOver, where a drag is not.
+- The idle placeholder card links to the project page,
+  trsdn.github.io/OpenCamraHub.
+
+### Changed
+
+- Pausing now sends the same card the camera extension falls back to when the
+  app isn't running at all, instead of a plain black frame. The camera
+  connector stays warm either way; only the picture changes.
+
 ## [0.4.4] - 2026-09-21
 
 ### Fixed
