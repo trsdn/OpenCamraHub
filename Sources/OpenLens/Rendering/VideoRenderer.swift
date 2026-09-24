@@ -198,14 +198,15 @@ final class VideoRenderer {
 
     /// A fully black frame in the virtual camera's output format.
     ///
-    /// This is what a pause sends. A frozen still of the room reads as live
-    /// video to whoever is watching, which is the one thing someone who steps
-    /// away does not want; black is unambiguous.
+    /// Used as a known-good source buffer in tests; the pause path sends
+    /// `IdleFrameRenderer`'s card instead of this, on purpose — a frozen still
+    /// of the room would read as live video to whoever is watching, which is
+    /// the one thing someone who steps away does not want, but a card that
+    /// says the app isn't running is unambiguous either way.
     ///
     /// Static and self-allocating on purpose: it is called from the main thread
     /// while the capture queue is inside `renderToOutputBuffer`, so it must not
-    /// touch the renderer's pool or texture cache. One buffer per pause is not
-    /// worth a shared pool anyway.
+    /// touch the renderer's pool or texture cache.
     static func makeBlackOutputBuffer() -> CVPixelBuffer? {
         var output: CVPixelBuffer?
         let attributes: [CFString: Any] = [

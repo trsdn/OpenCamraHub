@@ -15,8 +15,8 @@ struct FrameSettings {
     var sourceAspect: CGFloat = 16.0 / 9.0
     var wantsOutput = false
     var wantsPreview = true
-    /// Blanks the virtual camera. The preview keeps running, so you can see what
-    /// you are about to resume into.
+    /// Swaps the virtual camera to the idle card. The preview keeps running, so
+    /// you can see what you are about to resume into.
     var paused = false
 }
 
@@ -36,7 +36,7 @@ final class FramePipeline: NSObject, @unchecked Sendable {
     private var overlay: OverlayTexture?
     private var previewTarget: PreviewRenderTarget?
     private var lastFrameTime: CFTimeInterval = 0
-    /// The black frame the virtual camera receives while paused. Built once per
+    /// The idle card the virtual camera receives while paused. Built once per
     /// pause and re-sent by the pause timer.
     private var pausedOutput: CVPixelBuffer?
 
@@ -130,9 +130,9 @@ final class FramePipeline: NSObject, @unchecked Sendable {
         let preview = previewTarget
         os_unfair_lock_unlock(&lock)
 
-        // A pause blanks the outgoing picture, so there is nothing to render for
-        // the extension: the black frame is sent by `setPaused` and repeated by
-        // the pause timer.
+        // A pause swaps in the idle card, so there is nothing to render for the
+        // extension: the card is sent by `setPaused` and repeated by the pause
+        // timer.
         let rendersOutput = snapshot.wantsOutput && !snapshot.paused
 
         guard rendersOutput || snapshot.wantsPreview else { return }
@@ -174,28 +174,30 @@ final class FramePipeline: NSObject, @unchecked Sendable {
 
     // MARK: - Pause
 
-    /// Blanks or restores the outgoing picture. Resuming drops the black frame.
+    /// Swaps to the idle card or restores the outgoing picture. Resuming drops
+    /// the card.
     ///
     /// The frame is sent immediately rather than left to the pause timer: up to
     /// 200 ms of live camera after the button was pressed is exactly the thing
     /// the button exists to prevent.
     func setPaused(_ paused: Bool) {
-        let black = paused ? VideoRenderer.makeBlackOutputBuffer() : nil
+        let card = paused ? IdleFrameRenderer.makePlaceholder() : nil
 
         os_unfair_lock_lock(&lock)
         settings.paused = paused
-        pausedOutput = black
+        pausedOutput = card
         let wantsOutput = settings.wantsOutput
         os_unfair_lock_unlock(&lock)
 
-        if paused, wantsOutput, let black { send(black) }
+        if paused, wantsOutput, let card { send(card) }
     }
 
-    /// Re-sends the black frame.
+    /// Re-sends the idle card.
     ///
-    /// The extension falls back to its placeholder card after half a second
-    /// without a frame from the app, so a pause has to keep talking — otherwise
-    /// "paused" would look to the consumer exactly like "OpenLens quit".
+    /// The extension falls back to its own copy of the same card after half a
+    /// second without a frame from the app, so a pause has to keep talking —
+    /// otherwise the consumer would see up to 500 ms of frozen live video
+    /// before the extension's own watchdog took over.
     func resendPausedFrame() {
         os_unfair_lock_lock(&lock)
         let paused = settings.paused
