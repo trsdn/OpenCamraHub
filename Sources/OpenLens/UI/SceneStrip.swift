@@ -71,6 +71,13 @@ struct SceneStrip: View {
                     )
                     .help("Switch to \(scene.name)\(index < 9 ? " (⌃⌥\(index + 1))" : "").")
                     .contextMenu {
+                        // The keyboard/VoiceOver-reachable way to reorder scenes:
+                        // a context menu is already accessible, unlike a drag.
+                        Button("Move Left") { model.moveScene(scene, by: -1) }
+                            .disabled(index == 0)
+                        Button("Move Right") { model.moveScene(scene, by: 1) }
+                            .disabled(index == scenes.scenes.count - 1)
+                        Divider()
                         Button("Duplicate") {
                             model.select(scene)
                             model.duplicateSelectedScene()

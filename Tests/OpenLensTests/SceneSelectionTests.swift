@@ -169,4 +169,59 @@ final class SceneSelectionTests: XCTestCase {
 
         XCTAssertEqual(store.scenes.map(\.name), ["A", "B"])
     }
+
+    // MARK: - Reordering
+
+    func testMovingASceneRightSwapsItWithItsNeighbour() {
+        let store = storeWithTwoScenes()
+
+        store.move(store.scenes[0], by: 1)
+
+        XCTAssertEqual(store.scenes.map(\.name), ["B", "A"])
+    }
+
+    func testMovingTheFirstSceneLeftDoesNothing() {
+        let store = storeWithTwoScenes()
+
+        store.move(store.scenes[0], by: -1)
+
+        XCTAssertEqual(store.scenes.map(\.name), ["A", "B"])
+    }
+
+    func testMovingTheLastSceneRightDoesNothing() {
+        let store = storeWithTwoScenes()
+
+        store.move(store.scenes[1], by: 1)
+
+        XCTAssertEqual(store.scenes.map(\.name), ["A", "B"])
+    }
+
+    func testMovingAnUnknownSceneChangesNothing() {
+        let store = storeWithTwoScenes()
+        let ghost = CameraScene(name: "Ghost", deviceID: device.id, deviceName: device.name)
+
+        store.move(ghost, by: 1)
+
+        XCTAssertEqual(store.scenes.map(\.name), ["A", "B"])
+    }
+
+    /// Selection follows the scene by ID, so reordering the array must not
+    /// silently select whatever ends up at the old index instead.
+    func testMovingTheSelectedSceneLeavesItSelected() {
+        let store = storeWithTwoScenes()
+        store.select(store.scenes[0])
+
+        store.move(store.scenes[0], by: 1)
+
+        XCTAssertEqual(store.selectedScene?.name, "A")
+    }
+
+    func testAMoveIsWrittenToDisk() {
+        let store = storeWithTwoScenes()
+        store.move(store.scenes[0], by: 1)
+
+        let reloaded = SceneStore(defaults: defaults)
+
+        XCTAssertEqual(reloaded.scenes.map(\.name), ["B", "A"])
+    }
 }
