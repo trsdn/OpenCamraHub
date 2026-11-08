@@ -6,6 +6,10 @@ All notable changes to OpenLens are documented here. The format follows
 
 ## [Unreleased]
 
+### Added
+
+- A **Rotate 180°** toggle for cameras mounted upside down, saved per scene.
+
 ## [0.4.6] - 2026-09-24
 
 ### Fixed

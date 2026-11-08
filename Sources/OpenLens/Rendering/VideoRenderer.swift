@@ -10,6 +10,7 @@ struct RenderUniforms {
     var overlayRect: SIMD4<Float>
     var overlayOpacity: Float
     var mirror: Float
+    var rotate180: Float
     var lumaOffset: Float
     var lumaScale: Float
     var chromaOffset: Float
@@ -147,6 +148,7 @@ final class VideoRenderer {
         var pixelBuffer: CVPixelBuffer
         var crop: CGRect
         var mirror: Bool
+        var rotate180 = false
         var overlay: OverlayTexture?
         var adjustments: ImageAdjustments = .neutral
     }
@@ -330,6 +332,7 @@ final class VideoRenderer {
             } ?? SIMD4<Float>(0, 0, 0, 0),
             overlayOpacity: Float(frame.overlay?.opacity ?? 0),
             mirror: frame.mirror ? 1 : 0,
+            rotate180: frame.rotate180 ? 1 : 0,
             lumaOffset: isFullRange ? 0.0 : 16.0 / 255.0,
             lumaScale: isFullRange ? 1.0 : 255.0 / 219.0,
             chromaOffset: 128.0 / 255.0,

@@ -19,7 +19,7 @@ final class VideoRendererTests: XCTestCase {
     // MARK: - Fixtures
 
     /// A 1280x720 BGRA frame: red on the left half, blue on the right half.
-    private func makeSourceBuffer() throws -> CVPixelBuffer {
+    private func makeSourceBuffer(greenBottomHalf: Bool = false) throws -> CVPixelBuffer {
         let width = 1280
         let height = 720
         var buffer: CVPixelBuffer?
@@ -49,9 +49,10 @@ final class VideoRendererTests: XCTestCase {
             for x in 0..<width {
                 let pixel = row.advanced(by: x * 4)
                 let isLeft = x < width / 2
-                pixel[0] = isLeft ? 0 : 255  // B
-                pixel[1] = 0  // G
-                pixel[2] = isLeft ? 255 : 0  // R
+                let isGreen = greenBottomHalf && y >= height / 2
+                pixel[0] = !isGreen && !isLeft ? 255 : 0  // B
+                pixel[1] = isGreen ? 255 : 0  // G
+                pixel[2] = !isGreen && isLeft ? 255 : 0  // R
                 pixel[3] = 255
             }
         }
@@ -205,6 +206,37 @@ final class VideoRendererTests: XCTestCase {
         // Red lives on the left of the source, so mirroring puts it on the right.
         assertDominant(\.z, try sample(output, atX: 0.1, y: 0.5))
         assertDominant(\.x, try sample(output, atX: 0.9, y: 0.5))
+    }
+
+    func testRotate180TurnsTheImageUpsideDown() throws {
+        let output = try render(
+            VideoRenderer.Frame(
+                pixelBuffer: try makeSourceBuffer(greenBottomHalf: true),
+                crop: CGRect(x: 0, y: 0, width: 1, height: 1),
+                mirror: false,
+                rotate180: true,
+                overlay: nil
+            )
+        )
+        assertDominant(\.y, try sample(output, atX: 0.1, y: 0.25))
+        assertDominant(\.y, try sample(output, atX: 0.9, y: 0.25))
+        assertDominant(\.z, try sample(output, atX: 0.1, y: 0.75))
+        assertDominant(\.x, try sample(output, atX: 0.9, y: 0.75))
+    }
+
+    func testCropAppliesToTheRotatedImage() throws {
+        let output = try render(
+            VideoRenderer.Frame(
+                pixelBuffer: try makeSourceBuffer(),
+                crop: CGRect(x: 0, y: 0, width: 0.5, height: 1),
+                mirror: false,
+                rotate180: true,
+                overlay: nil
+            )
+        )
+        for x in [0.02, 0.5, 0.98] {
+            assertDominant(\.z, try sample(output, atX: x, y: 0.5))
+        }
     }
 
     func testOverlayIsCompositedOverTheLeftHalfOfTheOutput() throws {

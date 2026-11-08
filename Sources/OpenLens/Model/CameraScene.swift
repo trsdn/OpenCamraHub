@@ -72,6 +72,8 @@ struct CameraScene: Identifiable, Codable, Equatable {
     /// read as "does not drive the lights", not as "wants them all off".
     private var storedLighting: SceneLighting?
 
+    private var storedRotated180: Bool?
+
     var adjustments: ImageAdjustments {
         get { storedAdjustments ?? .neutral }
         set { storedAdjustments = newValue }
@@ -82,11 +84,17 @@ struct CameraScene: Identifiable, Codable, Equatable {
         set { storedLighting = newValue }
     }
 
+    var rotated180: Bool {
+        get { storedRotated180 ?? false }
+        set { storedRotated180 = newValue }
+    }
+
     private enum CodingKeys: String, CodingKey {
         case id, name, deviceID, deviceName, crop, mirrored, quality
         case overlayEnabled, overlayRect, overlayOpacity
         case storedAdjustments = "adjustments"
         case storedLighting = "lighting"
+        case storedRotated180 = "rotated180"
     }
 
     /// Spelled out because the private stored property above would otherwise
@@ -98,6 +106,7 @@ struct CameraScene: Identifiable, Codable, Equatable {
         deviceName: String,
         crop: CropState = .identity,
         mirrored: Bool = false,
+        rotated180: Bool = false,
         quality: CaptureQuality = .losslessZoom,
         overlayEnabled: Bool = false,
         overlayRect: CGRect = CGRect(x: 0.72, y: 0.72, width: 0.24, height: 0.24),
@@ -117,6 +126,7 @@ struct CameraScene: Identifiable, Codable, Equatable {
         self.overlayOpacity = overlayOpacity
         self.storedAdjustments = adjustments
         self.storedLighting = lighting
+        self.storedRotated180 = rotated180
     }
 }
 

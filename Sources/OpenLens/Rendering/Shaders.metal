@@ -9,6 +9,7 @@ struct RenderUniforms {
     float  overlayOpacity;
     // 1 when the source should be mirrored horizontally.
     float  mirror;
+    float  rotate180;
     // Luma offset/scale for video-range vs full-range YCbCr.
     float  lumaOffset;
     float  lumaScale;
@@ -58,6 +59,9 @@ vertex VertexOut openlens_vertex(uint vertexID [[vertex_id]],
     // The crop is applied here, in the vertex stage: zooming costs nothing at
     // runtime because it is only a remap of texture coordinates.
     out.sourceCoord = u.cropRect.xy + cropUV * u.cropRect.zw;
+    if (u.rotate180 > 0.5) {
+        out.sourceCoord = 1.0 - out.sourceCoord;
+    }
     return out;
 }
 

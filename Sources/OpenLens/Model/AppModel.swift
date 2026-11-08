@@ -254,6 +254,7 @@ final class AppModel: ObservableObject {
         pipeline?.update {
             $0.target = scene.crop
             $0.mirror = scene.mirrored
+            $0.rotate180 = scene.rotated180
             $0.overlayEnabled = scene.overlayEnabled
             $0.overlayRect = scene.overlayRect
             $0.overlayOpacity = scene.overlayOpacity
@@ -344,6 +345,12 @@ final class AppModel: ObservableObject {
         scenes.mutateSelected { $0.mirrored = mirrored }
         scenes.save()
         pipeline?.update { $0.mirror = mirrored }
+    }
+
+    func setRotated180(_ rotated: Bool) {
+        scenes.mutateSelected { $0.rotated180 = rotated }
+        scenes.save()
+        pipeline?.update { $0.rotate180 = rotated }
     }
 
     // MARK: - Zoom

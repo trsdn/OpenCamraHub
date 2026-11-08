@@ -31,6 +31,7 @@ final class CameraSceneCodingTests: XCTestCase {
         XCTAssertEqual(scene.name, "Desk")
         XCTAssertEqual(scene.crop.zoom, 1.4, accuracy: 1e-9)
         XCTAssertTrue(scene.mirrored)
+        XCTAssertFalse(scene.rotated180)
         // The missing key must read back as neutral rather than throwing.
         XCTAssertEqual(scene.adjustments, .neutral)
         // And the scene must read as "leaves the lights alone" rather than as
@@ -103,6 +104,7 @@ final class CameraSceneCodingTests: XCTestCase {
             deviceName: "Cam Link 4K",
             crop: CropState(center: CGPoint(x: 0.4, y: 0.6), zoom: 1.8),
             mirrored: true,
+            rotated180: true,
             quality: .matchOutput,
             overlayEnabled: true,
             overlayRect: CGRect(x: 0.1, y: 0.2, width: 0.3, height: 0.4),
@@ -135,7 +137,7 @@ final class CameraSceneCodingTests: XCTestCase {
             [
                 "id", "name", "deviceID", "deviceName", "crop", "mirrored",
                 "quality", "overlayEnabled", "overlayRect", "overlayOpacity",
-                "adjustments", "lighting",
+                "adjustments", "lighting", "rotated180",
             ],
             "A scene property was added or removed. Check that it is listed in "
                 + "CodingKeys and in the hand-written initialiser, and that "

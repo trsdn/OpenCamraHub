@@ -8,6 +8,7 @@ import QuartzCore
 struct FrameSettings {
     var target: CropState = .identity
     var mirror = false
+    var rotate180 = false
     var overlayEnabled = false
     var overlayRect = CGRect(x: 0.72, y: 0.72, width: 0.24, height: 0.24)
     var overlayOpacity: Double = 1
@@ -152,6 +153,7 @@ final class FramePipeline: NSObject, @unchecked Sendable {
                 outputAspect: CGFloat(OpenLensOutput.aspectRatio)
             ),
             mirror: snapshot.mirror,
+            rotate180: snapshot.rotate180,
             overlay: frameOverlay,
             adjustments: snapshot.adjustments
         )

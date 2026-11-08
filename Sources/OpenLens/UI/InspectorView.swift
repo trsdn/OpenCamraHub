@@ -73,6 +73,7 @@ struct InspectorView: View {
                 }
 
                 Toggle("Mirror", isOn: mirrorBinding)
+                Toggle("Rotate 180°", isOn: rotated180Binding)
 
                 HStack {
                     Button("Duplicate") { model.duplicateSelectedScene() }
@@ -472,6 +473,13 @@ struct InspectorView: View {
         Binding(
             get: { scenes.selectedScene?.mirrored ?? false },
             set: { model.setMirrored($0) }
+        )
+    }
+
+    private var rotated180Binding: Binding<Bool> {
+        Binding(
+            get: { scenes.selectedScene?.rotated180 ?? false },
+            set: { model.setRotated180($0) }
         )
     }
 

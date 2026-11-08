@@ -60,7 +60,7 @@ want the product rather than the source. See
   with real pixels — no upscaling. The inspector shows how far that reaches
   ("Stays sharp up to"), and the badge on the picture says `soft` once you pass
   it.
-- **Scenes are the presets.** Camera, zoom, mirror and overlay are saved into
+- **Scenes are the presets.** Camera, zoom, mirror, rotation and overlay are saved into
   the selected scene as you change them — there is no save button. Duplicate
   snapshots the current look, and **⌃⌥1…⌃⌥9** switch between scenes system-wide,
   so it works while you are in a call.
